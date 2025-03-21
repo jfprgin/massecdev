@@ -38,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -53,9 +52,10 @@ import com.example.loginhttp.ui.theme.LightGray
 import com.example.loginhttp.ui.theme.LoginHTTPTheme
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.White
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel? = null) {
+fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberMe by remember { mutableStateOf(false) }
@@ -65,7 +65,7 @@ fun LoginScreen(viewModel: LoginViewModel? = null) {
 
     // Collect login result state
     LaunchedEffect(Unit) {
-        viewModel?.getSavedCredentials { savedUsername, savedPassword ->
+        viewModel.getSavedCredentials { savedUsername, savedPassword ->
             username = savedUsername
             password = savedPassword
             rememberMe = true
@@ -185,7 +185,7 @@ fun LoginScreen(viewModel: LoginViewModel? = null) {
 
             // Login with Credentials Button
             Button(
-                onClick = { viewModel?.loginWithCredentials(username, password, rememberMe) },
+                onClick = { viewModel.loginWithCredentials(username, password, rememberMe) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = DeepNavy)
             ) {
@@ -205,7 +205,7 @@ fun LoginScreen(viewModel: LoginViewModel? = null) {
                 text = "Login with device",
                 modifier = Modifier
                     .padding(vertical = 8.dp)
-                    .clickable { viewModel?.loginWithDevice("MASSEC 1234", "00:06:11:22:22") }
+                    .clickable { viewModel.loginWithDevice("MASSEC 1234", "00:06:11:22:22") }
                     .align(Alignment.CenterHorizontally),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     color = DeepNavy,
@@ -213,8 +213,8 @@ fun LoginScreen(viewModel: LoginViewModel? = null) {
                 )
             )
         }
-        LaunchedEffect(viewModel?.loginState) {
-            viewModel?.loginState?.collect { result ->
+        LaunchedEffect(viewModel.loginState) {
+            viewModel.loginState?.collect { result ->
                 loginResult = result
             }
         }

@@ -12,15 +12,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.loginhttp.ui.theme.*
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
+import com.example.loginhttp.ui.components.MenuHeader
 
 @Composable
 fun MenuScreen(onMenuClick: (String) -> Unit) {
@@ -31,10 +30,10 @@ fun MenuScreen(onMenuClick: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AccentGray)
+            .background(LightGray)
     ) {
         // HEADER
-        MenuHeader(screenWidth = screenWidth)
+        MenuHeader(screenWidth = screenWidth, title = "Izbornik")
 
         // MENU ITEMS
         Column(
@@ -72,29 +71,6 @@ fun MenuScreen(onMenuClick: (String) -> Unit) {
 }
 
 @Composable
-fun MenuHeader(screenWidth: Dp) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(DeepNavy)
-            .padding(horizontal = 16.dp, vertical = (screenWidth * 0.05f)), // proportional padding
-    ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "Izbornik",
-                fontSize = (screenWidth.value * 0.07f).sp,
-                fontWeight = FontWeight.Bold,
-                color = White
-            )
-        }
-    }
-}
-
-@Composable
 fun MenuItemCard(
     title: String,
     icon: ImageVector,
@@ -109,7 +85,7 @@ fun MenuItemCard(
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(containerColor = LightGray)
+        colors = CardDefaults.cardColors(containerColor = White)
     ) {
         Column(
             modifier = Modifier

@@ -12,18 +12,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class LoginViewModel(application: Application): AndroidViewModel(application) {
+class LoginViewModel(application: Application? = null) : AndroidViewModel(application ?: Application()) {
 
     private val _loginState = MutableStateFlow("")
     val loginState = _loginState.asStateFlow()
 
-    private val loginRepository = LoginRepository(application)
+    private val loginRepository = application?.let { LoginRepository(it) }
 
     fun loginWithCredentials(username: String, password: String, remember: Boolean) {
         viewModelScope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
-                    loginRepository.loginWithCredentials(username, password, remember)
+                    loginRepository?.loginWithCredentials(username, password, remember)
                 }
                 Log.d("LoginViewModel", "Response: $response")
                 _loginState.value = handleResponse(response)
@@ -38,7 +38,7 @@ class LoginViewModel(application: Application): AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
-                    loginRepository.loginWithDevice(deviceId, deviceMac)
+                    loginRepository?.loginWithDevice(deviceId, deviceMac)
                 }
                 Log.d("LoginViewModel", "Response: $response")
                 _loginState.value = handleResponse(response)
@@ -52,7 +52,7 @@ class LoginViewModel(application: Application): AndroidViewModel(application) {
     fun getSavedCredentials(onResult: (String, String) -> Unit) {
         viewModelScope.launch {
             val credentials = withContext(Dispatchers.IO) {
-                loginRepository.getSavedCredentials()
+                loginRepository?.getSavedCredentials()
             }
             credentials?.let {
                 onResult(it.username, it.password)
