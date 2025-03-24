@@ -53,6 +53,7 @@ import com.example.loginhttp.ui.theme.LoginHTTPTheme
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.White
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
@@ -71,6 +72,8 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
             rememberMe = true
         }
     }
+
+    SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
     Box(
         modifier = Modifier

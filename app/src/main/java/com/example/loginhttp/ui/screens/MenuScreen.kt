@@ -20,12 +20,15 @@ import com.example.loginhttp.ui.theme.*
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import com.example.loginhttp.ui.components.MenuHeader
+import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @Composable
 fun MenuScreen(onMenuClick: (String) -> Unit) {
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+
+    SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
     Column(
         modifier = Modifier
