@@ -1,6 +1,10 @@
 package com.example.loginhttp.ui.screens
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.items
@@ -16,17 +20,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.IconButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.TableRows
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -47,6 +54,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -72,9 +80,16 @@ fun InventoryScreen(
     val viewModel: InventoryViewModel = viewModel()
     val items by viewModel.items.collectAsState()
     val isSheetVisible by viewModel.isSheetVisible.collectAsState()
+    val selectedItems by viewModel.selectedItems.collectAsState()
+    val isInSelectionMode = selectedItems.isNotEmpty()
+    var showDeleteConfirm by remember { mutableStateOf(false) }
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+
+    BackHandler(enabled = isInSelectionMode) {
+        viewModel.clearSelection()
+    }
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
@@ -83,7 +98,7 @@ fun InventoryScreen(
             FloatingActionButton(
                 onClick = { viewModel.toggleSheet(true)},
                 contentColor = DeepNavy,
-                backgroundColor = DeepNavy,
+                containerColor = DeepNavy,
                 shape = CircleShape
             ) {
                 Icon(
@@ -107,19 +122,116 @@ fun InventoryScreen(
             Column {
                 MenuHeader(screenWidth = screenWidth, title = "Inventura")
 
+                if (isInSelectionMode) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(DeepNavy)
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Odabrano: ${selectedItems.size}",
+                                color = White,
+                                fontSize = 18.sp
+                            )
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            IconButton(
+                                onClick = {
+                                    viewModel.syncSelectedItems()
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Sync,
+                                    contentDescription = "Sync",
+                                    tint = White
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    showDeleteConfirm = true
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = White
+                                )
+                            }
+                        }
+
+                        TextButton(
+                            onClick = {
+                                viewModel.clearSelection()
+                            }
+                        ) {
+                            Text(
+                                text = "Odustani",
+                                color = MassecRed
+                            )
+                        }
+                    }
+                }
+
                 LazyColumn(
                     contentPadding = PaddingValues(16.dp),
                 ) {
                     items(items) { item ->
                         InventoryItemCard(
                             item = item,
+                            isSelected = selectedItems.contains(item.id),
+                            selectionMode = isInSelectionMode,
+                            onClick = {
+                                if (isInSelectionMode) viewModel.toggleSelection(item.id)
+                            },
+                            onLongPress = {
+                                viewModel.toggleSelection(item.id)
+                            },
                             onDelete = { viewModel.deleteItem(it) },
                             onSync = { viewModel.syncItem(it) },
-                            onShowTable = { /* handle */ },
-                            timeAgo = viewModel.timeAgo(item.timestamp)
+                            onShowTable = { /* TODO */ },
+                            createdAt = viewModel.formatTimestamp(item.timestamp)
                         )
                     }
                 }
+            }
+
+            if(showDeleteConfirm) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteConfirm = false },
+                    title = {
+                        Text("Potvrda brisanja")
+                    },
+                    text = {
+                        Text("Jeste li sigurni da želite izbrisati odabrane stavke?")
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.deleteSelectedItems()
+                                showDeleteConfirm = false
+                            }
+                        ) {
+                            Text("Da", color = MassecRed)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showDeleteConfirm = false
+                            }
+                        ) {
+                            Text("Ne", color = MassecRed)
+                        }
+                    }
+                )
             }
 
             if (isSheetVisible) {
@@ -165,7 +277,12 @@ fun AddInventoryBottomSheet(
             if (!addingByName && !addingByGroup) {
                 Button(
                     onClick = { addingByGroup = true },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = DeepNavy),
+                    colors = ButtonColors(
+                        containerColor = DeepNavy,
+                        contentColor = White,
+                        disabledContainerColor = DarkGray,
+                        disabledContentColor = White
+                    ),
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
@@ -180,7 +297,12 @@ fun AddInventoryBottomSheet(
 
                 Button(
                     onClick = { addingByName = true },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = DeepNavy),
+                    colors = ButtonColors(
+                        containerColor = DeepNavy,
+                        contentColor = White,
+                        disabledContainerColor = DarkGray,
+                        disabledContentColor = White
+                    ),
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
@@ -213,9 +335,11 @@ fun AddInventoryBottomSheet(
                         onDismiss()
                     },
                     enabled = input.isNotBlank(),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = DeepNavy,
-                        disabledBackgroundColor = DarkGray
+                    colors = ButtonColors(
+                        containerColor = DeepNavy,
+                        contentColor = White,
+                        disabledContainerColor = DarkGray,
+                        disabledContentColor = White
                     ),
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     shape = RoundedCornerShape(16.dp),
@@ -240,7 +364,12 @@ fun AddInventoryBottomSheet(
                                 addingByGroup = false
                                 onDismiss()
                             },
-                            colors = ButtonDefaults.buttonColors(backgroundColor = DeepNavy),
+                            colors = ButtonColors(
+                                containerColor = DeepNavy,
+                                contentColor = White,
+                                disabledContainerColor = DarkGray,
+                                disabledContentColor = White
+                            ),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
@@ -260,13 +389,18 @@ fun AddInventoryBottomSheet(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun InventoryItemCard(
     item: InventoryItem,
+    isSelected: Boolean,
+    selectionMode: Boolean,
+    onClick: () -> Unit,
+    onLongPress: () -> Unit,
     onDelete: (Int) -> Unit,
     onSync: (Int) -> Unit,
     onShowTable: (Int) -> Unit,
-    timeAgo: String
+    createdAt: String
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
@@ -274,13 +408,19 @@ fun InventoryItemCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongPress
+            )
             .border(
                 width = 2.dp,
                 color = if (item.isSynced) Green else MassecRed,
                 shape = RoundedCornerShape(12.dp)
                 ),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = White),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) LightGray else White
+        ),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
@@ -290,12 +430,31 @@ fun InventoryItemCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(12.dp)
+                    .size(28.dp)
                     .background(
-                        if (item.isSynced) Green else MassecRed,
+                        if (isSelected) DeepNavy else Color.Transparent,
                         shape = CircleShape
                     )
-            )
+                    .border(
+                        width = 2.dp,
+                        color = if (selectionMode) {
+                            if (isSelected) DeepNavy else LightGray
+                        } else {
+                            Color.Transparent
+                        },
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                if (isSelected) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "Selected",
+                        tint = LightGray,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.width(12.dp))
 
@@ -303,7 +462,7 @@ fun InventoryItemCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(item.name, fontSize = 18.sp, color = DeepNavy)
-                Text(timeAgo, fontSize = 14.sp, color = DarkGray)
+                Text(createdAt, fontSize = 14.sp, color = DarkGray)
             }
 
             Box {

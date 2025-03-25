@@ -4,5 +4,5 @@ data class InventoryItem(
     val id: Int,
     val name: String,
     val timestamp: Long,
-    val isSynced: Boolean
+    val isSynced: Boolean,
 )
