@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -42,15 +44,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,11 +74,11 @@ import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.theme.DarkGray
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
-import com.example.loginhttp.ui.theme.Green
 import com.example.loginhttp.ui.theme.LightGray
 import com.example.loginhttp.ui.theme.MassecRed
 import com.example.loginhttp.ui.theme.White
 import com.example.loginhttp.ui.utils.SetStatusBarColor
+import kotlinx.coroutines.launch
 
 @Composable
 fun InventoryScreen(
@@ -79,13 +87,30 @@ fun InventoryScreen(
 ) {
     val viewModel: InventoryViewModel = viewModel()
     val items by viewModel.items.collectAsState()
+
     val isSheetVisible by viewModel.isSheetVisible.collectAsState()
     val selectedItems by viewModel.selectedItems.collectAsState()
     val isInSelectionMode = selectedItems.isNotEmpty()
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
+    val syncedItems = items.filter { it.isSynced }
+    val unsyncedItems = items.filter { !it.isSynced }
+
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
+    val scope = rememberCoroutineScope()
+
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+
+    // Clear selection when switching tabs
+    val previousPage = remember { mutableStateOf(pagerState.currentPage) }
+
+    LaunchedEffect(pagerState.currentPage) {
+        if (pagerState.currentPage != previousPage.value) {
+            viewModel.clearSelection()
+            previousPage.value = pagerState.currentPage
+        }
+    }
 
     BackHandler(enabled = isInSelectionMode) {
         viewModel.clearSelection()
@@ -123,82 +148,81 @@ fun InventoryScreen(
                 MenuHeader(screenWidth = screenWidth, title = "Inventura")
 
                 if (isInSelectionMode) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(DeepNavy)
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Odabrano: ${selectedItems.size}",
-                                color = White,
-                                fontSize = 18.sp
-                            )
-
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            IconButton(
-                                onClick = {
-                                    viewModel.syncSelectedItems()
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Sync,
-                                    contentDescription = "Sync",
-                                    tint = White
-                                )
-                            }
-
-                            IconButton(
-                                onClick = {
-                                    showDeleteConfirm = true
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete",
-                                    tint = White
-                                )
-                            }
+                    SelectionToolbar(
+                        selectedCount = selectedItems.size,
+                        showSync = pagerState.currentPage == 0,
+                        onSync = { viewModel.syncSelectedItems() },
+                        onDelete = { showDeleteConfirm = true },
+                        onSelectAll = {
+                            val relevantItems = if (pagerState.currentPage == 0) unsyncedItems else syncedItems
+                            viewModel.selectAll(relevantItems.map { it.id })
                         }
-
-                        TextButton(
-                            onClick = {
-                                viewModel.clearSelection()
-                            }
-                        ) {
-                            Text(
-                                text = "Odustani",
-                                color = MassecRed
-                            )
-                        }
-                    }
+                    )
                 }
 
-                LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
-                ) {
-                    items(items) { item ->
-                        InventoryItemCard(
-                            item = item,
-                            isSelected = selectedItems.contains(item.id),
-                            selectionMode = isInSelectionMode,
-                            onClick = {
-                                if (isInSelectionMode) viewModel.toggleSelection(item.id)
-                            },
-                            onLongPress = {
-                                viewModel.toggleSelection(item.id)
-                            },
-                            onDelete = { viewModel.deleteItem(it) },
-                            onSync = { viewModel.syncItem(it) },
-                            onShowTable = { /* TODO */ },
-                            createdAt = viewModel.formatTimestamp(item.timestamp)
+                // Tab selection
+                TabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    containerColor = White,
+                    contentColor = DarkText,
+                    indicator = { tabPositions ->
+                        SecondaryIndicator(
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                            color = MassecRed
                         )
+                    },
+                ) {
+                    Tab(
+                        selected = pagerState.currentPage == 0,
+                        onClick = {
+                            scope.launch {
+                                pagerState.scrollToPage(0)
+                            }
+                        },
+                        text = { Text("Nesinkronizirano") }
+                    )
+
+                    Tab(
+                        selected = pagerState.currentPage == 1,
+                        onClick = {
+                            scope.launch {
+                                pagerState.scrollToPage(1)
+                            }
+                        },
+                        text = { Text("Sinkronizirano") }
+                    )
+                }
+
+                // Paged content
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    val list = if (page == 0) unsyncedItems else syncedItems
+                    LazyColumn(
+                        contentPadding = PaddingValues(16.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(list) { item ->
+                            InventoryItemCard(
+                                item = item,
+                                isSelected = selectedItems.contains(item.id),
+                                selectionMode = isInSelectionMode,
+                                onClick = {
+                                    if (isInSelectionMode) viewModel.toggleSelection(item.id)
+                                },
+                                onLongPress = {
+                                    viewModel.toggleSelection(item.id)
+                                },
+                                onDelete = { viewModel.deleteItem(it) },
+                                onSync = {
+                                    if (!item.isSynced) viewModel.syncItem(item.id)
+                                },
+                                onShowTable = { /* TODO */ },
+                                createdAt = viewModel.formatTimestamp(item.timestamp),
+                                showSync = !item.isSynced
+                            )
+                        }
                     }
                 }
             }
@@ -251,6 +275,71 @@ fun InventoryScreen(
     }
 }
 
+@Composable
+fun SelectionToolbar(
+    selectedCount: Int,
+    showSync: Boolean,
+    onSync: () -> Unit,
+    onDelete: () -> Unit,
+    onSelectAll: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(DeepNavy)
+            .padding(horizontal = 16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .padding(top = 0.dp, bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier.padding(top = 0.dp, bottom = 0.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Odabrano: $selectedCount",
+                    color = White,
+                    fontSize = 18.sp
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                TextButton(
+                    onClick = onSelectAll,
+                    colors = ButtonColors(
+                        containerColor = White,
+                        contentColor = DarkText,
+                        disabledContainerColor = DarkGray,
+                        disabledContentColor = White
+                    ),
+                ) {
+                    Text("Odaberi sve", color = DarkText)
+                }
+            }
+
+            Row(
+                modifier = Modifier.padding(top = 0.dp, bottom = 0.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (showSync) {
+                    IconButton(onClick = onSync) {
+                        Icon(Icons.Default.Sync, contentDescription = "Sync", tint = White)
+                    }
+                }
+
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = White)
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddInventoryBottomSheet(
@@ -283,7 +372,9 @@ fun AddInventoryBottomSheet(
                         disabledContainerColor = DarkGray,
                         disabledContentColor = White
                     ),
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(
@@ -303,7 +394,9 @@ fun AddInventoryBottomSheet(
                         disabledContainerColor = DarkGray,
                         disabledContentColor = White
                     ),
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(
@@ -341,7 +434,9 @@ fun AddInventoryBottomSheet(
                         disabledContainerColor = DarkGray,
                         disabledContentColor = White
                     ),
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
                     shape = RoundedCornerShape(16.dp),
                 ) {
                     Text(
@@ -400,23 +495,19 @@ fun InventoryItemCard(
     onDelete: (Int) -> Unit,
     onSync: (Int) -> Unit,
     onShowTable: (Int) -> Unit,
-    createdAt: String
+    createdAt: String,
+    showSync: Boolean
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 6.dp)
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongPress
-            )
-            .border(
-                width = 2.dp,
-                color = if (item.isSynced) Green else MassecRed,
-                shape = RoundedCornerShape(12.dp)
-                ),
+            ),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) LightGray else White
@@ -478,23 +569,27 @@ fun InventoryItemCard(
                     expanded = menuExpanded,
                     onDismissRequest = { menuExpanded = false }
                 ) {
-                    DropdownMenuItem(
-                        text = { Text(
-                            "Sinhroniziraj",
-                            color = DarkText
-                        ) },
-                        onClick = {
-                            onSync(item.id)
-                            menuExpanded = false
-                        },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Sync,
-                                contentDescription = "Sync",
-                                tint = DeepNavy
-                            )
-                        }
-                    )
+                    if (showSync) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    "Sinkroniziraj",
+                                    color = DarkText
+                                )
+                            },
+                            onClick = {
+                                onSync(item.id)
+                                menuExpanded = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Sync,
+                                    contentDescription = "Sync",
+                                    tint = DeepNavy
+                                )
+                            }
+                        )
+                    }
                     DropdownMenuItem(
                         text = { Text(
                             "Izbriši",

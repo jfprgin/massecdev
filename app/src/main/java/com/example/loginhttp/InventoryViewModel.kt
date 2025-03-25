@@ -76,6 +76,10 @@ class InventoryViewModel: ViewModel() {
         clearSelection()
     }
 
+    fun selectAll(ids: List<Int>) {
+        _selectedItems.value = ids.toSet()
+    }
+
     fun clearSelection() {
         _selectedItems.value = emptySet()
     }

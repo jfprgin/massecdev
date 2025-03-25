@@ -101,4 +101,7 @@ dependencies {
     implementation(libs.accompanist.swiperefresh)
     implementation (libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
+
+    implementation (libs.androidx.paging.runtime)
+    implementation (libs.androidx.paging.compose)
 }
