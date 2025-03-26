@@ -151,7 +151,7 @@ fun InventoryScreen(
                 MenuHeader(screenWidth = screenWidth, title = "Inventura")
 
                 if (isInSelectionMode) {
-                    SelectionToolbar(
+                    InventorySelectionToolbar(
                         selectedCount = selectedItems.size,
                         showSync = pagerState.currentPage == 0,
                         onSync = { viewModel.syncSelectedItems() },
@@ -279,7 +279,7 @@ fun InventoryScreen(
 }
 
 @Composable
-fun SelectionToolbar(
+fun InventorySelectionToolbar(
     selectedCount: Int,
     showSync: Boolean,
     onSync: () -> Unit,
@@ -335,9 +335,13 @@ fun SelectionToolbar(
                     }
                 }
 
-                IconButton(onClick = onDelete) {
+                // On pressing delete, show confirmation dialog
+                IconButton(
+                    onClick = onDelete
+                ) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete", tint = White)
                 }
+
             }
         }
     }
@@ -523,7 +527,11 @@ fun InventoryItemCard(
                 .padding(16.dp),
         ) {
             Icon(
-                if (item.isSynced) Icons.Filled.Lock else Icons.Filled.LockOpen,
+                if (item.isSynced) {
+                    Icons.Filled.Lock
+                } else {
+                    Icons.Filled.LockOpen
+                },
                 contentDescription = if (item.isSynced) "Synced" else "Unsynced",
                 tint = if (item.isSynced) DeepNavy else MassecRed,
                 modifier = Modifier.size(28.dp)
