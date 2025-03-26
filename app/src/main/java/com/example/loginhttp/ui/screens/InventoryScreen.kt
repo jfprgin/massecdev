@@ -32,6 +32,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.TableRows
@@ -86,10 +88,11 @@ fun InventoryScreen(
     onNavigate: (String) -> Unit,
 ) {
     val viewModel: InventoryViewModel = viewModel()
-    val items by viewModel.items.collectAsState()
 
+    val items by viewModel.items.collectAsState()
     val isSheetVisible by viewModel.isSheetVisible.collectAsState()
     val selectedItems by viewModel.selectedItems.collectAsState()
+
     val isInSelectionMode = selectedItems.isNotEmpty()
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
@@ -179,7 +182,7 @@ fun InventoryScreen(
                                 pagerState.scrollToPage(0)
                             }
                         },
-                        text = { Text("Nesinkronizirano") }
+                        text = { Text("Nesinkronizirano (${unsyncedItems.size})") }
                     )
 
                     Tab(
@@ -189,7 +192,7 @@ fun InventoryScreen(
                                 pagerState.scrollToPage(1)
                             }
                         },
-                        text = { Text("Sinkronizirano") }
+                        text = { Text("Sinkronizirano (${syncedItems.size})") }
                     )
                 }
 
@@ -519,33 +522,12 @@ fun InventoryItemCard(
             modifier = Modifier
                 .padding(16.dp),
         ) {
-            Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .background(
-                        if (isSelected) DeepNavy else Color.Transparent,
-                        shape = CircleShape
-                    )
-                    .border(
-                        width = 2.dp,
-                        color = if (selectionMode) {
-                            if (isSelected) DeepNavy else LightGray
-                        } else {
-                            Color.Transparent
-                        },
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                if (isSelected) {
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = "Selected",
-                        tint = LightGray,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-            }
+            Icon(
+                if (item.isSynced) Icons.Filled.Lock else Icons.Filled.LockOpen,
+                contentDescription = if (item.isSynced) "Synced" else "Unsynced",
+                tint = if (item.isSynced) DeepNavy else MassecRed,
+                modifier = Modifier.size(28.dp)
+            )
 
             Spacer(modifier = Modifier.width(12.dp))
 
@@ -557,15 +539,42 @@ fun InventoryItemCard(
             }
 
             Box {
-                IconButton(onClick = { menuExpanded = true}) {
-                    Icon(
-                        Icons.Default.MoreVert,
-                        contentDescription = "Menu",
-                        tint = DeepNavy
-                    )
+                if (selectionMode) {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .background(
+                                if (isSelected) DeepNavy else Color.Transparent,
+                                shape = CircleShape
+                            )
+                            .border(
+                                width = 2.dp,
+                                color = if (isSelected) DeepNavy else LightGray,
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isSelected) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = "Selected",
+                                tint = LightGray,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+                }else {
+                    IconButton(onClick = { menuExpanded = true}) {
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = "Menu",
+                            tint = DeepNavy
+                        )
+                    }
                 }
 
                 DropdownMenu(
+                    containerColor = White,
                     expanded = menuExpanded,
                     onDismissRequest = { menuExpanded = false }
                 ) {
