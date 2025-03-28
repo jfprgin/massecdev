@@ -24,39 +24,47 @@ class InventoryViewModel: ViewModel() {
     private val _pendingDeleteIds = MutableStateFlow<List<Int>>(emptyList())
     val pendingDeleteIds = _pendingDeleteIds.asStateFlow()
 
+    // Add a new item to the inventory
     fun addItem(name: String) {
         val newItem = InventoryItem(
             id = idCounter++,
             name = name,
-            timestamp = System.currentTimeMillis(),
-            isSynced = false
+            timestamp = getCurrentTimestamp(),
+            synced = false
         )
         _items.value += newItem
-    }
-
-    fun  syncItem(id: Int) {
-        _items.value = _items.value.map {
-            if (it.id == id) {
-                it.copy(isSynced = true)
-            } else {
-                it
-            }
-        }
     }
 
     fun toggleSheet(show: Boolean) {
         _isSheetVisible.value = show
     }
 
+    // Timestamp helpers
+    fun getCurrentTimestamp(): String {
+        val currentTime = System.currentTimeMillis()
+        val dateFormat = SimpleDateFormat("dd.MM.yyyy. HH:mm", Locale.getDefault())
+        return dateFormat.format(Date(currentTime))
+    }
+
     fun formatTimestamp(timestamp: Long): String {
         val date = Date(timestamp)
-        val format = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+        val format = SimpleDateFormat("dd.MM.yyyy. HH:mm", Locale.getDefault())
         return format.format(date)
     }
 
     /* =============================================================================================
      * Selection logic
      * ========================================================================================== */
+
+    fun  syncItem(id: Int) {
+        _items.value = _items.value.map {
+            if (it.id == id) {
+                it.copy(synced = true)
+            } else {
+                it
+            }
+        }
+    }
 
     fun toggleSelection(itemId: Int) {
         _selectedItems.value = if (_selectedItems.value.contains(itemId)) {
@@ -68,13 +76,8 @@ class InventoryViewModel: ViewModel() {
 
     fun syncSelectedItems() {
         _items.value = _items.value.map {
-            if (_selectedItems.value.contains(it.id)) it.copy(isSynced = true) else it
+            if (_selectedItems.value.contains(it.id)) it.copy(synced = true) else it
         }
-        clearSelection()
-    }
-
-    fun deleteSelectedItems() {
-        _items.value = _items.value.filter { !selectedItems.value.contains(it.id) }
         clearSelection()
     }
 

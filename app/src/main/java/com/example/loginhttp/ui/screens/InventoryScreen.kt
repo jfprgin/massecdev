@@ -81,8 +81,8 @@ fun InventoryScreen(
 
     val pendingDeleteIds by viewModel.pendingDeleteIds.collectAsState()
 
-    val syncedItems = items.filter { it.isSynced }
-    val unsyncedItems = items.filter { !it.isSynced }
+    val syncedItems = items.filter { it.synced }
+    val unsyncedItems = items.filter { !it.synced }
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
     val scope = rememberCoroutineScope()
@@ -209,11 +209,10 @@ fun InventoryScreen(
                                     viewModel.confirmDelete(listOf(item.id))
                                 },
                                 onSync = {
-                                    if (!item.isSynced) viewModel.syncItem(item.id)
+                                    if (!item.synced) viewModel.syncItem(item.id)
                                 },
                                 onShowTable = { /* TODO */ },
-                                createdAt = viewModel.formatTimestamp(item.timestamp),
-                                showSync = !item.isSynced
+                                showSync = !item.synced
                             )
                         }
                     }
@@ -404,7 +403,6 @@ fun InventoryItemCard(
     onDelete: () -> Unit,
     onSync: (Int) -> Unit,
     onShowTable: (Int) -> Unit,
-    createdAt: String,
     showSync: Boolean
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -429,13 +427,13 @@ fun InventoryItemCard(
                 .padding(16.dp),
         ) {
             Icon(
-                if (item.isSynced) {
+                if (item.synced) {
                     Icons.Filled.Lock
                 } else {
                     Icons.Filled.LockOpen
                 },
-                contentDescription = if (item.isSynced) "Synced" else "Unsynced",
-                tint = if (item.isSynced) DeepNavy else MassecRed,
+                contentDescription = if (item.synced) "Synced" else "Unsynced",
+                tint = if (item.synced) DeepNavy else MassecRed,
                 modifier = Modifier.size(28.dp)
             )
 
@@ -445,7 +443,7 @@ fun InventoryItemCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(item.name, fontSize = 18.sp, color = DeepNavy)
-                Text(createdAt, fontSize = 14.sp, color = DarkGray)
+                Text(item.timestamp, fontSize = 14.sp, color = DarkGray)
             }
 
             Box {

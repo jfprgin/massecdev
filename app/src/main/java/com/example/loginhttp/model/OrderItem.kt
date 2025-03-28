@@ -6,5 +6,6 @@ data class OrderItem(
     val fromLocation: String,
     val toLocation: String,
     val status: String,
+    val orderType: String,
     val synced: Boolean,
 )
