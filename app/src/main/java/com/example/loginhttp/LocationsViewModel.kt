@@ -19,8 +19,13 @@ class LocationsViewModel: ViewModel() {
             LocationItem(32, "Buldozer/Front axel")
         )
     )
-
     val locations = _locations.asStateFlow()
+
+    private val _selectedItems = MutableStateFlow<Set<Int>>(emptySet())
+    val selectedItems = _selectedItems.asStateFlow()
+
+    private val _pendingDeleteIds = MutableStateFlow<List<Int>>(emptyList())
+    val pendingDeleteIds = _pendingDeleteIds.asStateFlow()
 
     var searchQuery by mutableStateOf("")
         private set
@@ -31,13 +36,13 @@ class LocationsViewModel: ViewModel() {
         }
     }
 
-    private val _selectedItems = MutableStateFlow<Set<Int>>(emptySet())
-    val selectedItems = _selectedItems.asStateFlow()
-
     fun onSearchChange(query: String) {
         searchQuery = query
     }
 
+    /* =============================================================================================
+     * Selection logic
+     * ========================================================================================== */
     fun toggleSelection(id: Int) {
         _selectedItems.value = _selectedItems.value.toMutableSet().also {
             if (it.contains(id)) it.remove(id) else it.add(id)
@@ -52,18 +57,27 @@ class LocationsViewModel: ViewModel() {
         _selectedItems.value = ids.toSet()
     }
 
-    fun deleteItem(id: Int) {
-        _locations.value = _locations.value.filterNot { it.id == id }
-        _selectedItems.value -= id
+    /* =============================================================================================
+     * Delete confirmation logic
+     * ========================================================================================== */
+
+    fun confirmDelete(ids: List<Int>) {
+        _pendingDeleteIds.value = ids
     }
 
-    fun deleteSelected() {
-        _locations.value = _locations.value.filterNot {
-            _selectedItems.value.contains(it.id)
-        }
-        clearSelection()
+    fun clearPendingDelete() {
+        _pendingDeleteIds.value = emptyList()
     }
 
+    fun executeDelete() {
+        _locations.value = _locations.value.filterNot { pendingDeleteIds.value.contains(it.id) }
+        _selectedItems.value = _selectedItems.value - pendingDeleteIds.value.toSet()
+        clearPendingDelete()
+    }
+
+    /* =============================================================================================
+     * Sync logic
+     * ========================================================================================== */
     fun downloadLocations() {
         // Download locations from the server
     }

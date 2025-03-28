@@ -5,12 +5,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,28 +18,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.IconButton
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,6 +56,8 @@ import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
 import com.example.loginhttp.ui.theme.MassecRed
 import com.example.loginhttp.ui.theme.White
+import com.example.loginhttp.ui.components.ConfirmDeleteDialog
+import com.example.loginhttp.ui.components.SelectionToolbar
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @Composable
@@ -72,10 +68,11 @@ fun LocationsScreen(
     val viewModel: LocationsViewModel = viewModel()
 
     val locations by viewModel.locations.collectAsState()
-    val selectedItems by viewModel.selectedItems.collectAsState()
 
+    val selectedItems by viewModel.selectedItems.collectAsState()
     val isInSelectionMode= selectedItems.isNotEmpty()
-    val showDeleteConfirm = remember { mutableStateOf<LocationItem?>(null) }
+
+    val pendingDeleteIds by viewModel.pendingDeleteIds.collectAsState()
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -116,10 +113,12 @@ fun LocationsScreen(
 
             // Selection toolbar
             if (isInSelectionMode) {
-                LocationsSelectionToolbar(
+                SelectionToolbar(
                     selectedCount = selectedItems.size,
-                    onDelete = { viewModel.deleteSelected() },
-                    onSelectAll = { viewModel.selectAll(locations.map { it.id })}
+                    onSelectAll = { viewModel.selectAll(locations.map { it.id })},
+                    actions = listOf(
+                        Icons.Default.Delete to { viewModel.confirmDelete(selectedItems.toList()) }
+                    )
                 )
             }
 
@@ -131,7 +130,7 @@ fun LocationsScreen(
                     Text(
                         "Pretraži lokacije (${locations.size})",
                         color = DarkGray,
-                        fontSize = 16.sp
+                        fontSize = 18.sp
                         )
                     },
                 modifier = Modifier
@@ -145,10 +144,11 @@ fun LocationsScreen(
                     )
                 },
                 shape = RoundedCornerShape(12.dp),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = MassecRed,
-                    unfocusedBorderColor = DeepNavy,
-                    backgroundColor = White
+                colors = TextFieldDefaults.colors(
+                    unfocusedIndicatorColor = DeepNavy,
+                    focusedIndicatorColor = MassecRed,
+                    focusedContainerColor = White,
+                    unfocusedContainerColor = White
                 ),
                 singleLine = true,
                 textStyle = TextStyle(fontSize = 16.sp)
@@ -170,92 +170,24 @@ fun LocationsScreen(
                         onLongPress = {
                             viewModel.toggleSelection(location.id)
                         },
-                        onDelete = { showDeleteConfirm.value = location}
+                        onDelete = {
+                            viewModel.confirmDelete(listOf(location.id))
+                        }
                     )
                 }
             }
 
             // Delete confirmation dialog
-            showDeleteConfirm.value?.let { item ->
-                AlertDialog(
-                    title = {
-                        Text("Potvrda brisanja")
+            if (pendingDeleteIds.isNotEmpty()) {
+                ConfirmDeleteDialog(
+                    itemCount = pendingDeleteIds.size,
+                    onConfirm = {
+                        viewModel.executeDelete()
                     },
-                    text = {
-                        Text("Jeste li sigurni da želite izbrisati odabrane stavke?")
-                    },
-                    onDismissRequest = { showDeleteConfirm.value = null },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            viewModel.deleteItem(item.id)
-                            showDeleteConfirm.value = null
-                        }) { Text("Da", color = MassecRed) }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showDeleteConfirm.value = null }) {
-                            Text("Ne", color = MassecRed)
-                        }
-                    },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun LocationsSelectionToolbar(
-    selectedCount: Int,
-    onDelete: () -> Unit,
-    onSelectAll: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(DeepNavy)
-            .padding(horizontal = 16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .padding(top = 0.dp, bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.padding(top = 0.dp, bottom = 0.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Odabrano: $selectedCount",
-                    color = White,
-                    fontSize = 18.sp
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                TextButton(
-                    onClick = onSelectAll,
-                    colors = ButtonColors(
-                        containerColor = White,
-                        contentColor = DarkText,
-                        disabledContainerColor = DarkGray,
-                        disabledContentColor = White
-                    ),
-                ) {
-                    Text("Odaberi sve", color = DarkText)
-                }
-            }
-
-            Row(
-                modifier = Modifier.padding(top = 0.dp, bottom = 0.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onDelete) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = White)
+                    onDismiss = {
+                        viewModel.clearPendingDelete()
                     }
-                }
+                )
             }
         }
     }
@@ -288,7 +220,7 @@ fun LocationItemCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal =16.dp, vertical = 16.dp),
+                .padding(horizontal =16.dp, vertical = 24.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
@@ -297,7 +229,7 @@ fun LocationItemCard(
             ) {
                 Text(
                     text = item.id.toString(),
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = DeepNavy,
                     modifier = Modifier.width(50.dp)
@@ -305,7 +237,7 @@ fun LocationItemCard(
 
                 Text(
                     text = item.name,
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     color = DarkText,
                     modifier = Modifier.weight(1f)
                 )

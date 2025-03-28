@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.items
@@ -22,12 +21,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
@@ -37,27 +31,15 @@ import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.TableRows
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults.SecondaryIndicator
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -79,6 +61,8 @@ import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
 import com.example.loginhttp.ui.theme.MassecRed
 import com.example.loginhttp.ui.theme.White
+import com.example.loginhttp.ui.components.ConfirmDeleteDialog
+import com.example.loginhttp.ui.components.SelectionToolbar
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
@@ -91,10 +75,11 @@ fun InventoryScreen(
 
     val items by viewModel.items.collectAsState()
     val isSheetVisible by viewModel.isSheetVisible.collectAsState()
-    val selectedItems by viewModel.selectedItems.collectAsState()
 
+    val selectedItems by viewModel.selectedItems.collectAsState()
     val isInSelectionMode = selectedItems.isNotEmpty()
-    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    val pendingDeleteIds by viewModel.pendingDeleteIds.collectAsState()
 
     val syncedItems = items.filter { it.isSynced }
     val unsyncedItems = items.filter { !it.isSynced }
@@ -106,12 +91,12 @@ fun InventoryScreen(
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
     // Clear selection when switching tabs
-    val previousPage = remember { mutableStateOf(pagerState.currentPage) }
+    val previousPage = remember { mutableIntStateOf(pagerState.currentPage) }
 
     LaunchedEffect(pagerState.currentPage) {
-        if (pagerState.currentPage != previousPage.value) {
+        if (pagerState.currentPage != previousPage.intValue) {
             viewModel.clearSelection()
-            previousPage.value = pagerState.currentPage
+            previousPage.intValue = pagerState.currentPage
         }
     }
 
@@ -151,14 +136,17 @@ fun InventoryScreen(
                 MenuHeader(screenWidth = screenWidth, title = "Inventura")
 
                 if (isInSelectionMode) {
-                    InventorySelectionToolbar(
+                    SelectionToolbar(
                         selectedCount = selectedItems.size,
-                        showSync = pagerState.currentPage == 0,
-                        onSync = { viewModel.syncSelectedItems() },
-                        onDelete = { showDeleteConfirm = true },
                         onSelectAll = {
                             val relevantItems = if (pagerState.currentPage == 0) unsyncedItems else syncedItems
                             viewModel.selectAll(relevantItems.map { it.id })
+                        },
+                        actions = buildList {
+                            if (pagerState.currentPage == 0) {
+                                add(Icons.Default.Sync to { viewModel.syncSelectedItems() })
+                            }
+                            add(Icons.Default.Delete to { viewModel.confirmDelete(selectedItems.toList()) })
                         }
                     )
                 }
@@ -217,7 +205,9 @@ fun InventoryScreen(
                                 onLongPress = {
                                     viewModel.toggleSelection(item.id)
                                 },
-                                onDelete = { viewModel.deleteItem(it) },
+                                onDelete = {
+                                    viewModel.confirmDelete(listOf(item.id))
+                                },
                                 onSync = {
                                     if (!item.isSynced) viewModel.syncItem(item.id)
                                 },
@@ -230,33 +220,14 @@ fun InventoryScreen(
                 }
             }
 
-            if(showDeleteConfirm) {
-                AlertDialog(
-                    onDismissRequest = { showDeleteConfirm = false },
-                    title = {
-                        Text("Potvrda brisanja")
+            if(pendingDeleteIds.isNotEmpty()) {
+                ConfirmDeleteDialog(
+                    itemCount = pendingDeleteIds.size,
+                    onConfirm = {
+                        viewModel.executeDelete()
                     },
-                    text = {
-                        Text("Jeste li sigurni da želite izbrisati odabrane stavke?")
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                viewModel.deleteSelectedItems()
-                                showDeleteConfirm = false
-                            }
-                        ) {
-                            Text("Da", color = MassecRed)
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = {
-                                showDeleteConfirm = false
-                            }
-                        ) {
-                            Text("Ne", color = MassecRed)
-                        }
+                    onDismiss = {
+                        viewModel.clearPendingDelete()
                     }
                 )
             }
@@ -273,75 +244,6 @@ fun InventoryScreen(
                         viewModel.toggleSheet(false)
                     }
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun InventorySelectionToolbar(
-    selectedCount: Int,
-    showSync: Boolean,
-    onSync: () -> Unit,
-    onDelete: () -> Unit,
-    onSelectAll: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(DeepNavy)
-            .padding(horizontal = 16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .padding(top = 0.dp, bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier.padding(top = 0.dp, bottom = 0.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Odabrano: $selectedCount",
-                    color = White,
-                    fontSize = 18.sp
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                TextButton(
-                    onClick = onSelectAll,
-                    colors = ButtonColors(
-                        containerColor = White,
-                        contentColor = DarkText,
-                        disabledContainerColor = DarkGray,
-                        disabledContentColor = White
-                    ),
-                ) {
-                    Text("Odaberi sve", color = DarkText)
-                }
-            }
-
-            Row(
-                modifier = Modifier.padding(top = 0.dp, bottom = 0.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (showSync) {
-                    IconButton(onClick = onSync) {
-                        Icon(Icons.Default.Sync, contentDescription = "Sync", tint = White)
-                    }
-                }
-
-                // On pressing delete, show confirmation dialog
-                IconButton(
-                    onClick = onDelete
-                ) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = White)
-                }
-
             }
         }
     }
@@ -499,7 +401,7 @@ fun InventoryItemCard(
     selectionMode: Boolean,
     onClick: () -> Unit,
     onLongPress: () -> Unit,
-    onDelete: (Int) -> Unit,
+    onDelete: () -> Unit,
     onSync: (Int) -> Unit,
     onShowTable: (Int) -> Unit,
     createdAt: String,
@@ -613,7 +515,7 @@ fun InventoryItemCard(
                             color = DarkText
                         ) },
                         onClick = {
-                            onDelete(item.id)
+                            onDelete()
                             menuExpanded = false
                         },
                         leadingIcon = {

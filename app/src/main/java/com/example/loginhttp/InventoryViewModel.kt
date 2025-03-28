@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 class InventoryViewModel: ViewModel() {
 
@@ -22,6 +21,9 @@ class InventoryViewModel: ViewModel() {
     private val _selectedItems = MutableStateFlow<Set<Int>>(emptySet())
     val selectedItems = _selectedItems.asStateFlow()
 
+    private val _pendingDeleteIds = MutableStateFlow<List<Int>>(emptyList())
+    val pendingDeleteIds = _pendingDeleteIds.asStateFlow()
+
     fun addItem(name: String) {
         val newItem = InventoryItem(
             id = idCounter++,
@@ -30,10 +32,6 @@ class InventoryViewModel: ViewModel() {
             isSynced = false
         )
         _items.value += newItem
-    }
-
-    fun deleteItem(id: Int) {
-        _items.value = _items.value.filter { it.id != id }
     }
 
     fun  syncItem(id: Int) {
@@ -53,8 +51,12 @@ class InventoryViewModel: ViewModel() {
     fun formatTimestamp(timestamp: Long): String {
         val date = Date(timestamp)
         val format = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
-        return "Created: ${format.format(date)}"
+        return format.format(date)
     }
+
+    /* =============================================================================================
+     * Selection logic
+     * ========================================================================================== */
 
     fun toggleSelection(itemId: Int) {
         _selectedItems.value = if (_selectedItems.value.contains(itemId)) {
@@ -82,5 +84,23 @@ class InventoryViewModel: ViewModel() {
 
     fun clearSelection() {
         _selectedItems.value = emptySet()
+    }
+
+    /* =============================================================================================
+     * Delete confirmation logic
+     * ========================================================================================== */
+
+    fun confirmDelete(ids: List<Int>) {
+        _pendingDeleteIds.value = ids
+    }
+
+    fun clearPendingDelete() {
+        _pendingDeleteIds.value = emptyList()
+    }
+
+    fun executeDelete() {
+        _items.value = _items.value.filterNot { pendingDeleteIds.value.contains(it.id) }
+        _selectedItems.value -= pendingDeleteIds.value.toSet()
+        clearPendingDelete()
     }
 }
