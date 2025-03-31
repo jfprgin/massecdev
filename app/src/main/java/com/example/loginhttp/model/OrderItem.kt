@@ -6,6 +6,11 @@ data class OrderItem(
     val fromLocation: String,
     val toLocation: String,
     val status: String,
-    val orderType: String,
+    val type: OrderType,
     val synced: Boolean,
 )
+
+enum class OrderType {
+    INTERNAL,
+    EXTERNAL
+}

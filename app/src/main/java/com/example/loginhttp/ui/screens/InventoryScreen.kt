@@ -443,7 +443,7 @@ fun InventoryItemCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(item.name, fontSize = 18.sp, color = DeepNavy)
-                Text(item.timestamp, fontSize = 14.sp, color = DarkGray)
+                Text(item.timestamp, fontSize = 14.sp, color = DarkText)
             }
 
             Box {
