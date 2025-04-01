@@ -48,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -266,7 +267,12 @@ fun AddInventoryBottomSheet(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Inventura", fontSize = 20.sp, color = DeepNavy)
+            Text(
+                "Inventura",
+                fontSize = 20.sp,
+                color = DeepNavy,
+                fontWeight = FontWeight.Bold
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
