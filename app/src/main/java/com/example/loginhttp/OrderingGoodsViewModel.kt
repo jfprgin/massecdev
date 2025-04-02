@@ -155,8 +155,8 @@ class OrderingGoodsViewModel: ViewModel() {
     }
 
     private fun sampleOrders(): List<OrderItem> = listOf(
-        OrderItem.InternalOrder(1, "2025-03-28 12:00", OrderStatus.U_PROCESU,"Skladište A", "Lokacija B"),
-        OrderItem.ExternalOrder(2, "2025-03-28 13:00", OrderStatus.ZATVORENO, "Skladište X", "Lokacija D")
+        OrderItem.InternalOrder(1, "28.03.2025. 12:00", OrderStatus.U_PROCESU,"Skladište A", "Lokacija B"),
+        OrderItem.ExternalOrder(2, "28.03.2025. 13:00", OrderStatus.ZATVORENO, "Skladište X", "Lokacija D")
     )
 
     private fun List<OrderItem>.filterByType(type: OrderType): List<OrderItem> =

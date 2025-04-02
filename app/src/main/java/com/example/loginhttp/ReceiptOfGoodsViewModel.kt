@@ -1,16 +1,13 @@
 package com.example.loginhttp
 
 import androidx.lifecycle.ViewModel
-import com.example.loginhttp.model.InventoryItem
+import com.example.loginhttp.model.ReceiptOfGoodsItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
-class InventoryViewModel: ViewModel() {
+class ReceiptOfGoodsViewModel: ViewModel() {
 
-    private val _items = MutableStateFlow<List<InventoryItem>>(emptyList())
+    private val _items = MutableStateFlow<List<ReceiptOfGoodsItem>>(emptyList())
     val items = _items.asStateFlow()
 
     private val _isSheetVisible = MutableStateFlow(false)
@@ -22,12 +19,11 @@ class InventoryViewModel: ViewModel() {
     private val _pendingDeleteIds = MutableStateFlow<List<Int>>(emptyList())
     val pendingDeleteIds = _pendingDeleteIds.asStateFlow()
 
-    // Add a new item to the inventory
-    fun addItem(name: String) {
+    // Add a new item
+    fun addItem() {
         val newId = (_items.value.maxOfOrNull { it.id } ?: 0) + 1
-        val newItem = InventoryItem(
+        val newItem = ReceiptOfGoodsItem(
             id = newId,
-            name = name,
             timestamp = getCurrentTimestamp(),
             synced = false
         )
@@ -41,13 +37,13 @@ class InventoryViewModel: ViewModel() {
     // Timestamp helpers
     fun getCurrentTimestamp(): String {
         val currentTime = System.currentTimeMillis()
-        val dateFormat = SimpleDateFormat("dd.MM.yyyy. HH:mm", Locale.getDefault())
-        return dateFormat.format(Date(currentTime))
+        val dateFormat = java.text.SimpleDateFormat("dd.MM.yyyy. HH:mm", java.util.Locale.getDefault())
+        return dateFormat.format(java.util.Date(currentTime))
     }
 
     fun formatTimestamp(timestamp: Long): String {
-        val date = Date(timestamp)
-        val format = SimpleDateFormat("dd.MM.yyyy. HH:mm", Locale.getDefault())
+        val date = java.util.Date(timestamp)
+        val format = java.text.SimpleDateFormat("dd.MM.yyyy. HH:mm", java.util.Locale.getDefault())
         return format.format(date)
     }
 
@@ -55,7 +51,7 @@ class InventoryViewModel: ViewModel() {
      * Selection logic
      * ========================================================================================== */
 
-    fun  syncItem(id: Int) {
+    fun syncItem(id: Int) {
         _items.value = _items.value.map {
             if (it.id == id) {
                 it.copy(synced = true)
@@ -93,7 +89,7 @@ class InventoryViewModel: ViewModel() {
      * ========================================================================================== */
 
     fun confirmDelete(ids: List<Int>) {
-        _pendingDeleteIds.value = ids
+        _pendingDeleteIds.value = emptyList()
     }
 
     fun clearPendingDelete() {
@@ -101,7 +97,9 @@ class InventoryViewModel: ViewModel() {
     }
 
     fun executeDelete() {
-        _items.value = _items.value.filterNot { pendingDeleteIds.value.contains(it.id) }
+        _items.value = _items.value.filterNot {
+            pendingDeleteIds.value.contains(it.id)
+        }
         _selectedItems.value -= pendingDeleteIds.value.toSet()
         clearPendingDelete()
     }
