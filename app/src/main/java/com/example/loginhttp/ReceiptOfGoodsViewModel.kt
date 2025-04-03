@@ -20,12 +20,14 @@ class ReceiptOfGoodsViewModel: ViewModel() {
     val pendingDeleteIds = _pendingDeleteIds.asStateFlow()
 
     // Add a new item
-    fun addItem() {
+    fun addItem(supplier: String, warehouse: String) {
         val newId = (_items.value.maxOfOrNull { it.id } ?: 0) + 1
         val newItem = ReceiptOfGoodsItem(
             id = newId,
             timestamp = getCurrentTimestamp(),
-            synced = false
+            synced = false,
+            supplier = supplier,
+            warehouse = warehouse
         )
         _items.value += newItem
     }
@@ -89,7 +91,7 @@ class ReceiptOfGoodsViewModel: ViewModel() {
      * ========================================================================================== */
 
     fun confirmDelete(ids: List<Int>) {
-        _pendingDeleteIds.value = emptyList()
+        _pendingDeleteIds.value = ids
     }
 
     fun clearPendingDelete() {

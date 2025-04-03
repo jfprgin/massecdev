@@ -50,14 +50,14 @@ class OrderingGoodsViewModel: ViewModel() {
     }
 
     // Add new order
-    fun addInternalOrder(from: String, to: String) {
+    fun addInternalOrder(fromLocation: String, toLocation: String) {
         val newId = (_orders.value.maxOfOrNull { it.id } ?: 0) + 1
         val newItem = OrderItem.InternalOrder(
             id = newId,
             timestamp = getCurrentTimestamp(),
             status = OrderStatus.U_PROCESU,
-            fromLocation = from,
-            toLocation = to
+            fromLocation = fromLocation,
+            toLocation = toLocation
         )
         _orders.value += newItem
     }

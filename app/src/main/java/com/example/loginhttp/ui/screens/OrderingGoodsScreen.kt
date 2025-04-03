@@ -75,6 +75,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.OrderingGoodsViewModel
+import com.example.loginhttp.model.BottomSheet
+import com.example.loginhttp.model.FieldType
+import com.example.loginhttp.model.FormField
 import com.example.loginhttp.model.OrderItem
 import com.example.loginhttp.model.OrderStatus
 import com.example.loginhttp.model.OrderType
@@ -327,16 +330,38 @@ fun OrderingGoodsScreen(
             }
 
             if (isSheetVisible) {
-                AddOrderBottomSheet(
-                    formType = if (selectedTypeTab == OrderType.INTERNAL) OrderType.INTERNAL else OrderType.EXTERNAL,
-                    onDismiss = { viewModel.toggleSheet(false) },
-                    onSubmitInternal = { from, to ->
-                        viewModel.addInternalOrder(from, to)
-                        viewModel.toggleSheet(false)
+                val fields = if (selectedTypeTab == OrderType.INTERNAL) {
+                    listOf(
+                        FormField("Sa lokacije", FieldType.DROPDOWN, listOf("Skladište A", "Skladište B", "Skladište C")),
+                        FormField("Na lokaciju", FieldType.DROPDOWN, listOf("Lokacija 1", "Lokacija 2", "Lokacija 3")),
+                    )
+                } else {
+                    listOf(
+                        FormField("Dobavljač", FieldType.DROPDOWN, listOf("Dobavljač A", "Dobavljač B", "Dobavljač C")),
+                        FormField("Skladište", FieldType.DROPDOWN, listOf("Skladište X", "Skladište Y", "Skladište Z")),
+                    )
+                }
+
+                BottomSheet(
+                    title = if (selectedTypeTab == OrderType.INTERNAL) {
+                        "Dodaj internu narudžbu"
+                    } else {
+                        "Dodaj vanjsku narudžbu"
                     },
-                    onSubmitExternal = { supplier, warehouse ->
-                        viewModel.addExternalOrder(supplier, warehouse)
-                        viewModel.toggleSheet(false)
+                    fields = fields,
+                    onDismiss = { viewModel.toggleSheet(false) },
+                    onSubmit = { values ->
+                        if (selectedTypeTab == OrderType.INTERNAL) {
+                            viewModel.addInternalOrder(
+                                fromLocation = values[0],
+                                toLocation = values[1]
+                            )
+                        } else {
+                            viewModel.addExternalOrder(
+                                supplier = values[0],
+                                warehouse = values[1]
+                            )
+                        }
                     }
                 )
             }
@@ -398,8 +423,8 @@ fun OrderItemCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = when (order) {
-                        is OrderItem.InternalOrder -> "Interna narudžba ${order.id}"
-                        is OrderItem.ExternalOrder -> "Vanjska narudžba ${order.id}"
+                        is OrderItem.InternalOrder -> "Interna narudžba: ${order.id}"
+                        is OrderItem.ExternalOrder -> "Vanjska narudžba: ${order.id}"
                     },
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
@@ -529,199 +554,6 @@ fun OrderItemCard(
                         }
                     )
                 }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddOrderBottomSheet(
-    formType: OrderType,
-    onDismiss: () -> Unit,
-    onSubmitInternal: (from: String, to: String) -> Unit,
-    onSubmitExternal: (supplier: String, warehouse: String) -> Unit
-) {
-    var from by remember { mutableStateOf("") }
-    var to by remember { mutableStateOf("") }
-    var supplier by remember { mutableStateOf("") }
-    var warehouse by remember { mutableStateOf("") }
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        containerColor = White,
-    ) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp)
-        ) {
-            Text(
-                text = "Dodaj ${if (formType == OrderType.INTERNAL) "internu" else "vanjsku"} narudžbu",
-                fontSize = 20.sp,
-                color = DeepNavy,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            if (formType == OrderType.INTERNAL) {
-                DropdownField(
-                    label = "Sa lokacije",
-                    options = listOf("Skladište A", "Skladište B", "Skladište C", "Skladište D"),
-                    selectedOption = from,
-                    onOptionSelected = { from = it }
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-
-                DropdownField(
-                    label = "Na lokaciju",
-                    options = listOf("Lokacija 1", "Lokacija 2", "Lokacija 3"),
-                    selectedOption = to,
-                    onOptionSelected = { to = it }
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Button(
-                    onClick = {
-                        if (from.isNotBlank() && to.isNotBlank()) {
-                            onSubmitInternal(from, to)
-                        }
-                    },
-                    colors = ButtonColors(
-                        containerColor = DeepNavy,
-                        contentColor = White,
-                        disabledContainerColor = DarkGray,
-                        disabledContentColor = White
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text(
-                        "Dodaj narudžbu",
-                        color = White,
-                        fontSize = 16.sp
-                    )
-                }
-            } else {
-                DropdownField(
-                    label = "Dobavljač",
-                    options = listOf("Dobavljač X", "Dobavljač Y", "Dobavljač Z"),
-                    selectedOption = supplier,
-                    onOptionSelected = { supplier = it }
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-
-                DropdownField(
-                    label = "Skladište",
-                    options = listOf("Skladište 1", "Skladište 2"),
-                    selectedOption = warehouse,
-                    onOptionSelected = { warehouse = it }
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Button(
-                    onClick = {
-                        if (supplier.isNotBlank() && warehouse.isNotBlank()) {
-                            onSubmitExternal(supplier, warehouse)
-                        }
-                    },
-                    colors = ButtonColors(
-                        containerColor = DeepNavy,
-                        contentColor = White,
-                        disabledContainerColor = DarkGray,
-                        disabledContentColor = White
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text(
-                        "Dodaj narudžbu",
-                        color = White,
-                        fontSize = 16.sp
-                    )
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
-@Composable
-fun DropdownField(
-    label: String,
-    options: List<String>,
-    selectedOption: String,
-    onOptionSelected: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 12.dp)
-    ) {
-        OutlinedTextField(
-            value = selectedOption,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text(label) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-            modifier = Modifier
-                .menuAnchor(MenuAnchorType.PrimaryEditable) // required for positioning
-                .fillMaxWidth(),
-            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
-                textColor = DarkText,
-                disabledTextColor = LightGray,
-                backgroundColor = White,
-                cursorColor = DeepNavy,
-                focusedBorderColor = MassecRed,
-                unfocusedBorderColor = DeepNavy,
-                disabledBorderColor = LightGray,
-                leadingIconColor = DeepNavy,
-                disabledLeadingIconColor = LightGray,
-                trailingIconColor = DeepNavy,
-                focusedTrailingIconColor = MassecRed,
-                disabledTrailingIconColor = LightGray,
-                focusedLabelColor = MassecRed,
-                unfocusedLabelColor = DeepNavy,
-                disabledLabelColor = LightGray,
-                placeholderColor = LightGray,
-                disabledPlaceholderColor = LightGray,
-            )
-        )
-
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            shape = RoundedCornerShape(8.dp),
-            containerColor = White,
-            shadowElevation = 8.dp,
-            border = BorderStroke(
-                width = 1.dp,
-                color = LightGray
-            )
-        ) {
-            options.forEach { selection ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = selection,
-                            color = DarkText,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Normal
-                        )
-                           },
-                    onClick = {
-                        onOptionSelected(selection)
-                        expanded = false
-                    }
-                )
             }
         }
     }

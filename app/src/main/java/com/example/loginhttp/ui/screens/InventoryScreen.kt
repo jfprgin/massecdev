@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.loginhttp.InventoryViewModel
 import com.example.loginhttp.model.InventoryItem
+import com.example.loginhttp.model.OrderType
 import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.theme.DarkGray
@@ -295,7 +296,7 @@ fun AddInventoryBottomSheet(
                         "Po grupi",
                         color = White,
                         fontSize = 16.sp
-                        )
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -317,7 +318,7 @@ fun AddInventoryBottomSheet(
                         "Po nazivu",
                         color = White,
                         fontSize = 16.sp
-                        )
+                    )
                 }
             }
 
@@ -357,7 +358,7 @@ fun AddInventoryBottomSheet(
                         "U redu",
                         color = White,
                         fontSize = 16.sp
-                        )
+                    )
                 }
             }
 
