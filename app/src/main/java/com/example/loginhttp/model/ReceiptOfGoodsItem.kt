@@ -3,7 +3,9 @@ package com.example.loginhttp.model
 data class ReceiptOfGoodsItem(
     val id: Int,
     val timestamp: String,
-    val synced: Boolean,
+    override val synced: Boolean,
     val supplier: String,
     val warehouse: String
-)
+) : Syncable {
+    override fun markSynced(): Syncable = copy(synced = true)
+}

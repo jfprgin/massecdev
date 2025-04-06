@@ -1,7 +1,6 @@
 package com.example.loginhttp.ui.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,10 +22,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
@@ -37,19 +32,14 @@ import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Warehouse
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -76,8 +66,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.OrderingGoodsViewModel
 import com.example.loginhttp.model.BottomSheet
+import com.example.loginhttp.model.BottomSheetWithModes
 import com.example.loginhttp.model.FieldType
 import com.example.loginhttp.model.FormField
+import com.example.loginhttp.model.FormMode
 import com.example.loginhttp.model.OrderItem
 import com.example.loginhttp.model.OrderStatus
 import com.example.loginhttp.model.OrderType
@@ -85,7 +77,6 @@ import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SelectionToolbar
-import com.example.loginhttp.ui.theme.DarkGray
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
@@ -123,6 +114,9 @@ fun OrderingGoodsScreen(
 
     val prevType = remember { mutableIntStateOf(selectedTypeTab.toTabIndex()) }
     val prevSync = remember { mutableIntStateOf(pagerState.currentPage) }
+
+    val syncedCount by viewModel.syncedCount.collectAsState()
+    val unsyncedCount by viewModel.unsyncedCount.collectAsState()
 
     // Reflect pager page into ViewModel
     LaunchedEffect(pagerState.currentPage) {
@@ -258,7 +252,7 @@ fun OrderingGoodsScreen(
                             typeTab = selectedTypeTab
                         )
                     },
-                    text = { Text("Nesinkronizirane") }
+                    text = { Text("Nesinkronizirane ($unsyncedCount)") }
                 )
                 Tab(
                     selected = pagerState.currentPage == 1,
@@ -271,7 +265,7 @@ fun OrderingGoodsScreen(
                             typeTab = selectedTypeTab
                         )
                     },
-                    text = { Text("Sinkronizirane") }
+                    text = { Text("Sinkronizirane ($syncedCount)") }
                     )
             }
 
@@ -321,7 +315,7 @@ fun OrderingGoodsScreen(
                 ConfirmDeleteDialog(
                     itemCount = pendingDeleteIds.size,
                     onConfirm = {
-                        viewModel.executeDelete()
+                        viewModel.deleteSelected()
                     },
                     onDismiss = {
                         viewModel.clearPendingDelete()
@@ -330,39 +324,55 @@ fun OrderingGoodsScreen(
             }
 
             if (isSheetVisible) {
-                val fields = if (selectedTypeTab == OrderType.INTERNAL) {
-                    listOf(
-                        FormField("Sa lokacije", FieldType.DROPDOWN, listOf("Skladište A", "Skladište B", "Skladište C")),
-                        FormField("Na lokaciju", FieldType.DROPDOWN, listOf("Lokacija 1", "Lokacija 2", "Lokacija 3")),
+                val formModes = listOf(
+                    FormMode(
+                        name = "Interna narudžba",
+                        fields = listOf(
+                            FormField(
+                                "Sa lokacije",
+                                FieldType.DROPDOWN,
+                                listOf("Skladište A", "Skladište B", "Skladište C")
+                            ),
+                            FormField(
+                                "Na lokaciju",
+                                FieldType.DROPDOWN,
+                                listOf("Lokacija 1", "Lokacija 2", "Lokacija 3")
+                            )
+                        )
+                    ),
+                    FormMode(
+                        name = "Vanjska narudžba",
+                        fields = listOf(
+                            FormField(
+                                "Dobavljač",
+                                FieldType.DROPDOWN,
+                                listOf("Dobavljač A", "Dobavljač B", "Dobavljač C")
+                            ),
+                            FormField(
+                                "Skladište",
+                                FieldType.DROPDOWN,
+                                listOf("Skladište X", "Skladište Y", "Skladište Z")
+                            )
+                        )
                     )
-                } else {
-                    listOf(
-                        FormField("Dobavljač", FieldType.DROPDOWN, listOf("Dobavljač A", "Dobavljač B", "Dobavljač C")),
-                        FormField("Skladište", FieldType.DROPDOWN, listOf("Skladište X", "Skladište Y", "Skladište Z")),
-                    )
-                }
+                )
 
-                BottomSheet(
-                    title = if (selectedTypeTab == OrderType.INTERNAL) {
-                        "Dodaj internu narudžbu"
-                    } else {
-                        "Dodaj vanjsku narudžbu"
-                    },
-                    fields = fields,
+                BottomSheetWithModes(
+                    title = "Dodaj narudžbu",
+                    modeSelectorLabel = "Tip narudžbe",
+                    modes = formModes,
                     onDismiss = { viewModel.toggleSheet(false) },
-                    onSubmit = { values ->
-                        if (selectedTypeTab == OrderType.INTERNAL) {
-                            viewModel.addInternalOrder(
-                                fromLocation = values[0],
-                                toLocation = values[1]
-                            )
+                    onSubmit = { mode, values ->
+                        if (mode.name == "Interna narudžba") {
+                            val fromLocation = values[0]
+                            val toLocation = values[1]
+                            viewModel.addInternalOrder(fromLocation, toLocation)
                         } else {
-                            viewModel.addExternalOrder(
-                                supplier = values[0],
-                                warehouse = values[1]
-                            )
+                            val supplier = values[0]
+                            val warehouse = values[1]
+                            viewModel.addExternalOrder(supplier, warehouse)
                         }
-                    }
+                    },
                 )
             }
         }

@@ -19,7 +19,6 @@ import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
@@ -32,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import com.example.loginhttp.ui.theme.DarkGray
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.White
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.example.loginhttp.ui.theme.DarkText
@@ -50,33 +48,31 @@ enum class FieldType {
     DROPDOWN,
 }
 
+data class FormMode(
+    val name: String,                 // Shown in dropdown
+    val fields: List<FormField>
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheet(
     title: String,
     fields: List<FormField>,
     onDismiss: () -> Unit,
-    onSubmit: (List<String>) -> Unit,
-    submitText: String = "Dodaj",
+    onSubmit: (inputs: List<String>) -> Unit,
+    submitText: String = "Dodaj"
 ) {
-    val inputValues = remember(fields) { mutableStateListOf(*Array(fields.size) { "" }) }
+    val inputValues = remember { mutableStateListOf(*Array(fields.size) { "" }) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = White
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp)
-        ) {
-            Text(
-              title,
-                fontSize = 20.sp,
-                color = DeepNavy,
-                fontWeight = FontWeight.Bold
-            )
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp)) {
 
+            Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = DeepNavy)
             Spacer(modifier = Modifier.height(20.dp))
 
             fields.forEachIndexed { index, field ->
@@ -96,6 +92,7 @@ fun BottomSheet(
                             singleLine = true
                         )
                     }
+
                     FieldType.DROPDOWN -> {
                         DropdownField(
                             label = field.label,
@@ -115,6 +112,106 @@ fun BottomSheet(
                     onDismiss()
                 },
                 enabled = inputValues.none { it.isBlank() },
+                colors = ButtonColors(
+                    containerColor = DeepNavy,
+                    contentColor = White,
+                    disabledContainerColor = DarkGray,
+                    disabledContentColor = White
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(submitText, fontSize = 16.sp)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BottomSheetWithModes(
+    title: String,
+    modeSelectorLabel: String,
+    modes: List<FormMode>,
+    onDismiss: () -> Unit,
+    onSubmit: (mode: FormMode, inputs: List<String>) -> Unit,
+    submitText: String = "Dodaj",
+) {
+
+    var selectedIndex by remember { mutableStateOf(0) }
+    val selectedMode = modes[selectedIndex]
+    val activeFields = selectedMode.fields
+    val inputs = remember(selectedIndex) { mutableStateListOf(*Array(activeFields.size) { "" }) }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = White
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+        ) {
+            Text(
+              title,
+                fontSize = 20.sp,
+                color = DeepNavy,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            DropdownField(
+                label = modeSelectorLabel,
+                options = modes.map { it.name },
+                selectedOption = selectedMode.name,
+                onOptionSelected = { selected ->
+                    selectedIndex = modes.indexOfFirst { it.name == selected }
+                    inputs.clear()
+                    inputs.addAll(List(modes[selectedIndex].fields.size) { "" })
+                }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            activeFields.forEachIndexed { index, field ->
+                when (field.type) {
+                    FieldType.TEXT -> {
+                        OutlinedTextField(
+                            value = inputs[index],
+                            onValueChange = { inputs[index] = it },
+                            label = { Text(field.label) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 12.dp),
+                            colors = TextFieldDefaults.colors(
+                                focusedIndicatorColor = DeepNavy,
+                                unfocusedIndicatorColor = DarkGray
+                            ),
+                            singleLine = true
+                        )
+                    }
+                    FieldType.DROPDOWN -> {
+                        DropdownField(
+                            label = field.label,
+                            options = field.options,
+                            selectedOption = inputs[index],
+                            onOptionSelected = { inputs[index] = it }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = {
+                    onSubmit(selectedMode, inputs.toList())
+                    onDismiss()
+                },
+                enabled = inputs.none { it.isBlank() },
                 colors = ButtonColors(
                     containerColor = DeepNavy,
                     contentColor = White,

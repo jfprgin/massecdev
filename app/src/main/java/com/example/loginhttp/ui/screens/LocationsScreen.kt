@@ -67,7 +67,7 @@ fun LocationsScreen(
 ) {
     val viewModel: LocationsViewModel = viewModel()
 
-    val locations by viewModel.locations.collectAsState()
+    val locations by viewModel.items.collectAsState()
 
     val selectedItems by viewModel.selectedItems.collectAsState()
     val isInSelectionMode= selectedItems.isNotEmpty()
@@ -182,7 +182,7 @@ fun LocationsScreen(
                 ConfirmDeleteDialog(
                     itemCount = pendingDeleteIds.size,
                     onConfirm = {
-                        viewModel.executeDelete()
+                        viewModel.deleteSelected()
                     },
                     onDismiss = {
                         viewModel.clearPendingDelete()

@@ -4,5 +4,7 @@ data class InventoryItem(
     val id: Int,
     val name: String,
     val timestamp: String,
-    val synced: Boolean,
-)
+    override val synced: Boolean,
+) : Syncable {
+    override fun markSynced(): Syncable = copy(synced = true)
+}

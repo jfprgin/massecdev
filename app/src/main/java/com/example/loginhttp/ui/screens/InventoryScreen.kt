@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -48,16 +47,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.loginhttp.InventoryViewModel
+import com.example.loginhttp.model.BottomSheetWithModes
+import com.example.loginhttp.model.FieldType
+import com.example.loginhttp.model.FormField
+import com.example.loginhttp.model.FormMode
 import com.example.loginhttp.model.InventoryItem
-import com.example.loginhttp.model.OrderType
 import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.MenuHeader
-import com.example.loginhttp.ui.theme.DarkGray
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
@@ -225,7 +225,7 @@ fun InventoryScreen(
                 ConfirmDeleteDialog(
                     itemCount = pendingDeleteIds.size,
                     onConfirm = {
-                        viewModel.executeDelete()
+                        viewModel.deleteSelected()
                     },
                     onDismiss = {
                         viewModel.clearPendingDelete()
@@ -234,166 +234,38 @@ fun InventoryScreen(
             }
 
             if (isSheetVisible) {
-                AddInventoryBottomSheet(
-                    onDismiss = { viewModel.toggleSheet(false) },
-                    onAddByName = {
-                        viewModel.addItem(it)
-                        viewModel.toggleSheet(false)
-                    },
-                    onAddByGroup = {
-                        viewModel.addItem(it)
-                        viewModel.toggleSheet(false)
-                    }
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddInventoryBottomSheet(
-    onDismiss: () -> Unit,
-    onAddByName: (String) -> Unit,
-    onAddByGroup: (String) -> Unit
-) {
-    var addingByName by remember { mutableStateOf(false) }
-    var addingByGroup by remember { mutableStateOf(false) }
-    var input by remember { mutableStateOf("") }
-
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                "Inventura",
-                fontSize = 20.sp,
-                color = DeepNavy,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Options (if not yet selected)
-            if (!addingByName && !addingByGroup) {
-                Button(
-                    onClick = { addingByGroup = true },
-                    colors = ButtonColors(
-                        containerColor = DeepNavy,
-                        contentColor = White,
-                        disabledContainerColor = DarkGray,
-                        disabledContentColor = White
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text(
-                        "Po grupi",
-                        color = White,
-                        fontSize = 16.sp
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Button(
-                    onClick = { addingByName = true },
-                    colors = ButtonColors(
-                        containerColor = DeepNavy,
-                        contentColor = White,
-                        disabledContainerColor = DarkGray,
-                        disabledContentColor = White
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text(
-                        "Po nazivu",
-                        color = White,
-                        fontSize = 16.sp
-                    )
-                }
-            }
-
-            // Add by Name Flow
-            if (addingByName) {
-                OutlinedTextField(
-                    value = input,
-                    onValueChange = { input = it },
-                    label = { Text("Naziv") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = DeepNavy,
-                        unfocusedIndicatorColor = DarkGray
-                    )
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Button(
-                    onClick = {
-                        onAddByName(input)
-                        input = ""
-                        addingByName = false
-                        onDismiss()
-                    },
-                    enabled = input.isNotBlank(),
-                    colors = ButtonColors(
-                        containerColor = DeepNavy,
-                        contentColor = White,
-                        disabledContainerColor = DarkGray,
-                        disabledContentColor = White
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(16.dp),
-                ) {
-                    Text(
-                        "U redu",
-                        color = White,
-                        fontSize = 16.sp
-                    )
-                }
-            }
-
-            // Add by Group Flow
-            if (addingByGroup) {
-                // Replace with real group list!
-                val groups = listOf("Grupa A", "Grupa B", "Grupa C")
-                Column {
-                    groups.forEach { group ->
-                        Button(
-                            onClick = {
-                                onAddByGroup(group)
-                                addingByGroup = false
-                                onDismiss()
-                            },
-                            colors = ButtonColors(
-                                containerColor = DeepNavy,
-                                contentColor = White,
-                                disabledContainerColor = DarkGray,
-                                disabledContentColor = White
+                val formModes = listOf(
+                    FormMode(
+                        name = "Po grupi",
+                        fields = listOf(
+                            FormField(
+                                "Grupa",
+                                type = FieldType.DROPDOWN,
+                                listOf("Grupa A", "Grupa B", "Grupa C")
                             ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                                .height(48.dp),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
-                            Text(
-                                group,
-                                color = White,
-                                fontSize = 16.sp
-                            )
-                        }
+                        )
+                    ),
+                    FormMode(
+                        name = "Po nazivu",
+                        fields = listOf(
+                            FormField(
+                                "Naziv",
+                                type = FieldType.TEXT
+                            ),
+                        )
+                    )
+                )
+
+                BottomSheetWithModes(
+                    title = "Inventura",
+                    modeSelectorLabel = "Način unosa",
+                    modes = formModes,
+                    onDismiss = { viewModel.toggleSheet(false) },
+                    onSubmit = { _, values ->
+                        val name = values[0]
+                        viewModel.addItem(name)
                     }
-                }
+                )
             }
         }
     }
@@ -551,7 +423,6 @@ fun InventoryItemCard(
                 }
             }
         }
-
     }
 }
 

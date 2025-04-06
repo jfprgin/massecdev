@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,17 +29,13 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -60,7 +55,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,7 +68,6 @@ import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SelectionToolbar
-import com.example.loginhttp.ui.theme.DarkGray
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
@@ -238,15 +231,23 @@ fun ReceiptOfGoodsScreen(
             if (pendingDeletedIds.isNotEmpty()) {
                 ConfirmDeleteDialog(
                     itemCount = pendingDeletedIds.size,
-                    onConfirm = { viewModel.executeDelete() },
+                    onConfirm = { viewModel.deleteSelected() },
                     onDismiss = { viewModel.clearPendingDelete() },
                 )
             }
 
             if (isSheetVisible) {
                 val fields = listOf(
-                    FormField("Dobavljač", FieldType.DROPDOWN, listOf("Dobavljač X", "Dobavljač Y", "Dobavljač Z")),
-                    FormField("Skladiste", FieldType.DROPDOWN, listOf("Skladište A", "Skladište B", "Skladište C")),
+                    FormField(
+                        "Dobavljač",
+                        FieldType.DROPDOWN,
+                        listOf("Dobavljač X", "Dobavljač Y", "Dobavljač Z")
+                    ),
+                    FormField(
+                        "Skladiste",
+                        FieldType.DROPDOWN,
+                        listOf("Skladište A", "Skladište B", "Skladište C")
+                    ),
                 )
 
                 BottomSheet(

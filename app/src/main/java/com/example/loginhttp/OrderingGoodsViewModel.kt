@@ -1,6 +1,5 @@
 package com.example.loginhttp
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.loginhttp.model.OrderItem
 import com.example.loginhttp.model.OrderStatus
@@ -10,23 +9,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
-class OrderingGoodsViewModel: ViewModel() {
-
-    private val _orders = MutableStateFlow<List<OrderItem>>(sampleOrders())
-    val orders: StateFlow<List<OrderItem>> = _orders
-
-    private val _selectedItems = MutableStateFlow<Set<Int>>(emptySet())
-    val selectedItems: StateFlow<Set<Int>> = _selectedItems
-
-    private val _isSheetVisible = MutableStateFlow(false)
-    val isSheetVisible: StateFlow<Boolean> = _isSheetVisible
-
-    private val _pendingDeleteIds = MutableStateFlow<List<Int>>(emptyList())
-    val pendingDeleteIds: StateFlow<List<Int>> = _pendingDeleteIds
+class OrderingGoodsViewModel: BaseListViewModel<OrderItem>() {
 
     private val _selectedSyncTab = MutableStateFlow(OrderStatus.U_PROCESU)   // 0 = unsynced, 1 = synced
     val selectedSyncTab: StateFlow<OrderStatus> = _selectedSyncTab
@@ -34,8 +18,22 @@ class OrderingGoodsViewModel: ViewModel() {
     private val _selectedTypeTab = MutableStateFlow(OrderType.INTERNAL)     // 0 = internal, 1 = external
     val selectedTypeTab: StateFlow<OrderType> = _selectedTypeTab
 
+    val syncedCount: StateFlow<Int> = combine(items, selectedSyncTab, selectedTypeTab) { list, _, typeTab ->
+        list.filterByType(typeTab)
+            .count { it.status == OrderStatus.ZATVORENO }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+
+    val unsyncedCount: StateFlow<Int> = combine(items, selectedSyncTab, selectedTypeTab) { list, _, typeTab ->
+        list.filterByType(typeTab)
+            .count { it.status == OrderStatus.U_PROCESU }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+
+    init {
+        _items.value = sampleOrders()
+    }
+
     val filteredOrders: StateFlow<List<OrderItem>> = combine(
-        _orders,
+        _items,
         _selectedSyncTab,
         _selectedTypeTab
     ) { orders, syncTab, typeTab ->
@@ -51,7 +49,7 @@ class OrderingGoodsViewModel: ViewModel() {
 
     // Add new order
     fun addInternalOrder(fromLocation: String, toLocation: String) {
-        val newId = (_orders.value.maxOfOrNull { it.id } ?: 0) + 1
+        val newId = (_items.value.maxOfOrNull { it.id } ?: 0) + 1
         val newItem = OrderItem.InternalOrder(
             id = newId,
             timestamp = getCurrentTimestamp(),
@@ -59,11 +57,11 @@ class OrderingGoodsViewModel: ViewModel() {
             fromLocation = fromLocation,
             toLocation = toLocation
         )
-        _orders.value += newItem
+        _items.value += newItem
     }
 
     fun addExternalOrder(supplier: String, warehouse: String) {
-        val newId = (_orders.value.maxOfOrNull { it.id } ?: 0) + 1
+        val newId = (_items.value.maxOfOrNull { it.id } ?: 0) + 1
         val newItem = OrderItem.ExternalOrder(
             id = newId,
             timestamp = getCurrentTimestamp(),
@@ -71,16 +69,12 @@ class OrderingGoodsViewModel: ViewModel() {
             supplier = supplier,
             warehouse = warehouse
         )
-        _orders.value += newItem
-    }
-
-    fun toggleSheet(show: Boolean) {
-        _isSheetVisible.value = show
+        _items.value += newItem
     }
 
     // Sync order
     fun syncOrder(id: Int) {
-        _orders.value = _orders.value.map {
+        _items.value = _items.value.map {
             if (it.id == id && it.status == OrderStatus.U_PROCESU) {
                 when (it) {
                     is OrderItem.InternalOrder -> it.copy(status = OrderStatus.ZATVORENO)
@@ -94,7 +88,7 @@ class OrderingGoodsViewModel: ViewModel() {
     }
 
     fun syncSelectedOrders() {
-        _orders.value = _orders.value.map {
+        _items.value = _items.value.map {
             if (_selectedItems.value.contains(it.id) && it.status == OrderStatus.U_PROCESU) {
                 when (it) {
                     is OrderItem.InternalOrder -> it.copy(status = OrderStatus.ZATVORENO)
@@ -107,51 +101,8 @@ class OrderingGoodsViewModel: ViewModel() {
         clearSelection()
     }
 
-    // Selection logic
-    fun toggleSelection(id: Int) {
-        _selectedItems.value = _selectedItems.value.toMutableSet().apply {
-            if (contains(id)) {
-                remove(id)
-            } else {
-                add(id)
-            }
-        }
-    }
-
-    fun selectAll(ids: List<Int>) {
-        _selectedItems.value = ids.toSet()
-    }
-
-    fun clearSelection() {
-        _selectedItems.value = emptySet()
-    }
-
-    // Delete confirmation logic
-    fun confirmDelete(ids: List<Int>) {
-        _pendingDeleteIds.value = ids
-    }
-
-    fun clearPendingDelete() {
-        _pendingDeleteIds.value = emptyList()
-    }
-
-    fun executeDelete() {
-        _orders.value = _orders.value.filterNot { _pendingDeleteIds.value.contains(it.id) }
-        clearSelection()
-        clearPendingDelete()
-    }
-
-    // Timestamp helpers
-    private fun getCurrentTimestamp(): String {
-        val currentTime = System.currentTimeMillis()
-        val dateFormat = SimpleDateFormat("dd.MM.yyyy. HH:mm", Locale.getDefault())
-        return dateFormat.format(Date(currentTime))
-    }
-
-    fun formatTimestamp(timestamp: Long): String {
-        val date = Date(timestamp)
-        val format = SimpleDateFormat("dd.MM.yyyy. HH:mm", Locale.getDefault())
-        return format.format(date)
+    fun deleteSelected() {
+        deleteSelected { it.id }
     }
 
     private fun sampleOrders(): List<OrderItem> = listOf(
