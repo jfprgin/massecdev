@@ -1,4 +1,4 @@
-package com.example.loginhttp.model
+package com.example.loginhttp.ui.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column

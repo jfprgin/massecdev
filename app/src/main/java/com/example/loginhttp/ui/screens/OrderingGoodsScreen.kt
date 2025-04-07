@@ -65,11 +65,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.OrderingGoodsViewModel
-import com.example.loginhttp.model.BottomSheet
-import com.example.loginhttp.model.BottomSheetWithModes
-import com.example.loginhttp.model.FieldType
-import com.example.loginhttp.model.FormField
-import com.example.loginhttp.model.FormMode
+import com.example.loginhttp.ui.components.BottomSheetWithModes
+import com.example.loginhttp.ui.components.FieldType
+import com.example.loginhttp.ui.components.FormField
+import com.example.loginhttp.ui.components.FormMode
 import com.example.loginhttp.model.OrderItem
 import com.example.loginhttp.model.OrderStatus
 import com.example.loginhttp.model.OrderType

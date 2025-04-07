@@ -60,9 +60,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.ReceiptOfGoodsViewModel
-import com.example.loginhttp.model.BottomSheet
-import com.example.loginhttp.model.FieldType
-import com.example.loginhttp.model.FormField
+import com.example.loginhttp.ui.components.BottomSheet
+import com.example.loginhttp.ui.components.FieldType
+import com.example.loginhttp.ui.components.FormField
 import com.example.loginhttp.model.ReceiptOfGoodsItem
 import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog

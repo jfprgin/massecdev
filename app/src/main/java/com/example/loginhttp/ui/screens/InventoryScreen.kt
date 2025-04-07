@@ -51,10 +51,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.loginhttp.InventoryViewModel
-import com.example.loginhttp.model.BottomSheetWithModes
-import com.example.loginhttp.model.FieldType
-import com.example.loginhttp.model.FormField
-import com.example.loginhttp.model.FormMode
+import com.example.loginhttp.ui.components.BottomSheetWithModes
+import com.example.loginhttp.ui.components.FieldType
+import com.example.loginhttp.ui.components.FormField
+import com.example.loginhttp.ui.components.FormMode
 import com.example.loginhttp.model.InventoryItem
 import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.MenuHeader
