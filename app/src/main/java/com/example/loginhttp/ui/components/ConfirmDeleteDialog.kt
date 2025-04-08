@@ -32,7 +32,7 @@ fun ConfirmDeleteDialog(
         },
         dismissButton = {
             TextButton(
-                onClick = onConfirm
+                onClick = onDismiss
             ) {
                 Text("Ne", color = MassecRed)
             }
