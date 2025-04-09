@@ -19,13 +19,13 @@ class LocationsViewModel: BaseListViewModel<LocationItem>() {
     var searchQuery by mutableStateOf("")
         private set
 
-    val filteredLocations = derivedStateOf {
+    val filteredItems = derivedStateOf {
         _items.value.filter {
             it.name.contains(searchQuery, ignoreCase = true)
         }
     }
 
-    fun downloadLocations() {
+    fun downloadItems() {
         // Replace this with real API logic later
     }
 

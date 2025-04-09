@@ -70,7 +70,7 @@ fun LocationsScreen(
     val locations by viewModel.items.collectAsState()
 
     val selectedItems by viewModel.selectedItems.collectAsState()
-    val isInSelectionMode= selectedItems.isNotEmpty()
+    val isInSelectionMode = selectedItems.isNotEmpty()
 
     val pendingDeleteIds by viewModel.pendingDeleteIds.collectAsState()
 
@@ -86,7 +86,7 @@ fun LocationsScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { viewModel.downloadLocations()},
+                onClick = { viewModel.downloadItems() },
                 contentColor = DeepNavy,
                 containerColor = DeepNavy,
                 shape = CircleShape
@@ -95,7 +95,7 @@ fun LocationsScreen(
                     Icons.Default.Download,
                     contentDescription = "Download",
                     tint = White
-                    )
+                )
             }
         },
 
@@ -115,7 +115,7 @@ fun LocationsScreen(
             if (isInSelectionMode) {
                 SelectionToolbar(
                     selectedCount = selectedItems.size,
-                    onSelectAll = { viewModel.selectAll(locations.map { it.id })},
+                    onSelectAll = { viewModel.selectAll(locations.map { it.id }) },
                     actions = listOf(
                         Icons.Default.Delete to { viewModel.confirmDelete(selectedItems.toList()) }
                     )
@@ -241,7 +241,6 @@ fun LocationItemCard(
                     color = DarkText,
                     modifier = Modifier.weight(1f)
                 )
-
             }
 
             if (selectionMode) {
