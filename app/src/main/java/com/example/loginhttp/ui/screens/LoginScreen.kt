@@ -78,8 +78,8 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 32.dp, horizontal = 16.dp)
             .background(MaterialTheme.colorScheme.background)
+            .padding(vertical = 32.dp, horizontal = 16.dp)
     ) {
         Column(
             modifier = Modifier.align(Alignment.Center), // Align column in the center of the Box

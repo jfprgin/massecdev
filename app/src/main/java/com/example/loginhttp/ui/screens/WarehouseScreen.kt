@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.LocalShipping
@@ -37,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.loginhttp.model.WarehouseItem
 import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.theme.DarkText
@@ -86,8 +89,6 @@ fun WarehouseScreen(
                     WarehouseItemCard(
                         title = item.title,
                         icon = item.icon,
-                        screenHeight = screenHeight,
-                        screenWidth = screenWidth,
                         onClick = { onItemClick(item.title) }
                     )
                 }
@@ -100,8 +101,6 @@ fun WarehouseScreen(
 fun WarehouseItemCard(
     title: String,
     icon: ImageVector,
-    screenHeight: Dp,
-    screenWidth: Dp,
     onClick: () -> Unit
 ) {
     Card (
@@ -135,19 +134,16 @@ fun WarehouseItemCard(
     }
 }
 
-// Data model
-data class WarehouseItem(val title: String, val icon: ImageVector)
-
 // Example data
 val warehouseItems = listOf(
     WarehouseItem("Prijem robe", Icons.Default.MoveToInbox),
     WarehouseItem("Izdavanje robe", Icons.Default.Outbox),
     WarehouseItem("Prijenos robe", Icons.Default.Sync),
-    WarehouseItem("Povrat robe", Icons.Default.Undo),
+    WarehouseItem("Povrat robe", Icons.AutoMirrored.Filled.Undo),
     WarehouseItem("Otpis robe", Icons.Default.Delete),
     WarehouseItem("Naručivanje robe", Icons.Default.LocalShipping),
     WarehouseItem("Virtualno skladište", Icons.Default.Warehouse),
-    WarehouseItem("Predlošci", Icons.Default.List)
+    WarehouseItem("Predlošci", Icons.AutoMirrored.Filled.List)
 )
 
 @Preview
