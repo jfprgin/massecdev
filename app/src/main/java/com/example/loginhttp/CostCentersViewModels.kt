@@ -9,7 +9,8 @@ import com.example.loginhttp.model.CostCenterItem
 class CostCentersViewModels: BaseListViewModel<CostCenterItem>() {
     init {
         _items.value = listOf(
-            CostCenterItem(1, "PRODAJA")
+            CostCenterItem(1, "PRODAJA"),
+            CostCenterItem(2, "Prodaja2"),
         )
     }
 
