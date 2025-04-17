@@ -1,45 +1,30 @@
 package com.example.loginhttp.ui.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalShipping
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Warehouse
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -51,20 +36,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.OrderingGoodsViewModel
+import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.ui.components.BottomSheetWithModes
 import com.example.loginhttp.ui.components.FieldType
 import com.example.loginhttp.ui.components.FormField
@@ -76,6 +56,7 @@ import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SelectionToolbar
+import com.example.loginhttp.ui.components.UnifiedItemCard
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
@@ -285,26 +266,53 @@ fun OrderingGoodsScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(visibleOrders, key = { it.id }) { order ->
-                        OrderItemCard(
-                            order = order,
+                        UnifiedItemCard(
+                            id = order.id.toString(),
+                            icon = when (order) {
+                                is OrderItem.InternalOrder -> Icons.Default.Home
+                                is OrderItem.ExternalOrder -> Icons.Default.LocalShipping
+                            },
+                            iconTint = if (order.status == OrderStatus.U_PROCESU) MassecRed else DeepNavy,
+                            isSynced = OrderStatus.ZATVORENO == order.status,
                             isSelected = selectedItems.contains(order.id),
                             selectionMode = isInSelectionMode,
                             onClick = {
-                                if (isInSelectionMode) {
-                                    viewModel.toggleSelection(order.id)
+                                if (isInSelectionMode) viewModel.toggleSelection(order.id)
+                            },
+                            onLongPress = {
+                                viewModel.toggleSelection(order.id)
+                            },
+                            infoRows = buildList {
+                                add("Dodano" to order.timestamp)
+                                when (order) {
+                                    is OrderItem.InternalOrder -> {
+                                        add("Sa" to order.fromLocation)
+                                        add("Na" to order.toLocation)
+                                    }
+
+                                    is OrderItem.ExternalOrder -> {
+                                        add("Dobavljač" to order.supplier)
+                                        add("Skladište" to order.warehouse)
+                                    }
                                 }
+                                add("Status" to if (order.status == OrderStatus.U_PROCESU) "U procesu" else "Zatvoreno")
                             },
-                            onLongPress = if (order.status == OrderStatus.U_PROCESU) {
-                                { viewModel.toggleSelection(order.id) }
-                            } else {
-                                null
-                            },
-                            onDelete = {
-                                viewModel.confirmDelete(listOf(order.id))
-                            },
-                            onSync = { viewModel.syncOrder(order.id) },
-                            onTransfer = { /* TODO: Prebaci na skladište action */ },
-                            showSync = order.status == OrderStatus.U_PROCESU
+                            actions = buildList {
+                                if (order.status == OrderStatus.U_PROCESU) {
+                                    add(CardAction("Sinkroniziraj", Icons.Default.Sync) {
+                                        viewModel.syncOrder(order.id)
+                                        }
+                                    )
+                                    add(CardAction("Izbriši", Icons.Default.Delete) {
+                                        viewModel.confirmDelete(listOf(order.id))
+                                        }
+                                    )
+                                    add(CardAction("Prebaci na skladište", Icons.Default.Warehouse) {
+                                        // Transfer action
+                                        }
+                                    )
+                                }
+                            }
                         )
                     }
                 }
@@ -373,196 +381,6 @@ fun OrderingGoodsScreen(
                         }
                     },
                 )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun OrderItemCard(
-    order: OrderItem,
-    isSelected: Boolean,
-    selectionMode: Boolean,
-    onClick: () -> Unit,
-    onLongPress: (() -> Unit)? = null,
-    onDelete: () -> Unit,
-    onSync: (Int) -> Unit,
-    onTransfer: () -> Unit,
-    showSync: Boolean,
-) {
-    var menuExpanded by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongPress
-            ),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) LightGray else White
-        ),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Icon(
-                imageVector = when (order) {
-                    is OrderItem.InternalOrder -> Icons.Default.Home
-                    is OrderItem.ExternalOrder -> Icons.Default.LocalShipping
-                },
-                contentDescription =  when (order) {
-                    is OrderItem.InternalOrder -> "Internal"
-                    is OrderItem.ExternalOrder -> "External"
-                },
-                tint =  if (order.status == OrderStatus.U_PROCESU) MassecRed else DeepNavy,
-                modifier = Modifier.size(28.dp)
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = when (order) {
-                        is OrderItem.InternalOrder -> "Interna narudžba: ${order.id}"
-                        is OrderItem.ExternalOrder -> "Vanjska narudžba: ${order.id}"
-                    },
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = DeepNavy
-                )
-                Text("Dodano: ${order.timestamp}", fontSize = 12.sp, color = DarkText)
-
-                when (order) {
-                    is OrderItem.InternalOrder -> {
-                        Text("Sa: ${order.fromLocation}", fontSize = 12.sp, color = DarkText)
-                        Text("Na: ${order.toLocation}", fontSize = 12.sp, color = DarkText)
-                    }
-
-                    is OrderItem.ExternalOrder -> {
-                        Text("Dobavljač: ${order.supplier}", fontSize = 12.sp, color = DarkText)
-                        Text("Skladište: ${order.warehouse}", fontSize = 12.sp, color = DarkText)
-                    }
-                }
-
-                Text(
-                    "Status: ${if (order.status.name == "U_PROCESU") "U procesu" else "Zatvoreno"}",
-                    fontSize = 12.sp,
-                    color = DarkText
-                )
-            }
-
-            Box(
-                modifier = Modifier.size(32.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                if (selectionMode) {
-                    Box(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .background(
-                                if (isSelected) DeepNavy else Color.Transparent,
-                                shape = CircleShape
-                            )
-                            .border(
-                                width = 2.dp,
-                                color = if (isSelected) DeepNavy else LightGray,
-                                shape = CircleShape
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (isSelected) {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Selected",
-                                tint = LightGray,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                    }
-                } else if (showSync) {
-                    IconButton(onClick = { menuExpanded = true}) {
-                        Icon(
-                            Icons.Default.MoreVert,
-                            contentDescription = "Menu",
-                            tint = DeepNavy
-                        )
-                    }
-                }
-
-                DropdownMenu(
-                    containerColor = White,
-                    expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false }
-                ) {
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                "Sinkroniziraj",
-                                color = DarkText
-                            )
-                        },
-                        onClick = {
-                            onSync(order.id)
-                            menuExpanded = false
-                        },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Sync,
-                                contentDescription = "Sync",
-                                tint = DeepNavy
-                            )
-                        }
-                    )
-
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                "Izbriši",
-                                color = DarkText
-                            )
-                        },
-                        onClick = {
-                            onDelete()
-                            menuExpanded = false
-                        },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = "Delete",
-                                tint = DeepNavy
-                            )
-                        }
-                    )
-
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                "Prebaci na skladište",
-                                color = DarkText
-                            )
-                        },
-                        onClick = {
-                            onTransfer()
-                            menuExpanded = false
-                        },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Warehouse,
-                                contentDescription = "Transfer",
-                                tint = DeepNavy
-                            )
-                        }
-                    )
-                }
             }
         }
     }

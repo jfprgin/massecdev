@@ -1,42 +1,26 @@
 package com.example.loginhttp.ui.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -47,27 +31,23 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.IssuingGoodsViewModel
+import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.ui.components.BottomSheet
 import com.example.loginhttp.ui.components.FieldType
 import com.example.loginhttp.ui.components.FormField
-import com.example.loginhttp.model.IssuingGoodsItem
 import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SelectionToolbar
+import com.example.loginhttp.ui.components.UnifiedItemCard
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
@@ -149,9 +129,9 @@ fun IssuingGoodsScreen(
                         selectedCount = selectedItems.size,
                         onSelectAll = {
                             val relevantItems = if (pagerState.currentPage == 0) {
-                                syncedItems
-                            } else {
                                 unsyncedItems
+                            } else {
+                                syncedItems
                             }
                             viewModel.selectAll(relevantItems.map { it.id })
                         },
@@ -206,8 +186,11 @@ fun IssuingGoodsScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(list) { item ->
-                            IssuingGoodsItemCard(
-                                item = item,
+                            UnifiedItemCard(
+                                id = item.id.toString(),
+                                icon = if (item.synced) Icons.Filled.Lock else Icons.Filled.LockOpen,
+                                iconTint = if (item.synced) DeepNavy else MassecRed,
+                                isSynced = item.synced,
                                 isSelected = selectedItems.contains(item.id),
                                 selectionMode = isInSelectionMode,
                                 onClick = {
@@ -216,13 +199,22 @@ fun IssuingGoodsScreen(
                                 onLongPress = {
                                     viewModel.toggleSelection(item.id)
                                 },
-                                onDelete = {
-                                    viewModel.confirmDelete(listOf(item.id))
+                                infoRows = buildList {
+                                    add("Vrijeme" to item.timestamp)
                                 },
-                                onSync = {
-                                    if (!item.synced) viewModel.syncItem(item.id)
+                                actions = buildList {
+                                    if (!item.synced) {
+                                        add(
+                                            CardAction("Sinkroniziraj", Icons.Default.Sync) {
+                                                viewModel.syncItem(item.id)
+                                            }
+                                        )
+                                    }
+                                    add(CardAction("Izbriši", Icons.Default.Delete) {
+                                        viewModel.confirmDelete(listOf(item.id))
+                                        }
+                                    )
                                 },
-                                showSync = !item.synced
                             )
                         }
                     }
@@ -261,143 +253,6 @@ fun IssuingGoodsScreen(
                         viewModel.toggleSheet(false)
                     },
                 )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun IssuingGoodsItemCard(
-    item: IssuingGoodsItem,
-    isSelected: Boolean,
-    selectionMode: Boolean,
-    onClick: () -> Unit,
-    onLongPress: () -> Unit,
-    onDelete: () -> Unit,
-    onSync: (Int) -> Unit,
-    showSync: Boolean
-) {
-    var menuExpanded by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongPress
-            ),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) LightGray else White
-        ),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(16.dp),
-        ) {
-            Icon(
-                if (item.synced) {
-                    Icons.Filled.Lock
-                } else {
-                    Icons.Filled.LockOpen
-                },
-                contentDescription = if (item.synced) "Synced" else "Unsynced",
-                tint = if (item.synced) DeepNavy else MassecRed,
-                modifier = Modifier.size(28.dp)
-            )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                androidx.compose.material3.Text("Prijem robe: ${item.id}", fontSize = 18.sp, color = DeepNavy)
-                androidx.compose.material3.Text(item.timestamp, fontSize = 14.sp, color = DarkText)
-            }
-
-            Box {
-                if (selectionMode) {
-                    Box(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .background(
-                                if (isSelected) DeepNavy else Color.Transparent,
-                                shape = CircleShape
-                            )
-                            .border(
-                                width = 2.dp,
-                                color = if (isSelected) DeepNavy else LightGray,
-                                shape = CircleShape
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (isSelected) {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Selected",
-                                tint = LightGray,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                    }
-                }else {
-                    IconButton(onClick = { menuExpanded = true}) {
-                        Icon(
-                            Icons.Default.MoreVert,
-                            contentDescription = "Menu",
-                            tint = DeepNavy
-                        )
-                    }
-                }
-
-                DropdownMenu(
-                    containerColor = White,
-                    expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false }
-                ) {
-                    if (showSync) {
-                        DropdownMenuItem(
-                            text = {
-                                androidx.compose.material3.Text(
-                                    "Sinkroniziraj",
-                                    color = DarkText
-                                )
-                            },
-                            onClick = {
-                                onSync(item.id)
-                                menuExpanded = false
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Default.Sync,
-                                    contentDescription = "Sync",
-                                    tint = DeepNavy
-                                )
-                            }
-                        )
-                    }
-                    DropdownMenuItem(
-                        text = { androidx.compose.material3.Text(
-                            "Izbriši",
-                            color = DarkText
-                        ) },
-                        onClick = {
-                            onDelete()
-                            menuExpanded = false
-                        },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = "Delete",
-                                tint = DeepNavy
-                            )
-                        }
-                    )
-                }
             }
         }
     }
