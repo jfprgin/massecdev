@@ -49,7 +49,7 @@ import com.example.loginhttp.ui.theme.White
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun UnifiedItemCard(
-    id: String,
+    id: String? = null,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     iconTint: Color = DeepNavy,
@@ -69,9 +69,9 @@ fun UnifiedItemCard(
         Modifier.clickable(onClick = onClick)
     }
 
-    val idBackground = when {
-        isSynced == true -> DeepNavy
-        isSynced == false -> MassecRed
+    val idBackground = when (isSynced) {
+        true -> DeepNavy
+        false -> MassecRed
         else -> DeepNavy
     }
 
@@ -105,36 +105,41 @@ fun UnifiedItemCard(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                // ID label
-                Box(
-                    modifier = Modifier
-                        .background(idBackground, shape = RoundedCornerShape(6.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = id,
-                        color = White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                    )
-                }
+                if (id != null) {
+                    // ID label
+                    Box(
+                        modifier = Modifier
+                            .background(idBackground, shape = RoundedCornerShape(6.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = id,
+                            color = White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                        )
+                    }
 
-                Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
 
                 // Info rows
                 infoRows.forEach { (label, value) ->
                     val text = if (!label.isNullOrBlank()) "$label: $value" else value
                     Text(
                         text,
-                        fontSize = 16.sp,
-                        color = DarkText
+                        fontSize = 18.sp,
+                        color = DarkText,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
 
             // Right-side actions
             Box(
-                modifier = Modifier.padding(start = 8.dp),
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .size(32.dp),
             ) {
                 when {
                     selectionMode -> {
