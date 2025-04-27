@@ -5,43 +5,34 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.CostCentersViewModels
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.MenuHeader
+import com.example.loginhttp.ui.components.SearchBar
 import com.example.loginhttp.ui.components.SelectionToolbar
 import com.example.loginhttp.ui.components.UnifiedItemCard
-import com.example.loginhttp.ui.theme.DarkGray
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
-import com.example.loginhttp.ui.theme.MassecRed
 import com.example.loginhttp.ui.theme.White
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 
@@ -106,39 +97,14 @@ fun CostCentersScreen(
                 )
             }
 
-            OutlinedTextField(
+            SearchBar(
                 value = viewModel.searchQuery,
                 onValueChange = viewModel::onSearchChange,
-                placeholder = {
-                    Text(
-                        "Pretraži mjesta troškova (${costCenters.size})",
-                        color = DarkGray,
-                        fontSize = 18.sp
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, start = 16.dp, end = 16.dp),
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = DeepNavy
-                    )
-                },
-                shape = RoundedCornerShape(12.dp),
-                colors = TextFieldDefaults.colors(
-                    unfocusedIndicatorColor = DeepNavy,
-                    focusedIndicatorColor = MassecRed,
-                    focusedContainerColor = White,
-                    unfocusedContainerColor = White
-                ),
-                singleLine = true,
-                textStyle = TextStyle(fontSize = 16.sp)
+                placeholderText = "Pretraži mjesta troškova (${costCenters.size})"
             )
 
             LazyColumn(
-                contentPadding = PaddingValues(16.dp),
+                contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(costCenters) { costCenter ->
