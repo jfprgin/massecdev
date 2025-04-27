@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.loginhttp.TransferOfGoodsViewModel
+import com.example.loginhttp.VirtualWarehouseViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.BottomSheet
@@ -57,11 +57,11 @@ import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
 @Composable
-fun TransferOfGoodsScreen(
+fun VirtualWarehouseScreen(
     selectedScreen: String = "Warehouse",
-    onNavigate: (String) -> Unit = {},
+    onNavigate: (String) -> Unit,
 ) {
-    val viewModel: TransferOfGoodsViewModel = viewModel()
+    val viewModel: VirtualWarehouseViewModel = viewModel()
 
     val items by viewModel.items.collectAsState()
     val isSheetVisible by viewModel.isSheetVisible.collectAsState()
@@ -78,7 +78,7 @@ fun TransferOfGoodsScreen(
     val scope = rememberCoroutineScope()
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val screenWith = LocalConfiguration.current.screenWidthDp.dp
 
     val previousPage = remember { mutableIntStateOf(pagerState.currentPage) }
 
@@ -98,7 +98,7 @@ fun TransferOfGoodsScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { viewModel.toggleSheet(true)},
+                onClick = { viewModel.toggleSheet(true) },
                 contentColor = DeepNavy,
                 containerColor = DeepNavy,
                 shape = CircleShape
@@ -122,7 +122,7 @@ fun TransferOfGoodsScreen(
                 .background(LightGray)
         ) {
             Column {
-                MenuHeader(screenWidth = screenWidth, title = "Prijenos robe")
+                MenuHeader(screenWidth = screenWith, title = "Virtualno skladište")
 
                 if (isInSelectionMode) {
                     SelectionToolbar(
@@ -138,8 +138,8 @@ fun TransferOfGoodsScreen(
                         actions = buildList {
                             if (pagerState.currentPage == 0) {
                                 add(Icons.Default.Sync to { viewModel.syncSelectedItems() })
+                                add(Icons.Default.Delete to { viewModel.confirmDelete(selectedItems.toList()) })
                             }
-                            add(Icons.Default.Delete to { viewModel.confirmDelete(selectedItems.toList()) })
                         }
                     )
                 }
@@ -179,7 +179,7 @@ fun TransferOfGoodsScreen(
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.fillMaxSize()
-                ) { page ->
+                ) { page->
                     val list = if (page == 0) unsyncedItems else syncedItems
                     LazyColumn(
                         contentPadding = PaddingValues(16.dp),
@@ -197,10 +197,14 @@ fun TransferOfGoodsScreen(
                                     if (isInSelectionMode) viewModel.toggleSelection(item.id)
                                 },
                                 onLongPress = {
-                                    viewModel.toggleSelection(item.id)
+                                    if (pagerState.currentPage == 0) {
+                                        viewModel.toggleSelection(item.id)
+                                    }
                                 },
                                 infoRows = buildList {
                                     add("Vrijeme" to item.timestamp)
+                                    add("Skladište" to item.warehouse)
+                                    add("Dodao" to item.addedBy)
                                 },
                                 actions = buildList {
                                     if (!item.synced) {
@@ -209,12 +213,12 @@ fun TransferOfGoodsScreen(
                                                 viewModel.syncItem(item.id)
                                             }
                                         )
+                                        add(
+                                            CardAction("Izbriši", Icons.Default.Delete) {
+                                                viewModel.confirmDelete(listOf(item.id))
+                                            }
+                                        )
                                     }
-                                    add(
-                                        CardAction("Izbriši", Icons.Default.Delete) {
-                                            viewModel.confirmDelete(listOf(item.id))
-                                        }
-                                    )
                                 },
                             )
                         }
@@ -237,20 +241,21 @@ fun TransferOfGoodsScreen(
                         FieldType.DROPDOWN,
                         listOf("Skladište 1", "Skladište 2", "Skladište 3"),
                     ),
+                    // TODO: Korisnik se ne odabire, već se automatski dodaje
                     FormField(
-                        "Mjesto troška",
+                        "Dodao",
                         FieldType.DROPDOWN,
-                        listOf("Mjesto troška 1", "Mjesto troška 2", "Mjesto troška 3"),
+                        listOf("Korisnik 1", "Korisnik 2", "Korisnik 3"),
                     )
                 )
 
                 BottomSheet(
-                    title = "Prijenos robe",
+                    title = "Virtualno skladište",
                     fields = fields,
                     onDismiss = { viewModel.toggleSheet(false) },
                     onSubmit = { values ->
-                        val (warehouse, costCenter) = values
-                        viewModel.addItem(warehouse, costCenter)
+                        val (warehouse, addedBy) = values
+                        viewModel.addItem(warehouse, addedBy)
                         viewModel.toggleSheet(false)
                     },
                 )
@@ -261,8 +266,8 @@ fun TransferOfGoodsScreen(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun TransferOfGoodsScreenPreview() {
-    TransferOfGoodsScreen(
-        onNavigate = {},
+fun PreviewVirtualWarehouseScreen() {
+    VirtualWarehouseScreen(
+        onNavigate = {}
     )
 }
