@@ -23,7 +23,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.loginhttp.CostCentersViewModels
+import com.example.loginhttp.CostCentersViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
@@ -41,7 +41,7 @@ fun CostCentersScreen(
     selectedScreen: String = "Settings",
     onNavigate: (String) -> Unit,
 ) {
-    val viewModel: CostCentersViewModels = viewModel()
+    val viewModel: CostCentersViewModel = viewModel()
 
     val costCenters by viewModel.items.collectAsState()
 

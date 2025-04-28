@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.example.loginhttp.model.CostCenterItem
 
-class CostCentersViewModels: BaseListViewModel<CostCenterItem>() {
+class CostCentersViewModel: BaseListViewModel<CostCenterItem>() {
     init {
         _items.value = listOf(
             CostCenterItem(1, "PRODAJA"),
