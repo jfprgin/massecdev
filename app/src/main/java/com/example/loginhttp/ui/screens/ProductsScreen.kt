@@ -2,33 +2,21 @@ package com.example.loginhttp.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.ImportExport
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Upload
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,13 +26,14 @@ import com.example.loginhttp.ProductsViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
+import com.example.loginhttp.ui.components.FabAction
+import com.example.loginhttp.ui.components.FloatingButtonMenu
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SearchBar
 import com.example.loginhttp.ui.components.SelectionToolbar
 import com.example.loginhttp.ui.components.UnifiedItemCard
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
-import com.example.loginhttp.ui.theme.White
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @Composable
@@ -61,8 +50,6 @@ fun ProductsScreen(
 
     val pendingDeleteIds by viewModel.pendingDeleteIds.collectAsState()
 
-    var menuExpanded by remember {  mutableStateOf(false) }
-
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
@@ -74,75 +61,13 @@ fun ProductsScreen(
 
     Scaffold(
         floatingActionButton = {
-            Box(
-                Modifier.padding(bottom = 8.dp, end = 8.dp)
-            ) {
-                FloatingActionButton(
-                    onClick = { menuExpanded = true },
-                    contentColor = DeepNavy,
-                    containerColor = DeepNavy,
-                    shape = CircleShape
-                ) {
-                    Icon(
-                        Icons.Default.MoreVert,
-                        contentDescription = "Menu",
-                        tint = White
-                    )
-                }
-
-                DropdownMenu(
-                    expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .background(White)
-                        .padding(8.dp),
-
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Preuzmi") },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Download,
-                                contentDescription = "Download",
-                                tint = DeepNavy
-                            )
-                        },
-                        onClick = {
-                            viewModel.downloadItems()
-                            menuExpanded = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Učitaj") },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Upload,
-                                contentDescription = "Upload",
-                                tint = DeepNavy
-                            )
-                        },
-                        onClick = {
-                            viewModel.loadItems()
-                            menuExpanded = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Izvoz") },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.ImportExport,
-                                contentDescription = "Export",
-                                tint = DeepNavy
-                            )
-                        },
-                        onClick = {
-                            viewModel.exportItems()
-                            menuExpanded = false
-                        }
-                    )
-                }
-            }
+            FloatingButtonMenu(
+                actions = listOf(
+                    FabAction("Preuzmi", Icons.Default.Download) { viewModel.downloadItems() },
+                    FabAction("Učitaj", Icons.Default.Upload) { viewModel.loadItems() },
+                    FabAction("Izvoz", Icons.Default.ImportExport) { viewModel.exportItems() }
+                ),
+            )
         },
 
         bottomBar = {

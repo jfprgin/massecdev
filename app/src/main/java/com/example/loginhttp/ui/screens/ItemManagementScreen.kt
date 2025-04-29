@@ -2,37 +2,43 @@ package com.example.loginhttp.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.ItemManagementViewModel
 import com.example.loginhttp.model.CardAction
+import com.example.loginhttp.model.CatalogItem
 import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
+import com.example.loginhttp.ui.components.FloatingButtonMenu
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SearchBar
 import com.example.loginhttp.ui.components.SelectionToolbar
@@ -44,20 +50,25 @@ import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @Composable
 fun ItemManagementScreen(
-    selectedScreen: String,
+    selectedScreen: String, // TODO: Define the type of selectedScreen
     onNavigate: (String) -> Unit,
 ) {
     val viewModel: ItemManagementViewModel = viewModel()
 
     val items by viewModel.items.collectAsState()
-    val isSheetVisible by viewModel.isSheetVisible.collectAsState()
 
     val selectedItems by viewModel.selectedItems.collectAsState()
     val isInSelectionMode = selectedItems.isNotEmpty()
 
     val pendingDeleteIds by viewModel.pendingDeleteIds.collectAsState()
 
-    var menuExpanded by remember {  mutableStateOf(false) }
+    val inlineSearchQuery = viewModel.inlineSearchQuery
+    val isAddItemDialogOpen = viewModel.isAddItemDialogOpen
+    val catalogSearchResults by viewModel.catalogSearchresults.collectAsState()
+
+    var filteredItems = remember(inlineSearchQuery, items) {
+        items.filter { it.name.contains(inlineSearchQuery, ignoreCase = true) }
+    }
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWith = LocalConfiguration.current.screenWidthDp.dp
@@ -69,20 +80,12 @@ fun ItemManagementScreen(
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
     Scaffold(
-        // TODO: Add other actions to the menu and a dropdown menu
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.opeAddItemDialog() },
-                contentColor = DeepNavy,
-                containerColor = DeepNavy,
-                shape = CircleShape
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Add",
-                    tint = White
-                )
-            }
+            FloatingButtonMenu(
+                onAddClick = {
+                    viewModel.opeAddItemDialog()
+                }
+            )
         },
 
         bottomBar = {
@@ -113,7 +116,7 @@ fun ItemManagementScreen(
                 SearchBar(
                     value = viewModel.inlineSearchQuery,
                     onValueChange = viewModel::onInlineSearchChange,
-                    placeholderText = "Pretraži artikle (${items.size})",
+                    placeholderText = "Pretraži (${items.size})",
                 )
 
                 LazyColumn(
@@ -132,11 +135,11 @@ fun ItemManagementScreen(
                             onLongPress = {
                                 viewModel.toggleSelection(item.id)
                             },
-                            infoRows = buildList {
-                                add("Naziv" to item.name)
-                                add("Barkod" to item.code.toString())
-                                add("Mjerna jedinica" to item.unitOfMeasure.toString())
-                            },
+                            infoRows = listOf(
+                                null to item.name,
+                                item.code?.let { "Šifra" to it },
+                                item.unitOfMeasure?.let { "Mjerna jedinica" to it },
+                            ).filterNotNull(),
                             actions = listOf(
                                 CardAction("Izbriši", Icons.Default.Delete) {
                                     viewModel.confirmDelete(listOf(item.id))
@@ -156,6 +159,80 @@ fun ItemManagementScreen(
                             viewModel.clearPendingDelete()
                         }
                     )
+                }
+            }
+
+            if (isAddItemDialogOpen) {
+                AddItemDialog(
+                    searchQuery = viewModel.addItemSearchQuery,
+                    onSearchChange = viewModel::onAddItemSearchChange,
+                    searchResults = catalogSearchResults,
+                    onItemSelected = { item ->
+                        viewModel.addItem(item)
+                    },
+                    onDismiss = viewModel::closeAddItemDialog,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun AddItemDialog(
+    searchQuery: String,
+    onSearchChange: (String) -> Unit,
+    searchResults: List<CatalogItem>,
+    onItemSelected: (CatalogItem) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val dialogHeight = LocalConfiguration.current.screenHeightDp.dp * 0.8f
+    val dialogWidth = LocalConfiguration.current.screenWidthDp.dp * 0.9f
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            tonalElevation = 8.dp,
+            modifier = Modifier
+                .widthIn(max = dialogWidth)
+                .heightIn(max = dialogHeight)
+        ) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .background(White)
+                    .padding(16.dp)
+            ) {
+                SearchBar(
+                    value = searchQuery,
+                    onValueChange = onSearchChange,
+                    placeholderText = "Unesite naziv, barkod ili šifru",
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                LazyColumn(
+                    contentPadding = PaddingValues(8.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(White)
+                ) {
+                    items(searchResults) { item ->
+                        Text(
+                            text = item.name,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp)
+                                .background(White, shape = RoundedCornerShape(8.dp))
+                                .clickable {
+                                    onItemSelected(item)
+                                    onDismiss()
+                                },
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
                 }
             }
         }

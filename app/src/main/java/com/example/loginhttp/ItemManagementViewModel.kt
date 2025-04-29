@@ -45,16 +45,13 @@ class ItemManagementViewModel: BaseListViewModel<ManagedItem>() {
             CatalogItem(1, "Barcode1", "Code1", "Product A", "KG", ItemType.PRODUCT),
             CatalogItem(2, "Barcode2", "Code2", "Product B", "L", ItemType.PRODUCT),
             CatalogItem(3, "Barcode3", "Code3", "Product C", "KG", ItemType.PRODUCT),
-        ).filter {
-            if (it.code != null && it.barcode != null) {
-                it.name.contains(query, ignoreCase = true) ||
-                it.code.contains(query, ignoreCase = true)  ||
-                it.barcode.contains(query, ignoreCase = true)
-            } else {
-                it.name.contains(query, ignoreCase = true)
-            }
+        )
+
+        catalogSearchresults.value = fakeReuslts.filter { item ->
+            item.name.contains(query, ignoreCase = true) ||
+            (item.code?.contains(query, ignoreCase = true) == true) ||
+            (item.barcode?.contains(query, ignoreCase = true) == true)
         }
-        catalogSearchresults.value = fakeReuslts
     }
 
     fun addItem(newItem: CatalogItem) {
