@@ -2,6 +2,7 @@ package com.example.loginhttp.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,9 +28,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -43,6 +47,7 @@ import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SearchBar
 import com.example.loginhttp.ui.components.SelectionToolbar
 import com.example.loginhttp.ui.components.UnifiedItemCard
+import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
 import com.example.loginhttp.ui.theme.White
@@ -64,11 +69,7 @@ fun ItemManagementScreen(
 
     val inlineSearchQuery = viewModel.inlineSearchQuery
     val isAddItemDialogOpen = viewModel.isAddItemDialogOpen
-    val catalogSearchResults by viewModel.catalogSearchresults.collectAsState()
-
-    var filteredItems = remember(inlineSearchQuery, items) {
-        items.filter { it.name.contains(inlineSearchQuery, ignoreCase = true) }
-    }
+    val catalogSearchResults by viewModel.catalogSearchResults.collectAsState()
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWith = LocalConfiguration.current.screenWidthDp.dp
@@ -83,7 +84,7 @@ fun ItemManagementScreen(
         floatingActionButton = {
             FloatingButtonMenu(
                 onAddClick = {
-                    viewModel.opeAddItemDialog()
+                    viewModel.openAddItemDialog()
                 }
             )
         },
@@ -185,12 +186,16 @@ fun AddItemDialog(
     onItemSelected: (CatalogItem) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val dialogHeight = LocalConfiguration.current.screenHeightDp.dp * 0.8f
+    val dialogHeight = LocalConfiguration.current.screenHeightDp.dp * 0.7f
     val dialogWidth = LocalConfiguration.current.screenWidthDp.dp * 0.9f
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true,
+        )
     ) {
         Surface(
             shape = RoundedCornerShape(12.dp),
@@ -202,38 +207,83 @@ fun AddItemDialog(
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .background(White)
+                    .background(LightGray)
                     .padding(16.dp)
             ) {
                 SearchBar(
                     value = searchQuery,
                     onValueChange = onSearchChange,
                     placeholderText = "Unesite naziv, barkod ili šifru",
+                    backgroundColor = LightGray,
+                    searchBarColor = White,
                 )
 
-                Spacer(Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 LazyColumn(
-                    contentPadding = PaddingValues(8.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(White)
+                        .background(LightGray)
                 ) {
                     items(searchResults) { item ->
-                        Text(
-                            text = item.name,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp)
-                                .background(White, shape = RoundedCornerShape(8.dp))
-                                .clickable {
-                                    onItemSelected(item)
-                                    onDismiss()
-                                },
-                            style = MaterialTheme.typography.bodyLarge,
+                        CatalogItemRow(
+                            item = item,
+                            onClick = {
+                                onItemSelected(item)
+                                onDismiss()
+                            }
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun CatalogItemRow(item: CatalogItem, onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        color = White,
+        shadowElevation = 4.dp,
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                item.name,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = DeepNavy,
+                )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            item.code?.let {
+                Text(
+                    text = "Šifra: $it",
+                    fontSize = 16.sp,
+                    color = DarkText,
+                )
+            }
+            item.barcode?.let {
+                Text(
+                    text = "Barkod: $it",
+                    fontSize = 16.sp,
+                    color = DarkText
+                )
+            }
+            item.unitOfMeasure?.let {
+                Text(
+                    text = "Mjerna jedinica: $it",
+                    fontSize = 16.sp,
+                    color = DarkText
+                )
             }
         }
     }

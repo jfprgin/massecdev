@@ -13,6 +13,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,11 +28,13 @@ fun SearchBar(
     value: String,
     onValueChange: (String) -> Unit,
     placeholderText: String = "Search",
+    backgroundColor: Color = White,
+    searchBarColor: Color = LightGray,
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(White)
+            .background(backgroundColor)
     ) {
         OutlinedTextField(
             value = value,
@@ -57,8 +60,8 @@ fun SearchBar(
             colors = TextFieldDefaults.colors(
                 unfocusedIndicatorColor = DeepNavy,
                 focusedIndicatorColor = MassecRed,
-                focusedContainerColor = LightGray,
-                unfocusedContainerColor = LightGray
+                focusedContainerColor = searchBarColor,
+                unfocusedContainerColor = searchBarColor
             ),
             singleLine = true,
             textStyle = TextStyle(fontSize = 16.sp)
