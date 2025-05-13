@@ -104,4 +104,7 @@ dependencies {
 
     implementation (libs.androidx.paging.runtime)
     implementation (libs.androidx.paging.compose)
+
+    // Navigation with Jetpack Compose
+    implementation(libs.androidx.navigation.compose)
 }

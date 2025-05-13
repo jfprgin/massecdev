@@ -17,6 +17,9 @@ class LoginViewModel(application: Application? = null) : AndroidViewModel(applic
     private val _loginState = MutableStateFlow("")
     val loginState = _loginState.asStateFlow()
 
+    private val _loginSuccess = MutableStateFlow(false)
+    val loginSuccess = _loginSuccess.asStateFlow()
+
     private val loginRepository = application?.let { LoginRepository(it) }
 
     fun loginWithCredentials(username: String, password: String, remember: Boolean) {
@@ -64,22 +67,27 @@ class LoginViewModel(application: Application? = null) : AndroidViewModel(applic
         Log.d("LoginViewModel", "Handling response: $response")
         return when {
             response?.valid == true -> {
+                _loginSuccess.value = true
                 // Valid login response, returning success message
                 "Login successful!\n$response"
             }
             response?.valid == false -> {
+                _loginSuccess.value = false
                 // Invalid login response
                 "Invalid login credentials."
             }
             response?.status == 401 -> {
+                _loginSuccess.value = false
                 // Unauthorized (Invalid credentials)
                 "Unauthorized: ${response.title}"
             }
             response?.status == 403 -> {
+                _loginSuccess.value = false
                 // Forbidden (License expired)
                 "Forbidden: ${response.title}"
             }
             else -> {
+                _loginSuccess.value = false
                 // Catch-all for unknown responses
                 "Unknown error: ${response?.type ?: "Unknown"}"
             }

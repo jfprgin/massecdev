@@ -30,6 +30,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,7 +57,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
+fun LoginScreen(
+    viewModel: LoginViewModel = viewModel(),
+    onLoginSuccess: () -> Unit,
+) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberMe by remember { mutableStateOf(false) }
@@ -64,12 +68,20 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
 
     var passwordVisible by remember { mutableStateOf(false) }
 
+    val loginSuccess by viewModel.loginSuccess.collectAsState()
+
     // Collect login result state
     LaunchedEffect(Unit) {
         viewModel.getSavedCredentials { savedUsername, savedPassword ->
             username = savedUsername
             password = savedPassword
             rememberMe = true
+        }
+    }
+
+    LaunchedEffect(loginSuccess) {
+        if (loginSuccess) {
+            onLoginSuccess()
         }
     }
 
@@ -239,6 +251,8 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel()) {
 @Composable
 fun PreviewLoginScreen() {
     LoginHTTPTheme {
-        LoginScreen()
+        LoginScreen(
+            onLoginSuccess = {}
+        )
     }
 }
