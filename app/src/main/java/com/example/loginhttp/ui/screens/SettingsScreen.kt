@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -63,8 +64,9 @@ fun SettingsScreen(
     selectedScreen: String = "Settings",
     onNavigate: (String) -> Unit,
     onItemClick: (String) -> Unit,
-    viewModel: SettingsViewModel = viewModel()
 ) {
+    val viewModel: SettingsViewModel = viewModel()
+
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val isRefreshing = viewModel.isRefreshing.collectAsState().value
@@ -97,45 +99,47 @@ fun SettingsScreen(
             BottomNavBar(selectedScreen = selectedScreen, onNavigate = onNavigate)
         }
     ) { innerPadding ->
-
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .statusBarsPadding()
                 .background(LightGray)
                 .pullRefresh(pullRefreshState)
         ) {
-            Column {
-                // HEADER
-                MenuHeader(screenWidth = screenWidth, title = "Postavke")
+            // HEADER
+            MenuHeader(screenWidth = screenWidth, title = "Postavke")
 
-                // Last sync info
-                Text(
-                    text = lastSync,
-                    color = DarkText,
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(top = 8.dp, bottom = 8.dp)
-                )
+            // Last sync info
+            Text(
+                text = lastSync,
+                color = DarkText,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 8.dp, bottom = 8.dp)
+            )
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    contentPadding = PaddingValues(bottom = 16.dp)
-                ) {
-                    items(settingsItems) { item ->
-                        SettingsItemCard(
-                            title = item.title,
-                            icon = item.icon,
-                            onClick = { onItemClick(item.title) }
-                        )
-                    }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                items(settingsItems) { item ->
+                    SettingsItemCard(
+                        title = item.title,
+                        icon = item.icon,
+                        onClick = { onItemClick(item.title) }
+                    )
                 }
             }
+        }
 
+        Box(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             // Pull-to-refresh indicator
             PullRefreshIndicator(
                 refreshing = isRefreshing,
@@ -202,6 +206,5 @@ fun PreviewSettingsScreen() {
     SettingsScreen(
         onNavigate = {},
         onItemClick = {},
-        viewModel = SettingsViewModel()
     )
 }

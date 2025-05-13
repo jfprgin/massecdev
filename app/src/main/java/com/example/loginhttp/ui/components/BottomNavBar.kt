@@ -13,8 +13,7 @@ import com.example.loginhttp.ui.theme.*
 @Composable
 fun BottomNavBar(selectedScreen: String, onNavigate: (String) -> Unit) {
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.onPrimary,
-        tonalElevation = 6.dp        // Slight shadow
+        containerColor = White,
     ) {
         NavigationBarItem(
             icon = { Icon(Icons.Default.Inventory, contentDescription = "Inventura") },
