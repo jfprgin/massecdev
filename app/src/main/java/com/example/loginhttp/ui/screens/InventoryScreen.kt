@@ -109,9 +109,9 @@ fun InventoryScreen(
             }
         },
 
-        bottomBar = {
-            BottomNavBar(selectedScreen = selectedScreen, onNavigate = onNavigate)
-        }
+//        bottomBar = {
+//            BottomNavBar(selectedScreen = selectedScreen, onNavigate = onNavigate)
+//        }
     ) { innerPadding ->
         Box(
             modifier = Modifier

@@ -75,9 +75,9 @@ fun InventoryGroupsScreen(
             }
         },
 
-        bottomBar = {
-            BottomNavBar(selectedScreen = selectedScreen, onNavigate = onNavigate)
-        }
+//        bottomBar = {
+//            BottomNavBar(selectedScreen = selectedScreen, onNavigate = onNavigate)
+//        }
     ) { innerPadding ->
         Column(
             Modifier

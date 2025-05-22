@@ -36,6 +36,7 @@ fun MenuScreen(onMenuClick: (String) -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(bottom = 56.dp) // Adjust for bottom navigation bar
                 .background(LightGray)
         ) {
             // HEADER
@@ -88,7 +89,7 @@ fun MenuItemCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(screenHeight * 0.26f)
+            .height(screenHeight * 0.25f)
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp),
