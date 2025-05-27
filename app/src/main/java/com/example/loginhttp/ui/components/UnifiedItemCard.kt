@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.loginhttp.model.CardAction
@@ -221,4 +223,89 @@ fun UnifiedItemCard(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewUnifiedItemCardSynced() {
+    UnifiedItemCard(
+        id = "12345",
+        icon = Icons.Default.LocalShipping,
+        iconTint = DeepNavy,
+        isSynced = true,
+        onClick = {},
+        infoRows = listOf(
+            "Naziv" to "Test Artikal",
+            "Barkod" to "1234567890123",
+            "Mjerna jedinica" to "Komad"
+        ),
+        actions = listOf(
+            CardAction("Izbriši", Icons.Default.MoreVert) { /* Do nothing */ }
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewUnifiedItemCardUnsynced() {
+    UnifiedItemCard(
+        id = "12345",
+        icon = Icons.Default.LocalShipping,
+        iconTint = MassecRed,
+        isSynced = false,
+        onClick = {},
+        infoRows = listOf(
+            "Naziv" to "Test Artikal",
+            "Barkod" to "1234567890123",
+            "Mjerna jedinica" to "Komad"
+        ),
+        actions = listOf(
+            CardAction("Izbriši", Icons.Default.MoreVert) { /* Do nothing */ }
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewUnifiedItemCardSelected() {
+    UnifiedItemCard(
+        id = "12345",
+        icon = Icons.Default.LocalShipping,
+        iconTint = DeepNavy,
+        isSynced = true,
+        isSelected = true,
+        selectionMode = true,
+        onClick = {},
+        infoRows = listOf(
+            "Naziv" to "Test Artikal",
+            "Barkod" to "1234567890123",
+            "Mjerna jedinica" to "Komad"
+        ),
+        actions = listOf(
+            CardAction("Izbriši", Icons.Default.MoreVert) { /* Do nothing */ }
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewUnifiedItemCardSelectionMode() {
+    UnifiedItemCard(
+        id = "12345",
+        icon = Icons.Default.LocalShipping,
+        iconTint = DeepNavy,
+        isSynced = true,
+        isSelected = false,
+        selectionMode = true,
+        onClick = {},
+        onLongPress = { /* Do nothing */ },
+        infoRows = listOf(
+            "Naziv" to "Test Artikal",
+            "Barkod" to "1234567890123",
+            "Mjerna jedinica" to "Komad"
+        ),
+        actions = listOf(
+            CardAction("Izbriši", Icons.Default.MoreVert) { /* Do nothing */ }
+        )
+    )
 }

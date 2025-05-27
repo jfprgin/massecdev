@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -17,7 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.loginhttp.ui.theme.DarkGray
 import com.example.loginhttp.ui.theme.DarkText
@@ -87,4 +92,17 @@ fun SelectionToolbar(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SelectionToolbarPreview() {
+    SelectionToolbar(
+        selectedCount = 5,
+        onSelectAll = {},
+        actions = listOf(
+            Pair(Icons.Default.Delete, {}),
+            Pair(Icons.Default.Sync, {}),
+        )
+    )
 }

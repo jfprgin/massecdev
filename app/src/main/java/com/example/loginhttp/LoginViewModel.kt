@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.loginhttp.data.models.LoginResponse
+import com.example.loginhttp.data.preference.PreferenceHelperImpl
 import com.example.loginhttp.data.repository.LoginRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +22,8 @@ class LoginViewModel(application: Application? = null) : AndroidViewModel(applic
     val loginSuccess = _loginSuccess.asStateFlow()
 
     private val loginRepository = application?.let { LoginRepository(it) }
+
+    private val preferenceHelper = PreferenceHelperImpl(getApplication())
 
     fun loginWithCredentials(username: String, password: String, remember: Boolean) {
         viewModelScope.launch {
@@ -67,6 +70,7 @@ class LoginViewModel(application: Application? = null) : AndroidViewModel(applic
         Log.d("LoginViewModel", "Handling response: $response")
         return when {
             response?.valid == true -> {
+                preferenceHelper.setLoggedInStatus(true)
                 _loginSuccess.value = true
                 // Valid login response, returning success message
                 "Login successful!\n$response"

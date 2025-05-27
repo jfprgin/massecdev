@@ -19,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.loginhttp.ui.theme.*
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
-import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 
@@ -36,7 +35,6 @@ fun MenuScreen(onMenuClick: (String) -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(bottom = 56.dp) // Adjust for bottom navigation bar
                 .background(LightGray)
         ) {
             // HEADER
@@ -89,7 +87,7 @@ fun MenuItemCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(screenHeight * 0.25f)
+            .height(screenHeight * 0.22f)
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp),

@@ -1,4 +1,5 @@
 package com.example.loginhttp.ui.screens
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -6,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
@@ -34,13 +36,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.InventoryViewModel
 import com.example.loginhttp.model.CardAction
+import com.example.loginhttp.navigation.BottomNavBar
+import com.example.loginhttp.navigation.UnifiedFAB
 import com.example.loginhttp.ui.components.BottomSheetWithModes
 import com.example.loginhttp.ui.components.FieldType
 import com.example.loginhttp.ui.components.FormField
 import com.example.loginhttp.ui.components.FormMode
-import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
@@ -54,11 +58,8 @@ import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
 @Composable
-fun InventoryScreen(
-    selectedScreen: String = "Inventory",
-    onNavigate: (String) -> Unit,
-) {
-    val viewModel: InventoryViewModel = viewModel()
+fun InventoryScreen(viewModel: InventoryViewModel) {
+//    val viewModel: InventoryViewModel = viewModel()
 
     val items by viewModel.items.collectAsState()
     val isSheetVisible by viewModel.isSheetVisible.collectAsState()
@@ -93,30 +94,12 @@ fun InventoryScreen(
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.toggleSheet(true)},
-                contentColor = DeepNavy,
-                containerColor = DeepNavy,
-                shape = CircleShape
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Add",
-                    tint = White
-                    )
-            }
-        },
-
-//        bottomBar = {
-//            BottomNavBar(selectedScreen = selectedScreen, onNavigate = onNavigate)
-//        }
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+
                 .background(LightGray)
         ) {
             Column {
@@ -273,10 +256,31 @@ fun InventoryScreen(
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun InventoryScreenPreview() {
-    InventoryScreen(
-        onNavigate = {},
-    )
+    val mockViewModel: InventoryViewModel = viewModel()
+
+    val mockFAB = @Composable {
+        UnifiedFAB(
+            icon = Icons.Default.Add,
+            contentDescription = "Add",
+            onClick = { mockViewModel.toggleSheet(true) }
+        )
+    }
+
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(
+                navController = rememberNavController() // can be fake
+            )
+        },
+        floatingActionButton = mockFAB
+    ) {
+        InventoryScreen(
+            viewModel = mockViewModel
+        )
+    }
+
 }
