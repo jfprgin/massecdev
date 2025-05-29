@@ -109,7 +109,7 @@ fun TransferOfGoodsScreen(
                 )
             }
         },
-}
+
     ) { innerPadding ->
         Box(
             modifier = Modifier
