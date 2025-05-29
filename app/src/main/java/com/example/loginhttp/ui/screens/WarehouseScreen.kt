@@ -17,12 +17,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.MoveToInbox
 import androidx.compose.material.icons.filled.Outbox
 import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.filled.Warehouse
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,17 +28,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.loginhttp.model.WarehouseItem
-import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
@@ -51,8 +46,6 @@ import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @Composable
 fun WarehouseScreen(
-    selectedScreen: String = "Warehouse",
-    onNavigate: (String) -> Unit,
     onItemClick: (String) -> Unit
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
@@ -61,9 +54,6 @@ fun WarehouseScreen(
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
     Scaffold (
-//        bottomBar = {
-//            BottomNavBar(selectedScreen = selectedScreen, onNavigate = onNavigate)
-//        }
     ) { innerPadding ->
 
         Column(
@@ -149,5 +139,5 @@ val warehouseItems = listOf(
 @Preview
 @Composable
 fun WarehouseScreenPreview() {
-    WarehouseScreen(selectedScreen = "Warehouse", onNavigate = {}, onItemClick = {})
+    WarehouseScreen(onItemClick = {})
 }

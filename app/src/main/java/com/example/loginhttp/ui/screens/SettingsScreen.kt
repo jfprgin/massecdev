@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.SettingsViewModel
-import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
@@ -61,8 +60,6 @@ import com.example.loginhttp.ui.utils.SetStatusBarColor
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SettingsScreen(
-    selectedScreen: String = "Settings",
-    onNavigate: (String) -> Unit,
     onItemClick: (String) -> Unit,
 ) {
     val viewModel: SettingsViewModel = viewModel()
@@ -94,10 +91,6 @@ fun SettingsScreen(
                 )
             }
         },
-
-//        bottomBar = {
-//            BottomNavBar(selectedScreen = selectedScreen, onNavigate = onNavigate)
-//        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -204,7 +197,6 @@ val settingsItems = listOf(
 @Composable
 fun PreviewSettingsScreen() {
     SettingsScreen(
-        onNavigate = {},
         onItemClick = {},
     )
 }

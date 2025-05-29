@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.InventoryListsViewModel
 import com.example.loginhttp.model.CardAction
-import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SearchBar
@@ -77,9 +76,6 @@ fun InventoryListsScreen(
             }
         },
 
-//        bottomBar = {
-//            BottomNavBar(selectedScreen = selectedScreen, onNavigate = onNavigate)
-//        }
     ) { innerPadding ->
         Column(
             Modifier

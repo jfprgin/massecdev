@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.ProductsViewModel
 import com.example.loginhttp.model.CardAction
-import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.FabAction
 import com.example.loginhttp.ui.components.FloatingButtonMenu
@@ -70,9 +69,6 @@ fun ProductsScreen(
             )
         },
 
-//        bottomBar = {
-//            BottomNavBar(selectedScreen = selectedScreen, onNavigate = onNavigate)
-//        }
     ) { innerPadding ->
         Column(
             Modifier

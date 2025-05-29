@@ -52,7 +52,6 @@ import com.example.loginhttp.ui.components.FormMode
 import com.example.loginhttp.model.OrderItem
 import com.example.loginhttp.model.OrderStatus
 import com.example.loginhttp.model.OrderType
-import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SelectionToolbar
@@ -146,9 +145,6 @@ fun OrderingGoodsScreen(
             }
         },
 
-//        bottomBar = {
-//            BottomNavBar(selectedScreen = selectedScreen, onNavigate = onNavigate)
-//        }
     ) { innerPadding  ->
         Column(
             modifier = Modifier

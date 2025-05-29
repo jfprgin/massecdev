@@ -59,7 +59,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun InventoryScreen(viewModel: InventoryViewModel) {
-//    val viewModel: InventoryViewModel = viewModel()
 
     val items by viewModel.items.collectAsState()
     val isSheetVisible by viewModel.isSheetVisible.collectAsState()

@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.LocationsViewModel
 import com.example.loginhttp.model.CardAction
-import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
@@ -76,9 +75,6 @@ fun LocationsScreen(
             }
         },
 
-//        bottomBar = {
-//            BottomNavBar(selectedScreen = selectedScreen, onNavigate = onNavigate)
-//        }
     ) { innerPadding ->
         Column(
             Modifier

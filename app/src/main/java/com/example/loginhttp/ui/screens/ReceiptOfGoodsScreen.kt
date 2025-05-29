@@ -43,7 +43,6 @@ import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.ui.components.BottomSheet
 import com.example.loginhttp.ui.components.FieldType
 import com.example.loginhttp.ui.components.FormField
-import com.example.loginhttp.ui.components.BottomNavBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SelectionToolbar
@@ -112,9 +111,6 @@ fun ReceiptOfGoodsScreen(
             }
         },
 
-//        bottomBar = {
-//            BottomNavBar(selectedScreen = selectedScreen, onNavigate = onNavigate)
-//        }
     ) { innerPadding ->
         Box(
             modifier = Modifier
