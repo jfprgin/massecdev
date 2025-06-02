@@ -5,4 +5,8 @@
     <string name="inventory_title">Inventura</string>
     <string name="warehouse_title">Skladište</string>
     <string name="settings_title">Postavlke</string>
+    <string name="receipt_of_goods_title">Prijem robe</string>
+    <string name="issuing_goods_title">Izdavanje robe</string>
+    <string name="transfer_of_goods_title">Prijenos robe</string>
+    <string name="return_of_goods_title">Povrat robe</string>
 </resources>

@@ -25,9 +25,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.InventoryViewModel
+import com.example.loginhttp.IssuingGoodsViewModel
+import com.example.loginhttp.R
+import com.example.loginhttp.ReceiptOfGoodsViewModel
+import com.example.loginhttp.ReturnOfGoodsViewModel
+import com.example.loginhttp.TransferOfGoodsViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun RootNavHost(isAuthenticated: Boolean) {
     SharedTransitionLayout {
@@ -45,6 +50,10 @@ fun RootNavHost(isAuthenticated: Boolean) {
         val rootNavBackStackEntry by rootNavHostController.currentBackStackEntryAsState()
 
         val inventoryViewModel: InventoryViewModel = viewModel()
+        val receiptOfGoodsViewModel: ReceiptOfGoodsViewModel = viewModel()
+        val issuingGoodsViewModel: IssuingGoodsViewModel = viewModel()
+        val transferOfGoodsViewModel: TransferOfGoodsViewModel = viewModel()
+        val returnOfGoodsViewModel: ReturnOfGoodsViewModel = viewModel()
 
         // Control TopBar and BottomBar
         when (rootNavBackStackEntry?.destination?.route) {
@@ -70,6 +79,30 @@ fun RootNavHost(isAuthenticated: Boolean) {
                 showBottomBarState.value = true
                 showTopBarState.value = true
                 topAppbarTitle.value = stringResource(AppScreen.Main.Settings.title!!)
+            }
+
+            WarehouseRoutes.RECEIPT_OF_GOODS -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.receipt_of_goods_title)
+            }
+
+            WarehouseRoutes.ISSUING_GOODS -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.issuing_goods_title)
+            }
+
+            WarehouseRoutes.TRANSFER_OF_GOODS -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.transfer_of_goods_title)
+            }
+
+            WarehouseRoutes.RETURN_OF_GOODS -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.return_of_goods_title)
             }
 
             else -> {
@@ -116,8 +149,14 @@ fun RootNavHost(isAuthenticated: Boolean) {
                     mainNavGraph(
                         rootNavHostController,
                         rootNavBackStackEntry,
+
                         fabContent = fabContent,
+
                         inventoryViewModel,
+                        receiptOfGoodsViewModel,
+                        issuingGoodsViewModel,
+                        transferOfGoodsViewModel,
+                        returnOfGoodsViewModel
                     )
                 }
             }

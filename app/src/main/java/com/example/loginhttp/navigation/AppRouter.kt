@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NamedNavArgument
 import com.example.loginhttp.R
 
-private object Routes {
+object AppRoutes {
     const val AUTH = "auth"
     const val LOGIN = "login"
 
@@ -20,35 +20,57 @@ private object Routes {
     const val SETTINGS = "settings"
 }
 
+object WarehouseRoutes {
+    const val RECEIPT_OF_GOODS = "receipt_of_goods"
+    const val ISSUING_GOODS = "issuing_goods"
+    const val TRANSFER_OF_GOODS = "transfer_of_goods"
+    const val RETURN_OF_GOODS = "return_of_goods"
+    const val WRITE_OFF_OF_GOODS = "write_off_of_goods"
+    const val ORDERING_GOODS = "ordering_goods"
+    const val VIRTUAL_WAREHOUSE = "virtual_warehouse"
+    const val TEMPLATES = "templates"
+
+    val all = listOf(
+        RECEIPT_OF_GOODS,
+        ISSUING_GOODS,
+        TRANSFER_OF_GOODS,
+        RETURN_OF_GOODS,
+        WRITE_OFF_OF_GOODS,
+        ORDERING_GOODS,
+        VIRTUAL_WAREHOUSE,
+        TEMPLATES
+    )
+}
+
 // TODO
 private object ArgParams {}
 
 sealed class AppScreen(val route: String) {
-    object Auth: AppScreen(Routes.AUTH) {
-        object Login: AppScreen(Routes.LOGIN)
+    object Auth: AppScreen(AppRoutes.AUTH) {
+        object Login: AppScreen(AppRoutes.LOGIN)
     }
 
-    object Main: TopLevelDestination(Routes.MAIN) {
+    object Main: TopLevelDestination(AppRoutes.MAIN) {
         object Home: TopLevelDestination(
-            route = Routes.HOME,
+            route = AppRoutes.HOME,
             title = R.string.home_title,
             icon = Icons.Default.Home
         )
 
         object Inventory: TopLevelDestination(
-            route = Routes.INVENTORY,
+            route = AppRoutes.INVENTORY,
             title = R.string.inventory_title,
             icon = Icons.Default.Inventory
         )
 
         object Warehouse: TopLevelDestination(
-            route = Routes.WAREHOUSE,
+            route = AppRoutes.WAREHOUSE,
             title = R.string.warehouse_title,
             icon = Icons.Default.Warehouse
         )
 
         object Settings: TopLevelDestination(
-            route = Routes.SETTINGS,
+            route = AppRoutes.SETTINGS,
             title =R.string.settings_title,
             icon = Icons.Default.Settings
         )

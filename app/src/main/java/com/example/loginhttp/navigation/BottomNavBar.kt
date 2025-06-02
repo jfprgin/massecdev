@@ -10,6 +10,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.loginhttp.ui.theme.*
+import com.example.loginhttp.navigation.utils.RouteUtils.isTopLevelRouteSelected
 
 @Composable
 fun BottomNavBar(navController: NavHostController) {
@@ -28,7 +29,7 @@ fun BottomNavBar(navController: NavHostController) {
 
         navigationScreen.forEach { item ->
             NavigationBarItem(
-                selected = currentRoute == item.route,
+                selected = isTopLevelRouteSelected(currentRoute, item.route),
                 label = {
                     Text(
                         text = stringResource(id = item.title!!),

@@ -4,4 +4,8 @@
     <string name="inventory_title">Inventory</string>
     <string name="warehouse_title">Warehouse</string>
     <string name="settings_title">Settings</string>
+    <string name="receipt_of_goods_title">Receipt of goods</string>
+    <string name="issuing_goods_title">Issuing goods</string>
+    <string name="transfer_of_goods_title">Transfer of goods</string>
+    <string name="return_of_goods_title">Return of goods</string>
 </resources>

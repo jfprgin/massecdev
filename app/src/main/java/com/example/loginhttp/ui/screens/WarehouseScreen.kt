@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.loginhttp.model.WarehouseItem
+import com.example.loginhttp.navigation.WarehouseRoutes
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
@@ -53,9 +54,7 @@ fun WarehouseScreen(
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold (
-    ) { innerPadding ->
-
+    Scaffold { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -79,7 +78,7 @@ fun WarehouseScreen(
                     WarehouseItemCard(
                         title = item.title,
                         icon = item.icon,
-                        onClick = { onItemClick(item.title) }
+                        onClick = { onItemClick(item.route) }
                     )
                 }
             }
@@ -124,16 +123,15 @@ fun WarehouseItemCard(
     }
 }
 
-// Example data
 val warehouseItems = listOf(
-    WarehouseItem("Prijem robe", Icons.Default.MoveToInbox),
-    WarehouseItem("Izdavanje robe", Icons.Default.Outbox),
-    WarehouseItem("Prijenos robe", Icons.Default.Sync),
-    WarehouseItem("Povrat robe", Icons.AutoMirrored.Filled.Undo),
-    WarehouseItem("Otpis robe", Icons.Default.Delete),
-    WarehouseItem("Naručivanje robe", Icons.Default.LocalShipping),
-    WarehouseItem("Virtualno skladište", Icons.Default.Warehouse),
-    WarehouseItem("Predlošci", Icons.AutoMirrored.Filled.List)
+    WarehouseItem("Prijem robe", Icons.Default.MoveToInbox, WarehouseRoutes.RECEIPT_OF_GOODS),
+    WarehouseItem("Izdavanje robe", Icons.Default.Outbox, WarehouseRoutes.ISSUING_GOODS),
+    WarehouseItem("Prijenos robe", Icons.Default.Sync, WarehouseRoutes.TRANSFER_OF_GOODS),
+    WarehouseItem("Povrat robe", Icons.AutoMirrored.Filled.Undo, WarehouseRoutes.RETURN_OF_GOODS),
+    WarehouseItem("Otpis robe", Icons.Default.Delete, WarehouseRoutes.WRITE_OFF_OF_GOODS),
+    WarehouseItem("Naručivanje robe", Icons.Default.LocalShipping, WarehouseRoutes.ORDERING_GOODS),
+    WarehouseItem("Virtualno skladište", Icons.Default.Warehouse, WarehouseRoutes.VIRTUAL_WAREHOUSE),
+    WarehouseItem("Predlošci", Icons.AutoMirrored.Filled.List, WarehouseRoutes.TEMPLATES)
 )
 
 @Preview
