@@ -42,6 +42,26 @@ object WarehouseRoutes {
     )
 }
 
+object SettingsRoutes {
+    const val PRODUCTS = "products"
+    const val SUPPLIERS = "suppliers"
+    const val WAREHOUSES = "warehouses"
+    const val COST_CENTERS = "cost_centers"
+    const val LOCATIONS = "locations"
+    const val INVENTORY_LISTS = "inventorylists"
+    const val INVENTORY_GROUPS = "inventorygroups"
+
+    val all = listOf(
+        PRODUCTS,
+        SUPPLIERS,
+        WAREHOUSES,
+        COST_CENTERS,
+        LOCATIONS,
+        INVENTORY_LISTS,
+        INVENTORY_GROUPS
+    )
+}
+
 // TODO
 private object ArgParams {}
 

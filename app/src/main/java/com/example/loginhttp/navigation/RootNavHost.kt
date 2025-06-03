@@ -7,15 +7,11 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -25,14 +21,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.InventoryViewModel
-import com.example.loginhttp.IssuingGoodsViewModel
-import com.example.loginhttp.OrderingGoodsViewModel
+import com.example.loginhttp.features.warehouse.viewmodel.IssuingGoodsViewModel
+import com.example.loginhttp.features.warehouse.viewmodel.OrderingGoodsViewModel
 import com.example.loginhttp.R
-import com.example.loginhttp.ReceiptOfGoodsViewModel
-import com.example.loginhttp.ReturnOfGoodsViewModel
-import com.example.loginhttp.TransferOfGoodsViewModel
-import com.example.loginhttp.VirtualWarehouseViewModel
-import com.example.loginhttp.WriteOffOfGoodsViewModel
+import com.example.loginhttp.SettingsViewModel
+import com.example.loginhttp.features.warehouse.viewmodel.ReceiptOfGoodsViewModel
+import com.example.loginhttp.features.warehouse.viewmodel.ReturnOfGoodsViewModel
+import com.example.loginhttp.features.warehouse.viewmodel.TransferOfGoodsViewModel
+import com.example.loginhttp.features.warehouse.viewmodel.VirtualWarehouseViewModel
+import com.example.loginhttp.features.warehouse.viewmodel.WriteOffOfGoodsViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -53,6 +50,9 @@ fun RootNavHost(isAuthenticated: Boolean) {
         val rootNavBackStackEntry by rootNavHostController.currentBackStackEntryAsState()
 
         val inventoryViewModel: InventoryViewModel = viewModel()
+        val settingsViewModel: SettingsViewModel = viewModel()
+
+        // Warehouse screens ViewModels
         val receiptOfGoodsViewModel: ReceiptOfGoodsViewModel = viewModel()
         val issuingGoodsViewModel: IssuingGoodsViewModel = viewModel()
         val transferOfGoodsViewModel: TransferOfGoodsViewModel = viewModel()
@@ -175,16 +175,17 @@ fun RootNavHost(isAuthenticated: Boolean) {
                         rootNavBackStackEntry,
 
                         fabContent = fabContent,
+                        inventoryViewModel,
+                        settingsViewModel,
 
                         // Warehouse screens
-                        inventoryViewModel,
                         receiptOfGoodsViewModel,
                         issuingGoodsViewModel,
                         transferOfGoodsViewModel,
                         returnOfGoodsViewModel,
                         writeOffOfGoodsViewModel,
                         orderingGoodsViewModel,
-                        virtualWarehouseViewModel,
+                        virtualWarehouseViewModel
                     )
                 }
             }

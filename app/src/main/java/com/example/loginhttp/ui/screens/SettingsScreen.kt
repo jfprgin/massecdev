@@ -1,5 +1,6 @@
 package com.example.loginhttp.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,18 +18,16 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Domain
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Warehouse
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -48,7 +47,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.SettingsViewModel
+import com.example.loginhttp.navigation.BottomNavBar
+import com.example.loginhttp.navigation.UnifiedFAB
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
@@ -60,12 +62,12 @@ import com.example.loginhttp.ui.utils.SetStatusBarColor
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SettingsScreen(
+    viewModel: SettingsViewModel,
     onItemClick: (String) -> Unit,
 ) {
-    val viewModel: SettingsViewModel = viewModel()
-
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+
     val isRefreshing = viewModel.isRefreshing.collectAsState().value
     val lastSync = viewModel.getLastSyncedText()
 
@@ -76,22 +78,7 @@ fun SettingsScreen(
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.refreshDatabase() },
-                contentColor = DeepNavy,
-                backgroundColor = DeepNavy,
-                shape = CircleShape
-            ) {
-                Icon(
-                    Icons.Default.Refresh,
-                    contentDescription = "Refresh",
-                    tint = White
-                )
-            }
-        },
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -193,10 +180,30 @@ val settingsItems = listOf(
     SettingsItem("Inventurne grupe", Icons.Default.Category)
 )
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewSettingsScreen() {
-    SettingsScreen(
-        onItemClick = {},
-    )
+    val mockViewModel: SettingsViewModel = viewModel()
+
+    val mockFAB = @Composable {
+        UnifiedFAB(
+            icon = Icons.Default.Add,
+            contentDescription = "Add",
+            onClick = { mockViewModel.refreshDatabase() }
+        )
+    }
+    androidx.compose.material3.Scaffold(
+        bottomBar = {
+            BottomNavBar(
+                navController = rememberNavController() // can be fake
+            )
+        },
+        floatingActionButton = mockFAB
+    ) {
+        SettingsScreen(
+            viewModel = mockViewModel,
+            onItemClick = {},
+        )
+    }
 }

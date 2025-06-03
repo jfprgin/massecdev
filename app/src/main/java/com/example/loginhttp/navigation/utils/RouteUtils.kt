@@ -1,6 +1,7 @@
 package com.example.loginhttp.navigation.utils
 
 import com.example.loginhttp.navigation.AppScreen
+import com.example.loginhttp.navigation.SettingsRoutes
 import com.example.loginhttp.navigation.WarehouseRoutes
 
 object RouteUtils {
@@ -14,7 +15,8 @@ object RouteUtils {
             AppScreen.Main.Warehouse.route -> currentRoute == AppScreen.Main.Warehouse.route ||
                 currentRoute in WarehouseRoutes.all
 
-            AppScreen.Main.Settings.route -> currentRoute == AppScreen.Main.Settings.route
+            AppScreen.Main.Settings.route -> currentRoute == AppScreen.Main.Settings.route ||
+                    currentRoute in SettingsRoutes.all
 
             else -> false
         }
