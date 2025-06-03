@@ -1,5 +1,6 @@
 package com.example.loginhttp.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -11,15 +12,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -38,8 +36,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.VirtualWarehouseViewModel
 import com.example.loginhttp.model.CardAction
+import com.example.loginhttp.navigation.BottomNavBar
+import com.example.loginhttp.navigation.UnifiedFAB
 import com.example.loginhttp.ui.components.BottomSheet
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.FieldType
@@ -56,11 +57,7 @@ import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
 @Composable
-fun VirtualWarehouseScreen(
-    selectedScreen: String = "Warehouse",
-    onNavigate: (String) -> Unit,
-) {
-    val viewModel: VirtualWarehouseViewModel = viewModel()
+fun VirtualWarehouseScreen(viewModel: VirtualWarehouseViewModel) {
 
     val items by viewModel.items.collectAsState()
     val isSheetVisible by viewModel.isSheetVisible.collectAsState()
@@ -94,23 +91,7 @@ fun VirtualWarehouseScreen(
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.toggleSheet(true) },
-                contentColor = DeepNavy,
-                containerColor = DeepNavy,
-                shape = CircleShape
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Add",
-                    tint = White
-                )
-            }
-        },
-
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -260,10 +241,30 @@ fun VirtualWarehouseScreen(
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewVirtualWarehouseScreen() {
-    VirtualWarehouseScreen(
-        onNavigate = {}
-    )
+    val mockViewModel: VirtualWarehouseViewModel = viewModel()
+
+    val mockFAB = @Composable {
+        UnifiedFAB(
+            icon = Icons.Default.Add,
+            contentDescription = "Add",
+            onClick = { mockViewModel.toggleSheet(true) }
+        )
+    }
+
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(
+                navController = rememberNavController()
+            )
+        },
+        floatingActionButton = mockFAB,
+    ) {
+        VirtualWarehouseScreen(
+            viewModel = mockViewModel
+        )
+    }
 }

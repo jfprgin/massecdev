@@ -1,5 +1,6 @@
 package com.example.loginhttp.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -38,8 +39,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.WriteOffOfGoodsViewModel
 import com.example.loginhttp.model.CardAction
+import com.example.loginhttp.navigation.BottomNavBar
+import com.example.loginhttp.navigation.UnifiedFAB
 import com.example.loginhttp.ui.components.BottomSheet
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.FieldType
@@ -56,11 +60,7 @@ import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
 @Composable
-fun WriteOffOfGoodsScreen(
-    selectedScreen: String = "Warehouse",
-    onNavigate: (String) -> Unit = {},
-) {
-    val viewModel: WriteOffOfGoodsViewModel = viewModel()
+fun WriteOffOfGoodsScreen(viewModel: WriteOffOfGoodsViewModel) {
 
     val items by viewModel.items.collectAsState()
     val isSheetVisible by viewModel.isSheetVisible.collectAsState()
@@ -94,23 +94,7 @@ fun WriteOffOfGoodsScreen(
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.toggleSheet(true) },
-                contentColor = DeepNavy,
-                containerColor = DeepNavy,
-                shape = CircleShape
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Add",
-                    tint = White
-                )
-            }
-        },
-
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -248,10 +232,31 @@ fun WriteOffOfGoodsScreen(
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun WriteOffOfGoodsScreenPreview() {
-    WriteOffOfGoodsScreen(
-        onNavigate = {},
-    )
+
+    val mockViewModel: WriteOffOfGoodsViewModel = viewModel()
+
+    val mockFAB = @Composable {
+        UnifiedFAB(
+            icon = Icons.Default.Add,
+            contentDescription = "Add",
+            onClick = { mockViewModel.toggleSheet(true) }
+        )
+    }
+
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(
+                navController = rememberNavController()
+            )
+        },
+        floatingActionButton = mockFAB,
+    ) {
+        WriteOffOfGoodsScreen(
+            viewModel = mockViewModel
+        )
+    }
 }

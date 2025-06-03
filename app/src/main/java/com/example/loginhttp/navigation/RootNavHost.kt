@@ -26,10 +26,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.InventoryViewModel
 import com.example.loginhttp.IssuingGoodsViewModel
+import com.example.loginhttp.OrderingGoodsViewModel
 import com.example.loginhttp.R
 import com.example.loginhttp.ReceiptOfGoodsViewModel
 import com.example.loginhttp.ReturnOfGoodsViewModel
 import com.example.loginhttp.TransferOfGoodsViewModel
+import com.example.loginhttp.VirtualWarehouseViewModel
+import com.example.loginhttp.WriteOffOfGoodsViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -54,6 +57,9 @@ fun RootNavHost(isAuthenticated: Boolean) {
         val issuingGoodsViewModel: IssuingGoodsViewModel = viewModel()
         val transferOfGoodsViewModel: TransferOfGoodsViewModel = viewModel()
         val returnOfGoodsViewModel: ReturnOfGoodsViewModel = viewModel()
+        val writeOffOfGoodsViewModel: WriteOffOfGoodsViewModel = viewModel()
+        val orderingGoodsViewModel: OrderingGoodsViewModel = viewModel()
+        val virtualWarehouseViewModel: VirtualWarehouseViewModel = viewModel()
 
         // Control TopBar and BottomBar
         when (rootNavBackStackEntry?.destination?.route) {
@@ -105,6 +111,24 @@ fun RootNavHost(isAuthenticated: Boolean) {
                 topAppbarTitle.value = stringResource(R.string.return_of_goods_title)
             }
 
+            WarehouseRoutes.WRITE_OFF_OF_GOODS -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.write_off_goods_title)
+            }
+
+            WarehouseRoutes.ORDERING_GOODS -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.ordering_goods_title)
+            }
+
+            WarehouseRoutes.VIRTUAL_WAREHOUSE -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.virtual_warehouse_title)
+            }
+
             else -> {
                 showBottomBarState.value = false
                 showTopBarState.value = false
@@ -152,11 +176,15 @@ fun RootNavHost(isAuthenticated: Boolean) {
 
                         fabContent = fabContent,
 
+                        // Warehouse screens
                         inventoryViewModel,
                         receiptOfGoodsViewModel,
                         issuingGoodsViewModel,
                         transferOfGoodsViewModel,
-                        returnOfGoodsViewModel
+                        returnOfGoodsViewModel,
+                        writeOffOfGoodsViewModel,
+                        orderingGoodsViewModel,
+                        virtualWarehouseViewModel,
                     )
                 }
             }

@@ -11,9 +11,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.loginhttp.InventoryViewModel
 import com.example.loginhttp.IssuingGoodsViewModel
+import com.example.loginhttp.OrderingGoodsViewModel
 import com.example.loginhttp.ReceiptOfGoodsViewModel
 import com.example.loginhttp.ReturnOfGoodsViewModel
 import com.example.loginhttp.TransferOfGoodsViewModel
+import com.example.loginhttp.VirtualWarehouseViewModel
+import com.example.loginhttp.WriteOffOfGoodsViewModel
 import com.example.loginhttp.ui.screens.InventoryScreen
 import com.example.loginhttp.ui.screens.IssuingGoodsScreen
 import com.example.loginhttp.ui.screens.MenuScreen
@@ -34,7 +37,10 @@ fun NavGraphBuilder.mainNavGraph(
     receiptOfGoodsViewModel: ReceiptOfGoodsViewModel,
     issuingGoodsViewModel: IssuingGoodsViewModel,
     transferOfGoodsViewModel: TransferOfGoodsViewModel,
-    returnOfGoodsViewModel: ReturnOfGoodsViewModel
+    returnOfGoodsViewModel: ReturnOfGoodsViewModel,
+    writeOffOfGoodsViewModel: WriteOffOfGoodsViewModel,
+    orderingGoodsViewModel: OrderingGoodsViewModel,
+    virtualWarehouseViewModel: VirtualWarehouseViewModel
 ) {
     navigation(
         startDestination = AppScreen.Main.Home.route,
@@ -115,13 +121,34 @@ fun NavGraphBuilder.mainNavGraph(
             ReturnOfGoodsScreen(viewModel = returnOfGoodsViewModel)
         }
         composable(route = WarehouseRoutes.WRITE_OFF_OF_GOODS) {
-            WriteOffOfGoodsScreen()
+            fabContent.value = {
+                UnifiedFAB(
+                    icon = Icons.Default.Add,
+                    contentDescription = "Add",
+                    onClick = { returnOfGoodsViewModel.toggleSheet(true) }
+                )
+            }
+            WriteOffOfGoodsScreen(viewModel = writeOffOfGoodsViewModel)
         }
         composable(route = WarehouseRoutes.ORDERING_GOODS) {
-//            OrderingGoodsScreen()
+            fabContent.value = {
+                UnifiedFAB(
+                    icon = Icons.Default.Add,
+                    contentDescription = "Add",
+                    onClick = { returnOfGoodsViewModel.toggleSheet(true) }
+                )
+            }
+            OrderingGoodsScreen(viewModel = orderingGoodsViewModel)
         }
         composable(route = WarehouseRoutes.VIRTUAL_WAREHOUSE) {
-//            VirtualWarehouseScreen()
+            fabContent.value = {
+                UnifiedFAB(
+                    icon = Icons.Default.Add,
+                    contentDescription = "Add",
+                    onClick = { returnOfGoodsViewModel.toggleSheet(true) }
+                )
+            }
+            VirtualWarehouseScreen(viewModel = virtualWarehouseViewModel)
         }
         composable(route = WarehouseRoutes.TEMPLATES) {
             // Not yet implemented

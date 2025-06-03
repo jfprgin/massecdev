@@ -8,4 +8,7 @@
     <string name="issuing_goods_title">Issuing goods</string>
     <string name="transfer_of_goods_title">Transfer of goods</string>
     <string name="return_of_goods_title">Return of goods</string>
+    <string name="write_off_goods_title">Write off goods</string>
+    <string name="ordering_goods_title">Ordering goods</string>
+    <string name="virtual_warehouse_title">Virtual warehouse</string>
 </resources>

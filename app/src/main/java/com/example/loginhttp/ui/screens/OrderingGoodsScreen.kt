@@ -1,5 +1,6 @@
 package com.example.loginhttp.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -23,8 +23,6 @@ import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Warehouse
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -43,6 +41,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.OrderingGoodsViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.ui.components.BottomSheetWithModes
@@ -52,6 +51,8 @@ import com.example.loginhttp.ui.components.FormMode
 import com.example.loginhttp.model.OrderItem
 import com.example.loginhttp.model.OrderStatus
 import com.example.loginhttp.model.OrderType
+import com.example.loginhttp.navigation.BottomNavBar
+import com.example.loginhttp.navigation.UnifiedFAB
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SelectionToolbar
@@ -65,11 +66,7 @@ import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
 @Composable
-fun OrderingGoodsScreen(
-    selectedScreen: String = "Warehouse",
-    onNavigate: (String) -> Unit,
-) {
-    val viewModel: OrderingGoodsViewModel = viewModel()
+fun OrderingGoodsScreen(viewModel: OrderingGoodsViewModel) {
 
     val filteredOrders by viewModel.filteredOrders.collectAsState()
     val isSheetVisible by viewModel.isSheetVisible.collectAsState()
@@ -129,23 +126,7 @@ fun OrderingGoodsScreen(
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.toggleSheet(true) },
-                contentColor = DeepNavy,
-                containerColor = DeepNavy,
-                shape = CircleShape
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Add",
-                    tint = White
-                )
-            }
-        },
-
-    ) { innerPadding  ->
+    Scaffold { innerPadding  ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -397,10 +378,30 @@ fun tabIndexToOrderStatus(index: Int) = when (index) {
     else -> OrderStatus.ZATVORENO
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview
 @Composable
 fun OrderingGoodsScreenPreview() {
-    OrderingGoodsScreen(
-        onNavigate = {}
-    )
+    val mockViewModel: OrderingGoodsViewModel= viewModel()
+
+    val mockFAB = @Composable {
+        UnifiedFAB(
+            icon = Icons.Default.Add,
+            contentDescription = "Add",
+            onClick = { mockViewModel.toggleSheet(true) }
+        )
+    }
+
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(
+                navController = rememberNavController()
+            )
+        },
+        floatingActionButton = mockFAB,
+    ) {
+        OrderingGoodsScreen(
+            viewModel = mockViewModel
+        )
+    }
 }

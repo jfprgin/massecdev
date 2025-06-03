@@ -9,4 +9,7 @@
     <string name="issuing_goods_title">Izdavanje robe</string>
     <string name="transfer_of_goods_title">Prijenos robe</string>
     <string name="return_of_goods_title">Povrat robe</string>
+    <string name="write_off_goods_title">Otpis robe</string>
+    <string name="ordering_goods_title">Naručivanje robe</string>
+    <string name="virtual_warehouse_title">"Virtualno skladište "</string>
 </resources>
