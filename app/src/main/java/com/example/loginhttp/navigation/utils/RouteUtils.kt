@@ -13,7 +13,7 @@ object RouteUtils {
             AppScreen.Main.Inventory.route -> currentRoute == AppScreen.Main.Inventory.route
 
             AppScreen.Main.Warehouse.route -> currentRoute == AppScreen.Main.Warehouse.route ||
-                currentRoute in WarehouseRoutes.all
+                    currentRoute in WarehouseRoutes.all
 
             AppScreen.Main.Settings.route -> currentRoute == AppScreen.Main.Settings.route ||
                     currentRoute in SettingsRoutes.all

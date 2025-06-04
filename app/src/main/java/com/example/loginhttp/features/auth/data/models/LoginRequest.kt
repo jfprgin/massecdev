@@ -1,4 +1,4 @@
-package com.example.loginhttp.data.models
+package com.example.loginhttp.features.auth.data.models
 
 import kotlinx.serialization.Serializable
 

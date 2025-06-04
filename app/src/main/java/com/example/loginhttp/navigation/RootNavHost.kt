@@ -25,6 +25,13 @@ import com.example.loginhttp.features.warehouse.viewmodel.IssuingGoodsViewModel
 import com.example.loginhttp.features.warehouse.viewmodel.OrderingGoodsViewModel
 import com.example.loginhttp.R
 import com.example.loginhttp.SettingsViewModel
+import com.example.loginhttp.features.settings.viewmodel.CostCentersViewModel
+import com.example.loginhttp.features.settings.viewmodel.InventoryGroupsViewModel
+import com.example.loginhttp.features.settings.viewmodel.InventoryListsViewModel
+import com.example.loginhttp.features.settings.viewmodel.LocationsViewModel
+import com.example.loginhttp.features.settings.viewmodel.ProductsViewModel
+import com.example.loginhttp.features.settings.viewmodel.SuppliersViewModel
+import com.example.loginhttp.features.settings.viewmodel.WarehousesViewModel
 import com.example.loginhttp.features.warehouse.viewmodel.ReceiptOfGoodsViewModel
 import com.example.loginhttp.features.warehouse.viewmodel.ReturnOfGoodsViewModel
 import com.example.loginhttp.features.warehouse.viewmodel.TransferOfGoodsViewModel
@@ -61,6 +68,15 @@ fun RootNavHost(isAuthenticated: Boolean) {
         val orderingGoodsViewModel: OrderingGoodsViewModel = viewModel()
         val virtualWarehouseViewModel: VirtualWarehouseViewModel = viewModel()
 
+        // Settings screens ViewModels
+        val productsViewModel: ProductsViewModel = viewModel()
+        val suppliersViewModel: SuppliersViewModel = viewModel()
+        val warehousesViewModel: WarehousesViewModel = viewModel()
+        val costCentersViewModel: CostCentersViewModel = viewModel()
+        val locationsViewModel: LocationsViewModel = viewModel()
+        val inventoryListsViewModel: InventoryListsViewModel = viewModel()
+        val inventoryGroupsViewModel: InventoryGroupsViewModel = viewModel()
+
         // Control TopBar and BottomBar
         when (rootNavBackStackEntry?.destination?.route) {
             AppScreen.Main.Home.route -> {
@@ -87,6 +103,7 @@ fun RootNavHost(isAuthenticated: Boolean) {
                 topAppbarTitle.value = stringResource(AppScreen.Main.Settings.title!!)
             }
 
+            // Warehouse screens
             WarehouseRoutes.RECEIPT_OF_GOODS -> {
                 showBottomBarState.value = true
                 showTopBarState.value = true
@@ -127,6 +144,49 @@ fun RootNavHost(isAuthenticated: Boolean) {
                 showBottomBarState.value = true
                 showTopBarState.value = true
                 topAppbarTitle.value = stringResource(R.string.virtual_warehouse_title)
+            }
+
+            // Settings screens
+            SettingsRoutes.PRODUCTS -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.products_title)
+            }
+
+            SettingsRoutes.SUPPLIERS -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.suppliers_title)
+            }
+
+            SettingsRoutes.WAREHOUSES -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.warehouses_title)
+            }
+
+            SettingsRoutes.COST_CENTERS -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.cost_centers_title)
+            }
+
+            SettingsRoutes.LOCATIONS -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.locations_title)
+            }
+
+            SettingsRoutes.INVENTORY_LISTS -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.inventory_lists_title)
+            }
+
+            SettingsRoutes.INVENTORY_GROUPS -> {
+                showBottomBarState.value = true
+                showTopBarState.value = true
+                topAppbarTitle.value = stringResource(R.string.inventory_groups_title)
             }
 
             else -> {
@@ -178,14 +238,23 @@ fun RootNavHost(isAuthenticated: Boolean) {
                         inventoryViewModel,
                         settingsViewModel,
 
-                        // Warehouse screens
+                        // Warehouse screens ViewModels
                         receiptOfGoodsViewModel,
                         issuingGoodsViewModel,
                         transferOfGoodsViewModel,
                         returnOfGoodsViewModel,
                         writeOffOfGoodsViewModel,
                         orderingGoodsViewModel,
-                        virtualWarehouseViewModel
+                        virtualWarehouseViewModel,
+
+                        // Settings screens ViewModels
+                        productsViewModel,
+                        suppliersViewModel,
+                        warehousesViewModel,
+                        costCentersViewModel,
+                        locationsViewModel,
+                        inventoryListsViewModel,
+                        inventoryGroupsViewModel,
                     )
                 }
             }

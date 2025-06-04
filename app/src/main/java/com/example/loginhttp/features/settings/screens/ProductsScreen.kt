@@ -1,5 +1,6 @@
 package com.example.loginhttp.features.settings.screens
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -22,11 +23,13 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.features.settings.viewmodel.ProductsViewModel
 import com.example.loginhttp.model.CardAction
+import com.example.loginhttp.navigation.BottomNavBar
+import com.example.loginhttp.navigation.UnifiedFAB
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
-import com.example.loginhttp.ui.components.FabAction
-import com.example.loginhttp.ui.components.FloatingButtonMenu
+import com.example.loginhttp.navigation.FabAction
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SearchBar
 import com.example.loginhttp.ui.components.SelectionToolbar
@@ -36,11 +39,7 @@ import com.example.loginhttp.ui.theme.LightGray
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @Composable
-fun ProductsScreen(
-    selectedScreen: String = "Settings",
-    onNavigate: (String) -> Unit,
-) {
-    val viewModel: ProductsViewModel = viewModel()
+fun ProductsScreen(viewModel: ProductsViewModel) {
 
     val products by viewModel.items.collectAsState()
 
@@ -58,18 +57,7 @@ fun ProductsScreen(
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingButtonMenu(
-                actions = listOf(
-                    FabAction("Preuzmi", Icons.Default.Download) { viewModel.downloadItems() },
-                    FabAction("Učitaj", Icons.Default.Upload) { viewModel.loadItems() },
-                    FabAction("Izvoz", Icons.Default.ImportExport) { viewModel.exportItems() }
-                ),
-            )
-        },
-
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Column(
             Modifier
                 .fillMaxSize()
@@ -139,10 +127,31 @@ fun ProductsScreen(
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewProductsScreen() {
-    ProductsScreen(
-        onNavigate = {}
-    )
+
+    val mockViewModel: ProductsViewModel = viewModel()
+
+    val mockFAB = @Composable {
+        UnifiedFAB(
+            actions = listOf(
+                FabAction("Preuzmi", Icons.Default.Download) { mockViewModel.downloadItems() },
+                FabAction("Učitaj", Icons.Default.Upload) { mockViewModel.loadItems() },
+                FabAction("Izvoz", Icons.Default.ImportExport) { mockViewModel.exportItems() },
+            )
+        )
+    }
+
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(
+                navController = rememberNavController()
+            )
+        },
+        floatingActionButton = mockFAB
+    ) {
+        ProductsScreen(viewModel = mockViewModel)
+    }
 }

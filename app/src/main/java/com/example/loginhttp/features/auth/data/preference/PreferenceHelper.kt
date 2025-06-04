@@ -1,4 +1,4 @@
-package com.example.loginhttp.data.preference
+package com.example.loginhttp.features.auth.data.preference
 
 interface PreferenceHelper {
     fun setLoggedInStatus(isLoggedIn: Boolean)

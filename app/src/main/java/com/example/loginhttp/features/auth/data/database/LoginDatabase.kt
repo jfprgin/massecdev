@@ -1,11 +1,11 @@
-package com.example.loginhttp.data.database
+package com.example.loginhttp.features.auth.data.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.loginhttp.data.models.LoginCredentials
-import com.example.loginhttp.data.models.LoginLog
+import com.example.loginhttp.features.auth.data.models.LoginCredentials
+import com.example.loginhttp.features.auth.data.models.LoginLog
 
 @Database(entities = [LoginCredentials::class, LoginLog::class], version = 1, exportSchema = false)
 abstract class LoginDatabase: RoomDatabase() {

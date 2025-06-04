@@ -1,10 +1,9 @@
-package com.example.loginhttp.data.api
+package com.example.loginhttp.features.auth.data.api
 
 import android.util.Log
-import com.example.loginhttp.data.models.LoginResponse
+import com.example.loginhttp.features.auth.data.models.LoginResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
 import java.net.URL

@@ -1,12 +1,12 @@
-package com.example.loginhttp.data.database
+package com.example.loginhttp.features.auth.data.database
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.loginhttp.data.models.LoginCredentials
-import com.example.loginhttp.data.models.LoginLog
+import com.example.loginhttp.features.auth.data.models.LoginCredentials
+import com.example.loginhttp.features.auth.data.models.LoginLog
 
 @Dao
 interface LoginDao {

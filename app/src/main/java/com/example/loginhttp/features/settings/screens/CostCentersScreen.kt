@@ -1,5 +1,6 @@
 package com.example.loginhttp.features.settings.screens
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -8,12 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -23,8 +21,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.features.settings.viewmodel.CostCentersViewModel
 import com.example.loginhttp.model.CardAction
+import com.example.loginhttp.navigation.BottomNavBar
+import com.example.loginhttp.navigation.UnifiedFAB
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SearchBar
@@ -32,15 +33,10 @@ import com.example.loginhttp.ui.components.SelectionToolbar
 import com.example.loginhttp.ui.components.UnifiedItemCard
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
-import com.example.loginhttp.ui.theme.White
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @Composable
-fun CostCentersScreen(
-    selectedScreen: String = "Settings",
-    onNavigate: (String) -> Unit,
-) {
-    val viewModel: CostCentersViewModel = viewModel()
+fun CostCentersScreen(viewModel: CostCentersViewModel) {
 
     val costCenters by viewModel.items.collectAsState()
 
@@ -58,23 +54,7 @@ fun CostCentersScreen(
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.downloadItems() },
-                contentColor = DeepNavy,
-                containerColor = DeepNavy,
-                shape = CircleShape
-            ) {
-                Icon(
-                    Icons.Default.Download,
-                    contentDescription = "Download",
-                    tint = White
-                )
-            }
-        },
-
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Column(
             Modifier
                 .fillMaxSize()
@@ -142,10 +122,29 @@ fun CostCentersScreen(
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun CostCentersScreenPreview() {
-    CostCentersScreen(
-        onNavigate = {},
-    )
+
+    val mockViewModel: CostCentersViewModel = viewModel()
+
+    val mockFAB = @Composable {
+        UnifiedFAB(
+            icon = Icons.Default.Download,
+            contentDescription = "Download",
+            onClick = { mockViewModel.downloadItems() },
+        )
+    }
+
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(
+                navController = rememberNavController() // can be fake
+            )
+        },
+        floatingActionButton = mockFAB
+    ) {
+        CostCentersScreen(viewModel = mockViewModel)
+    }
 }

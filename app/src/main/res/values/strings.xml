@@ -11,4 +11,11 @@
     <string name="write_off_goods_title">Write off goods</string>
     <string name="ordering_goods_title">Ordering goods</string>
     <string name="virtual_warehouse_title">Virtual warehouse</string>
+    <string name="products_title">Products</string>
+    <string name="suppliers_title">Suppliers</string>
+    <string name="warehouses_title">Warehouses</string>
+    <string name="cost_centers_title">Cost centers</string>
+    <string name="locations_title">Locations</string>
+    <string name="inventory_lists_title">Inventory lists</string>
+    <string name="inventory_groups_title">Inventory groups</string>
 </resources>

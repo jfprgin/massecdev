@@ -49,7 +49,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.SettingsViewModel
+import com.example.loginhttp.model.SettingsItem
 import com.example.loginhttp.navigation.BottomNavBar
+import com.example.loginhttp.navigation.SettingsRoutes
 import com.example.loginhttp.navigation.UnifiedFAB
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.theme.DarkText
@@ -99,19 +101,18 @@ fun SettingsScreen(
                     .padding(top = 8.dp, bottom = 8.dp)
             )
 
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                contentPadding = PaddingValues(bottom = 16.dp)
             ) {
-                items(settingsItems) { item ->
+                settingsItems.forEach { item ->
                     SettingsItemCard(
                         title = item.title,
                         icon = item.icon,
-                        onClick = { onItemClick(item.title) }
+                        onClick = { onItemClick(item.route) }
                     )
                 }
             }
@@ -168,16 +169,14 @@ fun SettingsItemCard(
     }
 }
 
-data class SettingsItem(val title: String, val icon: ImageVector)
-
 val settingsItems = listOf(
-    SettingsItem("Artikli", Icons.Default.ShoppingCart),
-    SettingsItem("Dobavljači", Icons.Default.LocalShipping),
-    SettingsItem("Skladišta", Icons.Default.Warehouse),
-    SettingsItem("Mjesta troškova", Icons.Default.Domain),
-    SettingsItem("Lokacije", Icons.Default.LocationOn),
-    SettingsItem("Inventurne liste", Icons.Default.Assignment),
-    SettingsItem("Inventurne grupe", Icons.Default.Category)
+    SettingsItem("Artikli", Icons.Default.ShoppingCart, SettingsRoutes.PRODUCTS),
+    SettingsItem("Dobavljači", Icons.Default.LocalShipping, SettingsRoutes.SUPPLIERS),
+    SettingsItem("Skladišta", Icons.Default.Warehouse, SettingsRoutes.WAREHOUSES),
+    SettingsItem("Mjesta troškova", Icons.Default.Domain, SettingsRoutes.COST_CENTERS),
+    SettingsItem("Lokacije", Icons.Default.LocationOn, SettingsRoutes.LOCATIONS),
+    SettingsItem("Inventurne liste", Icons.Default.Assignment, SettingsRoutes.INVENTORY_LISTS),
+    SettingsItem("Inventurne grupe", Icons.Default.Category, SettingsRoutes.INVENTORY_GROUPS)
 )
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

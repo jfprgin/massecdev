@@ -1,12 +1,12 @@
-package com.example.loginhttp.data.repository
+package com.example.loginhttp.features.auth.data.repository
 
 import android.content.Context
-import com.example.loginhttp.data.api.ApiService
-import com.example.loginhttp.data.database.LoginDatabase
-import com.example.loginhttp.data.models.LoginCredentials
-import com.example.loginhttp.data.models.LoginLog
-import com.example.loginhttp.data.models.LoginRequest
-import com.example.loginhttp.data.models.LoginResponse
+import com.example.loginhttp.features.auth.data.api.ApiService
+import com.example.loginhttp.features.auth.data.database.LoginDatabase
+import com.example.loginhttp.features.auth.data.models.LoginCredentials
+import com.example.loginhttp.features.auth.data.models.LoginLog
+import com.example.loginhttp.features.auth.data.models.LoginRequest
+import com.example.loginhttp.features.auth.data.models.LoginResponse
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat

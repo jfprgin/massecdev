@@ -1,4 +1,4 @@
-package com.example.loginhttp.data.preference
+package com.example.loginhttp.features.auth.data.preference
 
 import android.content.Context
 import android.content.SharedPreferences

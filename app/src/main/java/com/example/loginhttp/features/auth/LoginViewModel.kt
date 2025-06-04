@@ -1,12 +1,12 @@
-package com.example.loginhttp
+package com.example.loginhttp.features.auth
 
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.loginhttp.data.models.LoginResponse
-import com.example.loginhttp.data.preference.PreferenceHelperImpl
-import com.example.loginhttp.data.repository.LoginRepository
+import com.example.loginhttp.features.auth.data.models.LoginResponse
+import com.example.loginhttp.features.auth.data.preference.PreferenceHelperImpl
+import com.example.loginhttp.features.auth.data.repository.LoginRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -48,8 +48,8 @@ object SettingsRoutes {
     const val WAREHOUSES = "warehouses"
     const val COST_CENTERS = "cost_centers"
     const val LOCATIONS = "locations"
-    const val INVENTORY_LISTS = "inventorylists"
-    const val INVENTORY_GROUPS = "inventorygroups"
+    const val INVENTORY_LISTS = "inventory_lists"
+    const val INVENTORY_GROUPS = "inventory_groups"
 
     val all = listOf(
         PRODUCTS,
