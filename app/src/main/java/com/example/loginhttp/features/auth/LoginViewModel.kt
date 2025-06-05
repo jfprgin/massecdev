@@ -25,23 +25,30 @@ class LoginViewModel(application: Application? = null) : AndroidViewModel(applic
 
     private val preferenceHelper = PreferenceHelperImpl(getApplication())
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
     fun loginWithCredentials(username: String, password: String, remember: Boolean) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 val response = withContext(Dispatchers.IO) {
                     loginRepository?.loginWithCredentials(username, password, remember)
                 }
                 Log.d("LoginViewModel", "Response: $response")
-                _loginState.value = handleResponse(response)
+                _loginState.value = handleResponse(response, remember)
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Error: ${e.message}")
                 _loginState.value = "Error: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
         }
     }
 
     fun loginWithDevice(deviceId: String, deviceMac: String) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 val response = withContext(Dispatchers.IO) {
                     loginRepository?.loginWithDevice(deviceId, deviceMac)
@@ -51,6 +58,8 @@ class LoginViewModel(application: Application? = null) : AndroidViewModel(applic
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Error: ${e.message}")
                 _loginState.value = "Error: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -66,11 +75,14 @@ class LoginViewModel(application: Application? = null) : AndroidViewModel(applic
         }
     }
 
-    private fun handleResponse(response: LoginResponse?): String {
+    private fun handleResponse(response: LoginResponse?, remember: Boolean = false): String {
         Log.d("LoginViewModel", "Handling response: $response")
         return when {
             response?.valid == true -> {
-                preferenceHelper.setLoggedInStatus(true)
+                if (remember) {
+                    // Save credentials if remember is true
+                    preferenceHelper.setLoggedInStatus(true)
+                }
                 _loginSuccess.value = true
                 // Valid login response, returning success message
                 "Login successful!\n$response"

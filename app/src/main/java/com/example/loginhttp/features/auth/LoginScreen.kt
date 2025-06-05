@@ -23,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.example.loginhttp.R
 import com.example.loginhttp.ui.theme.DarkGray
 import com.example.loginhttp.ui.theme.LightGray
@@ -68,6 +70,8 @@ fun LoginScreen(
     var passwordVisible by remember { mutableStateOf(false) }
 
     val loginSuccess by viewModel.loginSuccess.collectAsState()
+
+    val isLoading by viewModel.isLoading.collectAsState()
 
     // Collect login result state
     LaunchedEffect(Unit) {
@@ -200,8 +204,14 @@ fun LoginScreen(
             // Login with Credentials Button
             Button(
                 onClick = { viewModel.loginWithCredentials(username, password, rememberMe) },
+                enabled = username.isNotBlank() && password.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 40.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = DeepNavy)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = DeepNavy,
+                    disabledContainerColor = DeepNavy.copy(alpha = 0.4f),
+                    contentColor = Color.White,
+                    disabledContentColor = Color.White.copy(alpha = 0.6f)
+                    )
             ) {
                 Text(
                     text = "Login with credentials",
@@ -228,7 +238,7 @@ fun LoginScreen(
             )
         }
         LaunchedEffect(viewModel.loginState) {
-            viewModel.loginState?.collect { result ->
+            viewModel.loginState.collect { result ->
                 loginResult = result
             }
         }
@@ -242,6 +252,19 @@ fun LoginScreen(
                     .align(Alignment.BottomCenter) // Correct use of alignment on Box
                     .padding(16.dp) // Provide space from the bottom
             )
+        }
+    }
+
+    // Show loading indicator when isLoading is true
+    if (isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.3f))
+                .zIndex(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = DeepNavy)
         }
     }
 }
