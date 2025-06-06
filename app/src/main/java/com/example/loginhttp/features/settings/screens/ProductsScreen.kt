@@ -23,9 +23,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.features.settings.viewmodel.ProductsViewModel
 import com.example.loginhttp.model.CardAction
+import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFAB
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
@@ -147,7 +147,8 @@ fun PreviewProductsScreen() {
     Scaffold(
         bottomBar = {
             BottomNavBar(
-                navController = rememberNavController()
+                selectedTab = AppRoutes.SETTINGS,
+                onTabSelected = {}
             )
         },
         floatingActionButton = mockFAB

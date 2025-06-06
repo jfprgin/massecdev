@@ -18,6 +18,8 @@ object AppRoutes {
     const val INVENTORY = "inventory"
     const val WAREHOUSE = "warehouse"
     const val SETTINGS = "settings"
+
+    val mainTabs = listOf(HOME, INVENTORY, WAREHOUSE, SETTINGS)
 }
 
 object WarehouseRoutes {

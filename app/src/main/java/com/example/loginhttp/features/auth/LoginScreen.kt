@@ -76,9 +76,11 @@ fun LoginScreen(
     // Collect login result state
     LaunchedEffect(Unit) {
         viewModel.getSavedCredentials { savedUsername, savedPassword ->
-            username = savedUsername
-            password = savedPassword
-            rememberMe = true
+            if (savedUsername.isNotBlank() && savedPassword.isNotBlank()) {
+                username = savedUsername
+                password = savedPassword
+                rememberMe = true
+            }
         }
     }
 
@@ -260,8 +262,8 @@ fun LoginScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.3f))
-                .zIndex(1f),
+                .background(Color.Black.copy(alpha = 0.3f)),
+//                .zIndex(1f),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(color = DeepNavy)

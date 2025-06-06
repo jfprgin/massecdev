@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.InventoryViewModel
 import com.example.loginhttp.model.CardAction
+import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFAB
 import com.example.loginhttp.ui.components.BottomSheetWithModes
@@ -270,7 +271,8 @@ fun InventoryScreenPreview() {
     Scaffold(
         bottomBar = {
             BottomNavBar(
-                navController = rememberNavController() // can be fake
+                selectedTab = AppRoutes.INVENTORY,
+                onTabSelected = { /* Handle tab selection */ }
             )
         },
         floatingActionButton = mockFAB

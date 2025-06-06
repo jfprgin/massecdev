@@ -36,9 +36,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.features.warehouse.viewmodel.IssuingGoodsViewModel
 import com.example.loginhttp.model.CardAction
+import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFAB
 import com.example.loginhttp.ui.components.BottomSheet
@@ -253,7 +253,8 @@ fun IssuingGoodsScreenPreview() {
     Scaffold(
         bottomBar = {
             BottomNavBar(
-                navController = rememberNavController() // can be fake
+                selectedTab = AppRoutes.WAREHOUSE,
+                onTabSelected = {}
             )
         },
         floatingActionButton = mockFAB,

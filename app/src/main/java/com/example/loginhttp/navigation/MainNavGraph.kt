@@ -2,309 +2,38 @@ package com.example.loginhttp.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.ImportExport
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Upload
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
 import com.example.loginhttp.InventoryViewModel
-import com.example.loginhttp.SettingsViewModel
-import com.example.loginhttp.features.settings.screens.CostCentersScreen
-import com.example.loginhttp.features.settings.screens.InventoryGroupsScreen
-import com.example.loginhttp.features.settings.screens.InventoryListsScreen
-import com.example.loginhttp.features.settings.screens.LocationsScreen
-import com.example.loginhttp.features.settings.screens.ProductsScreen
-import com.example.loginhttp.features.settings.screens.SuppliersScreen
-import com.example.loginhttp.features.settings.screens.WarehousesScreen
-import com.example.loginhttp.features.settings.viewmodel.CostCentersViewModel
-import com.example.loginhttp.features.settings.viewmodel.InventoryGroupsViewModel
-import com.example.loginhttp.features.settings.viewmodel.InventoryListsViewModel
-import com.example.loginhttp.features.settings.viewmodel.LocationsViewModel
-import com.example.loginhttp.features.settings.viewmodel.ProductsViewModel
-import com.example.loginhttp.features.settings.viewmodel.SuppliersViewModel
-import com.example.loginhttp.features.settings.viewmodel.WarehousesViewModel
-import com.example.loginhttp.features.warehouse.viewmodel.IssuingGoodsViewModel
-import com.example.loginhttp.features.warehouse.viewmodel.OrderingGoodsViewModel
-import com.example.loginhttp.features.warehouse.viewmodel.ReceiptOfGoodsViewModel
-import com.example.loginhttp.features.warehouse.viewmodel.ReturnOfGoodsViewModel
-import com.example.loginhttp.features.warehouse.viewmodel.TransferOfGoodsViewModel
-import com.example.loginhttp.features.warehouse.viewmodel.VirtualWarehouseViewModel
-import com.example.loginhttp.features.warehouse.viewmodel.WriteOffOfGoodsViewModel
 import com.example.loginhttp.ui.screens.InventoryScreen
-import com.example.loginhttp.features.warehouse.screens.IssuingGoodsScreen
 import com.example.loginhttp.ui.screens.MenuScreen
-import com.example.loginhttp.features.warehouse.screens.OrderingGoodsScreen
-import com.example.loginhttp.features.warehouse.screens.ReceiptOfGoodsScreen
-import com.example.loginhttp.features.warehouse.screens.ReturnOfGoodsScreen
-import com.example.loginhttp.ui.screens.SettingsScreen
-import com.example.loginhttp.features.warehouse.screens.TransferOfGoodsScreen
-import com.example.loginhttp.features.warehouse.screens.VirtualWarehouseScreen
-import com.example.loginhttp.ui.screens.WarehouseScreen
-import com.example.loginhttp.features.warehouse.screens.WriteOffOfGoodsScreen
 
 fun NavGraphBuilder.mainNavGraph(
-    navHostController: NavHostController,
-    rootNavBackStackEntry: NavBackStackEntry?,
+//    navHostController: NavHostController,
+//    rootNavBackStackEntry: NavBackStackEntry?,
     fabContent: MutableState<(@Composable () -> Unit)?>,
     inventoryViewModel: InventoryViewModel,
-    settingsViewModel: SettingsViewModel,
-    receiptOfGoodsViewModel: ReceiptOfGoodsViewModel,
-    issuingGoodsViewModel: IssuingGoodsViewModel,
-    transferOfGoodsViewModel: TransferOfGoodsViewModel,
-    returnOfGoodsViewModel: ReturnOfGoodsViewModel,
-    writeOffOfGoodsViewModel: WriteOffOfGoodsViewModel,
-    orderingGoodsViewModel: OrderingGoodsViewModel,
-    virtualWarehouseViewModel: VirtualWarehouseViewModel,
-    productsViewModel: ProductsViewModel,
-    suppliersViewModel: SuppliersViewModel,
-    warehousesViewModel: WarehousesViewModel,
-    costCentersViewModel: CostCentersViewModel,
-    locationsViewModel: LocationsViewModel,
-    inventoryListsViewModel: InventoryListsViewModel,
-    inventoryGroupsViewModel: InventoryGroupsViewModel
 ) {
-    navigation(
-        startDestination = AppScreen.Main.Home.route,
-        route = AppScreen.Main.route,
-    ) {
-        // Main screens (Bottom Navigation)
-        composable(route = AppScreen.Main.Home.route) {
-            fabContent.value = null
-            MenuScreen(             // TODO: Change to HomeScreen
-                onMenuClick = {     // TODO: This will probably just change to web view later
-                }
-            )
-        }
-        
-        composable( route = AppScreen.Main.Inventory.route,) {
-            fabContent.value = {
-                UnifiedFAB(
-                    icon = Icons.Default.Add,
-                    contentDescription = "Add",
-                    onClick = { inventoryViewModel.toggleSheet(true) }
-                )
+    // Main screens (Bottom Navigation)
+    composable(route = AppScreen.Main.Home.route) {
+        fabContent.value = null
+        MenuScreen(             // TODO: Change to HomeScreen
+            onMenuClick = {     // TODO: This will probably just change to web view later
             }
-            InventoryScreen(viewModel = inventoryViewModel)
-        }
-
-        composable(route = AppScreen.Main.Warehouse.route,) {
-            fabContent.value = null
-            WarehouseScreen(onItemClick = navHostController::navigate)
-        }
-
-        composable(route = AppScreen.Main.Settings.route,) {
-            fabContent.value = {
-                UnifiedFAB(
-                    Icons.Default.Refresh,
-                    contentDescription = "Refresh",
-                    onClick = { settingsViewModel.refreshDatabase() }
-                )
-            }
-            SettingsScreen(
-                viewModel = settingsViewModel,
-                onItemClick = navHostController::navigate
-            )
-        }
-
-        // Warehouse screens
-        warehouseScreens(
-            fabContent,
-            receiptOfGoodsViewModel,
-            issuingGoodsViewModel,
-            transferOfGoodsViewModel,
-            returnOfGoodsViewModel,
-            writeOffOfGoodsViewModel,
-            orderingGoodsViewModel,
-            virtualWarehouseViewModel
-        )
-
-        // Settings screens
-        settingsScreens(
-            fabContent,
-            productsViewModel,
-            suppliersViewModel,
-            warehousesViewModel,
-            costCentersViewModel,
-            locationsViewModel,
-            inventoryListsViewModel,
-            inventoryGroupsViewModel
         )
     }
-}
 
-private fun NavGraphBuilder.warehouseScreens(
-    fabContent: MutableState<@Composable() (() -> Unit)?>,
-    receiptOfGoodsViewModel: ReceiptOfGoodsViewModel,
-    issuingGoodsViewModel: IssuingGoodsViewModel,
-    transferOfGoodsViewModel: TransferOfGoodsViewModel,
-    returnOfGoodsViewModel: ReturnOfGoodsViewModel,
-    writeOffOfGoodsViewModel: WriteOffOfGoodsViewModel,
-    orderingGoodsViewModel: OrderingGoodsViewModel,
-    virtualWarehouseViewModel: VirtualWarehouseViewModel
-) {
-    composable(route = WarehouseRoutes.RECEIPT_OF_GOODS) {
+    composable(route = AppScreen.Main.Inventory.route) {
         fabContent.value = {
             UnifiedFAB(
                 icon = Icons.Default.Add,
                 contentDescription = "Add",
-                onClick = { receiptOfGoodsViewModel.toggleSheet(true) }
+                onClick = { inventoryViewModel.toggleSheet(true) }
             )
         }
-        ReceiptOfGoodsScreen(viewModel = receiptOfGoodsViewModel)
+        InventoryScreen(viewModel = inventoryViewModel)
     }
-    composable(route = WarehouseRoutes.ISSUING_GOODS) {
-        fabContent.value = {
-            UnifiedFAB(
-                icon = Icons.Default.Add,
-                contentDescription = "Add",
-                onClick = { issuingGoodsViewModel.toggleSheet(true) }
-            )
-        }
 
-        IssuingGoodsScreen(viewModel = issuingGoodsViewModel)
-    }
-    composable(route = WarehouseRoutes.TRANSFER_OF_GOODS) {
-        fabContent.value = {
-            UnifiedFAB(
-                icon = Icons.Default.Add,
-                contentDescription = "Add",
-                onClick = { transferOfGoodsViewModel.toggleSheet(true) }
-            )
-        }
-
-        TransferOfGoodsScreen(viewModel = transferOfGoodsViewModel)
-    }
-    composable(route = WarehouseRoutes.RETURN_OF_GOODS) {
-        fabContent.value = {
-            UnifiedFAB(
-                icon = Icons.Default.Add,
-                contentDescription = "Add",
-                onClick = { returnOfGoodsViewModel.toggleSheet(true) }
-            )
-        }
-        ReturnOfGoodsScreen(viewModel = returnOfGoodsViewModel)
-    }
-    composable(route = WarehouseRoutes.WRITE_OFF_OF_GOODS) {
-        fabContent.value = {
-            UnifiedFAB(
-                icon = Icons.Default.Add,
-                contentDescription = "Add",
-                onClick = { writeOffOfGoodsViewModel.toggleSheet(true) }
-            )
-        }
-        WriteOffOfGoodsScreen(viewModel = writeOffOfGoodsViewModel)
-    }
-    composable(route = WarehouseRoutes.ORDERING_GOODS) {
-        fabContent.value = {
-            UnifiedFAB(
-                icon = Icons.Default.Add,
-                contentDescription = "Add",
-                onClick = { orderingGoodsViewModel.toggleSheet(true) }
-            )
-        }
-        OrderingGoodsScreen(viewModel = orderingGoodsViewModel)
-    }
-    composable(route = WarehouseRoutes.VIRTUAL_WAREHOUSE) {
-        fabContent.value = {
-            UnifiedFAB(
-                icon = Icons.Default.Add,
-                contentDescription = "Add",
-                onClick = { virtualWarehouseViewModel.toggleSheet(true) }
-            )
-        }
-        VirtualWarehouseScreen(viewModel = virtualWarehouseViewModel)
-    }
-    composable(route = WarehouseRoutes.TEMPLATES) {
-        // Not yet implemented
-    }
-}
-
-private fun NavGraphBuilder.settingsScreens(
-    fabContent: MutableState<@Composable() (() -> Unit)?>,
-    productsViewModel: ProductsViewModel,
-    suppliersViewModel: SuppliersViewModel,
-    warehousesViewModel: WarehousesViewModel,
-    costCentersViewModel: CostCentersViewModel,
-    locationsViewModel: LocationsViewModel,
-    inventoryListsViewModel: InventoryListsViewModel,
-    inventoryGroupsViewModel: InventoryGroupsViewModel
-) {
-    composable(route = SettingsRoutes.PRODUCTS) {
-        fabContent.value = {
-            UnifiedFAB(
-                actions = listOf(
-                    FabAction("Preuzmi", Icons.Default.Download) { productsViewModel.downloadItems() },
-                    FabAction("Učitaj", Icons.Default.Upload) { productsViewModel.loadItems() },
-                    FabAction("Izvoz", Icons.Default.ImportExport) { productsViewModel.exportItems() },
-                )
-            )
-        }
-        ProductsScreen(viewModel = productsViewModel)
-    }
-    composable(route = SettingsRoutes.SUPPLIERS) {
-        fabContent.value = {
-            UnifiedFAB(
-                icon = Icons.Default.Download,
-                contentDescription = "Download",
-                onClick = { costCentersViewModel.downloadItems() }
-            )
-        }
-        SuppliersScreen(viewModel = suppliersViewModel)
-    }
-    composable(route = SettingsRoutes.WAREHOUSES) {
-        fabContent.value = {
-            UnifiedFAB(
-                icon = Icons.Default.Download,
-                contentDescription = "Download",
-                onClick = { costCentersViewModel.downloadItems() }
-            )
-        }
-        WarehousesScreen(viewModel = warehousesViewModel)
-    }
-    composable(route = SettingsRoutes.COST_CENTERS) {
-        fabContent.value = {
-            UnifiedFAB(
-                icon = Icons.Default.Download,
-                contentDescription = "Download",
-                onClick = { costCentersViewModel.downloadItems() }
-            )
-        }
-        CostCentersScreen(viewModel = costCentersViewModel)
-    }
-    composable(route = SettingsRoutes.LOCATIONS) {
-        fabContent.value = {
-            UnifiedFAB(
-                icon = Icons.Default.Download,
-                contentDescription = "Download",
-                onClick = { costCentersViewModel.downloadItems() }
-            )
-        }
-        LocationsScreen(viewModel = locationsViewModel)
-    }
-    composable(route = SettingsRoutes.INVENTORY_LISTS) {
-        fabContent.value = {
-            UnifiedFAB(
-                icon = Icons.Default.Add,
-                contentDescription = "Add",
-                onClick = { inventoryListsViewModel.toggleSheet(true) }
-            )
-        }
-        InventoryListsScreen(viewModel = inventoryListsViewModel)
-    }
-    composable(route = SettingsRoutes.INVENTORY_GROUPS) {
-        fabContent.value = {
-            UnifiedFAB(
-                icon = Icons.Default.Add,
-                contentDescription = "Add",
-                onClick = { inventoryGroupsViewModel.toggleSheet(true) }
-            )
-        }
-        InventoryGroupsScreen(viewModel = inventoryGroupsViewModel)
-    }
 }

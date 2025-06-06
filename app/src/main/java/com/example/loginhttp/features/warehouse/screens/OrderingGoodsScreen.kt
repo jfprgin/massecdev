@@ -41,7 +41,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.features.warehouse.viewmodel.OrderingGoodsViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.ui.components.BottomSheetWithModes
@@ -51,6 +50,7 @@ import com.example.loginhttp.ui.components.FormMode
 import com.example.loginhttp.features.warehouse.model.OrderItem
 import com.example.loginhttp.features.warehouse.model.OrderStatus
 import com.example.loginhttp.features.warehouse.model.OrderType
+import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFAB
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
@@ -395,7 +395,8 @@ fun OrderingGoodsScreenPreview() {
     Scaffold(
         bottomBar = {
             BottomNavBar(
-                navController = rememberNavController()
+                selectedTab = AppRoutes.WAREHOUSE,
+                onTabSelected = {}
             )
         },
         floatingActionButton = mockFAB,

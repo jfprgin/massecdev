@@ -36,9 +36,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.features.warehouse.viewmodel.WriteOffOfGoodsViewModel
 import com.example.loginhttp.model.CardAction
+import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFAB
 import com.example.loginhttp.ui.components.BottomSheet
@@ -247,7 +247,8 @@ fun WriteOffOfGoodsScreenPreview() {
     Scaffold(
         bottomBar = {
             BottomNavBar(
-                navController = rememberNavController()
+                selectedTab = AppRoutes.WAREHOUSE,
+                onTabSelected = {}
             )
         },
         floatingActionButton = mockFAB,

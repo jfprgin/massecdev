@@ -20,7 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Assignment
@@ -50,6 +50,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.SettingsViewModel
 import com.example.loginhttp.model.SettingsItem
+import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.SettingsRoutes
 import com.example.loginhttp.navigation.UnifiedFAB
@@ -85,7 +86,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .statusBarsPadding()
+//                .statusBarsPadding()
                 .background(LightGray)
                 .pullRefresh(pullRefreshState)
         ) {
@@ -192,10 +193,11 @@ fun PreviewSettingsScreen() {
             onClick = { mockViewModel.refreshDatabase() }
         )
     }
-    androidx.compose.material3.Scaffold(
+    Scaffold(
         bottomBar = {
             BottomNavBar(
-                navController = rememberNavController() // can be fake
+                selectedTab = AppRoutes.SETTINGS,
+                onTabSelected = {}
             )
         },
         floatingActionButton = mockFAB

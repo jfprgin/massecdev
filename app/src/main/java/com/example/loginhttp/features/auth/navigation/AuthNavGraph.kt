@@ -1,10 +1,11 @@
-package com.example.loginhttp.navigation
+package com.example.loginhttp.features.auth.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.loginhttp.features.auth.LoginScreen
+import com.example.loginhttp.navigation.AppScreen
 
 fun NavGraphBuilder.authNavGraph(
     navHostController: NavHostController
