@@ -12,6 +12,7 @@ import com.example.loginhttp.features.warehouse.screens.IssuingGoodsScreen
 import com.example.loginhttp.features.warehouse.screens.OrderingGoodsScreen
 import com.example.loginhttp.features.warehouse.screens.ReceiptOfGoodsScreen
 import com.example.loginhttp.features.warehouse.screens.ReturnOfGoodsScreen
+import com.example.loginhttp.features.warehouse.screens.TemplatesScreen
 import com.example.loginhttp.features.warehouse.screens.TransferOfGoodsScreen
 import com.example.loginhttp.features.warehouse.screens.VirtualWarehouseScreen
 import com.example.loginhttp.features.warehouse.screens.WriteOffOfGoodsScreen
@@ -19,6 +20,7 @@ import com.example.loginhttp.features.warehouse.viewmodel.IssuingGoodsViewModel
 import com.example.loginhttp.features.warehouse.viewmodel.OrderingGoodsViewModel
 import com.example.loginhttp.features.warehouse.viewmodel.ReceiptOfGoodsViewModel
 import com.example.loginhttp.features.warehouse.viewmodel.ReturnOfGoodsViewModel
+import com.example.loginhttp.features.warehouse.viewmodel.TemplatesViewModel
 import com.example.loginhttp.features.warehouse.viewmodel.TransferOfGoodsViewModel
 import com.example.loginhttp.features.warehouse.viewmodel.VirtualWarehouseViewModel
 import com.example.loginhttp.features.warehouse.viewmodel.WriteOffOfGoodsViewModel
@@ -114,7 +116,16 @@ fun NavGraphBuilder.warehouseNavGraph(
         VirtualWarehouseScreen(viewModel = viewModels.virtualWarehouseViewModel)
     }
 
-    // TODO: Templates screen
+    composable(WarehouseRoutes.TEMPLATES) {
+        fabContent.value = {
+            UnifiedFAB(
+                icon = Icons.Default.Add,
+                contentDescription = "Add",
+                onClick = { viewModels.templatesViewModel.toggleSheet(true) }
+            )
+        }
+        TemplatesScreen(viewModel = viewModels.templatesViewModel)
+    }
 }
 
 data class WarehouseViewModels(
@@ -125,5 +136,5 @@ data class WarehouseViewModels(
     val writeOffOfGoodsViewModel: WriteOffOfGoodsViewModel,
     val orderingGoodsViewModel: OrderingGoodsViewModel,
     val virtualWarehouseViewModel: VirtualWarehouseViewModel,
-//    val templatesViewModel: TemplatesViewModel
+    val templatesViewModel: TemplatesViewModel
 )

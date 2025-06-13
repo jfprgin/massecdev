@@ -50,7 +50,8 @@ fun MainAppHost() {
         returnOfGoodsViewModel = viewModel(),
         writeOffOfGoodsViewModel = viewModel(),
         orderingGoodsViewModel = viewModel(),
-        virtualWarehouseViewModel = viewModel()
+        virtualWarehouseViewModel = viewModel(),
+        templatesViewModel = viewModel(),
     )
 
     val settingsViewModels = SettingsViewModels(
