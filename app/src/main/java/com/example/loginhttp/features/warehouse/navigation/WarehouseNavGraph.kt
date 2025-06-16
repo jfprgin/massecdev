@@ -25,7 +25,7 @@ import com.example.loginhttp.features.warehouse.viewmodel.TransferOfGoodsViewMod
 import com.example.loginhttp.features.warehouse.viewmodel.VirtualWarehouseViewModel
 import com.example.loginhttp.features.warehouse.viewmodel.WriteOffOfGoodsViewModel
 import com.example.loginhttp.navigation.AppRoutes
-import com.example.loginhttp.navigation.UnifiedFAB
+import com.example.loginhttp.navigation.UnifiedFloatingActionButton
 import com.example.loginhttp.navigation.WarehouseRoutes
 import com.example.loginhttp.ui.screens.WarehouseScreen
 
@@ -41,7 +41,7 @@ fun NavGraphBuilder.warehouseNavGraph(
 
     composable(WarehouseRoutes.RECEIPT_OF_GOODS) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Add,
                 contentDescription = "Add",
                 onClick = { viewModels.receiptOfGoodsViewModel.toggleSheet(true) }
@@ -52,7 +52,7 @@ fun NavGraphBuilder.warehouseNavGraph(
 
     composable(WarehouseRoutes.ISSUING_GOODS) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Add,
                 contentDescription = "Add",
                 onClick = { viewModels.issuingGoodsViewModel.toggleSheet(true) }
@@ -63,7 +63,7 @@ fun NavGraphBuilder.warehouseNavGraph(
 
     composable(WarehouseRoutes.TRANSFER_OF_GOODS) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Add,
                 contentDescription = "Add",
                 onClick = { viewModels.transferOfGoodsViewModel.toggleSheet(true) }
@@ -74,7 +74,7 @@ fun NavGraphBuilder.warehouseNavGraph(
 
     composable(WarehouseRoutes.RETURN_OF_GOODS) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Add,
                 contentDescription = "Add",
                 onClick = { viewModels.returnOfGoodsViewModel.toggleSheet(true) }
@@ -85,7 +85,7 @@ fun NavGraphBuilder.warehouseNavGraph(
 
     composable(WarehouseRoutes.WRITE_OFF_OF_GOODS) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Add,
                 contentDescription = "Add",
                 onClick = { viewModels.writeOffOfGoodsViewModel.toggleSheet(true) }
@@ -96,7 +96,7 @@ fun NavGraphBuilder.warehouseNavGraph(
 
     composable(WarehouseRoutes.ORDERING_GOODS) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Add,
                 contentDescription = "Add",
                 onClick = { viewModels.orderingGoodsViewModel.toggleSheet(true) }
@@ -107,7 +107,7 @@ fun NavGraphBuilder.warehouseNavGraph(
 
     composable(WarehouseRoutes.VIRTUAL_WAREHOUSE) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Refresh,
                 contentDescription = "Refresh",
                 onClick = { viewModels.virtualWarehouseViewModel.toggleSheet(true) }
@@ -118,7 +118,7 @@ fun NavGraphBuilder.warehouseNavGraph(
 
     composable(WarehouseRoutes.TEMPLATES) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Add,
                 contentDescription = "Add",
                 onClick = { viewModels.templatesViewModel.toggleSheet(true) }

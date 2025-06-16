@@ -34,12 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.InventoryViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
-import com.example.loginhttp.navigation.UnifiedFAB
+import com.example.loginhttp.navigation.UnifiedFloatingActionButton
 import com.example.loginhttp.ui.components.BottomSheetWithModes
 import com.example.loginhttp.ui.components.FieldType
 import com.example.loginhttp.ui.components.FormField
@@ -261,7 +260,7 @@ fun InventoryScreenPreview() {
     val mockViewModel: InventoryViewModel = viewModel()
 
     val mockFAB = @Composable {
-        UnifiedFAB(
+        UnifiedFloatingActionButton(
             icon = Icons.Default.Add,
             contentDescription = "Add",
             onClick = { mockViewModel.toggleSheet(true) }

@@ -29,7 +29,7 @@ import com.example.loginhttp.features.settings.viewmodel.WarehousesViewModel
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.FabAction
 import com.example.loginhttp.navigation.SettingsRoutes
-import com.example.loginhttp.navigation.UnifiedFAB
+import com.example.loginhttp.navigation.UnifiedFloatingActionButton
 import com.example.loginhttp.ui.screens.SettingsScreen
 
 fun NavGraphBuilder.settingsNavGraph(
@@ -39,7 +39,7 @@ fun NavGraphBuilder.settingsNavGraph(
 ) {
     composable(AppRoutes.SETTINGS) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Refresh,
                 contentDescription = "Refresh",
                 onClick = { viewModels.settingsViewModel.refreshDatabase() }
@@ -53,7 +53,7 @@ fun NavGraphBuilder.settingsNavGraph(
 
     composable(SettingsRoutes.PRODUCTS) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 actions = listOf(
                     FabAction(
                         label = "Preuzmi",
@@ -78,7 +78,7 @@ fun NavGraphBuilder.settingsNavGraph(
 
     composable(SettingsRoutes.SUPPLIERS) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Download,
                 contentDescription = "Download",
                 onClick = { viewModels.suppliersViewModel.downloadItems() }
@@ -89,7 +89,7 @@ fun NavGraphBuilder.settingsNavGraph(
 
     composable(SettingsRoutes.WAREHOUSES) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Download,
                 contentDescription = "Download",
                 onClick = { viewModels.warehousesViewModel.downloadItems() }
@@ -100,7 +100,7 @@ fun NavGraphBuilder.settingsNavGraph(
 
     composable(SettingsRoutes.COST_CENTERS) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Download,
                 contentDescription = "Download",
                 onClick = { viewModels.costCentersViewModel.downloadItems() }
@@ -111,7 +111,7 @@ fun NavGraphBuilder.settingsNavGraph(
 
     composable(SettingsRoutes.LOCATIONS) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Download,
                 contentDescription = "Download",
                 onClick = { viewModels.locationsViewModel.downloadItems() }
@@ -122,7 +122,7 @@ fun NavGraphBuilder.settingsNavGraph(
 
     composable(SettingsRoutes.INVENTORY_LISTS) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Add,
                 contentDescription = "Add",
                 onClick = { viewModels.inventoryListsViewModel.toggleSheet(true) }
@@ -133,7 +133,7 @@ fun NavGraphBuilder.settingsNavGraph(
 
     composable(SettingsRoutes.INVENTORY_GROUPS) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Add,
                 contentDescription = "Add",
                 onClick = { viewModels.inventoryGroupsViewModel.toggleSheet(true) }

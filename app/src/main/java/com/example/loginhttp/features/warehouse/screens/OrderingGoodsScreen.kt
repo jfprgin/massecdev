@@ -52,7 +52,7 @@ import com.example.loginhttp.features.warehouse.model.OrderStatus
 import com.example.loginhttp.features.warehouse.model.OrderType
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
-import com.example.loginhttp.navigation.UnifiedFAB
+import com.example.loginhttp.navigation.UnifiedFloatingActionButton
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SelectionToolbar
@@ -385,7 +385,7 @@ fun OrderingGoodsScreenPreview() {
     val mockViewModel: OrderingGoodsViewModel = viewModel()
 
     val mockFAB = @Composable {
-        UnifiedFAB(
+        UnifiedFloatingActionButton(
             icon = Icons.Default.Add,
             contentDescription = "Add",
             onClick = { mockViewModel.toggleSheet(true) }

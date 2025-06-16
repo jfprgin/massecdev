@@ -27,7 +27,7 @@ import com.example.loginhttp.features.settings.viewmodel.ProductsViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
-import com.example.loginhttp.navigation.UnifiedFAB
+import com.example.loginhttp.navigation.UnifiedFloatingActionButton
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.navigation.FabAction
 import com.example.loginhttp.ui.components.MenuHeader
@@ -135,7 +135,7 @@ fun PreviewProductsScreen() {
     val mockViewModel: ProductsViewModel = viewModel()
 
     val mockFAB = @Composable {
-        UnifiedFAB(
+        UnifiedFloatingActionButton(
             actions = listOf(
                 FabAction("Preuzmi", Icons.Default.Download) { mockViewModel.downloadItems() },
                 FabAction("Učitaj", Icons.Default.Upload) { mockViewModel.loadItems() },

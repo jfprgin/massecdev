@@ -27,7 +27,7 @@ import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.White
 
 @Composable
-fun UnifiedFAB(
+fun UnifiedFloatingActionButton(
     icon: ImageVector? = null,
     contentDescription: String? = null,
     onClick: (() -> Unit)? = null,

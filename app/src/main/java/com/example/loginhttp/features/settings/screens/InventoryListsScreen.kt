@@ -27,7 +27,7 @@ import com.example.loginhttp.features.settings.viewmodel.InventoryListsViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
-import com.example.loginhttp.navigation.UnifiedFAB
+import com.example.loginhttp.navigation.UnifiedFloatingActionButton
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SearchBar
@@ -140,7 +140,7 @@ fun PreviewInventoryListsScreen() {
     val mockViewModel: InventoryListsViewModel = viewModel()
 
     val mockFAB =  @Composable {
-        UnifiedFAB(
+        UnifiedFloatingActionButton(
             icon = Icons.Default.Download,
             contentDescription = "Download",
             onClick = { mockViewModel.downloadItems() },

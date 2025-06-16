@@ -74,10 +74,7 @@ fun MainAppHost() {
         // TODO: topbar
         topBar = {
             if (showBars) {
-//                    AppTopBar(
-//                        topAppbarTitle.value,
-//                        barScrollBehavior,
-//                    )
+
             }
         },
         bottomBar = {

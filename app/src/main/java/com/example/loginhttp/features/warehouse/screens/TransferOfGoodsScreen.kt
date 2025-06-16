@@ -40,7 +40,7 @@ import com.example.loginhttp.features.warehouse.viewmodel.TransferOfGoodsViewMod
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
-import com.example.loginhttp.navigation.UnifiedFAB
+import com.example.loginhttp.navigation.UnifiedFloatingActionButton
 import com.example.loginhttp.ui.components.BottomSheet
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.FieldType
@@ -244,7 +244,7 @@ fun TransferOfGoodsScreenPreview() {
     val mockViewModel: TransferOfGoodsViewModel = viewModel()
 
     val mockFAB = @Composable {
-        UnifiedFAB(
+        UnifiedFloatingActionButton(
             icon = Icons.Default.Add,
             contentDescription = "Add",
             onClick = { mockViewModel.toggleSheet(true) }

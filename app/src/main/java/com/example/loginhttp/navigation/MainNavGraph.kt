@@ -27,7 +27,7 @@ fun NavGraphBuilder.mainNavGraph(
 
     composable(route = AppScreen.Main.Inventory.route) {
         fabContent.value = {
-            UnifiedFAB(
+            UnifiedFloatingActionButton(
                 icon = Icons.Default.Add,
                 contentDescription = "Add",
                 onClick = { inventoryViewModel.toggleSheet(true) }
