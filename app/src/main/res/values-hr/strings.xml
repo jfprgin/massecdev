@@ -9,7 +9,7 @@
     <string name="issuing_goods_title">Izdavanje robe</string>
     <string name="transfer_of_goods_title">Prijenos robe</string>
     <string name="return_of_goods_title">Povrat robe</string>
-    <string name="write_off_goods_title">Otpis robe</string>
+    <string name="write_off_of_goods_title">Otpis robe</string>
     <string name="ordering_goods_title">Naručivanje robe</string>
     <string name="virtual_warehouse_title">"Virtualno skladište "</string>
     <string name="products_title">Artikli</string>
@@ -19,4 +19,31 @@
     <string name="locations_title">Locations</string>
     <string name="inventory_lists_title">Inventurne liste</string>
     <string name="inventory_groups_title">Inventurne grupe</string>
+    <string name="templates_title">Predlošci</string>
+    <string name="item_synchronized">Sinkronizirano</string>
+    <string name="item_unsynchronized">Nesinkronizirano</string>
+    <string name="synchronize">Sinkroniziraj</string>
+    <string name="delete">Izbriši</string>
+    <string name="show_table">Prikaži tablicu</string>
+    <string name="name">Naziv</string>
+    <string name="time">Vrijeme</string>
+    <string name="by_group">Po grupi</string>
+    <string name="by_name">Po Nazivu</string>
+    <string name="group">Grupa</string>
+    <string name="inventory">Inventura</string>
+    <string name="input_method">Način unosa</string>
+    <string name="add">Dodaj</string>
+    <plurals name="confirm_delete_items">
+        <item quantity="one">Jeste li sigurni da želite izbrisati %d stavku?</item>
+        <item quantity="few">Jeste li sigurni da želite izbrisati %d stavke?</item>
+        <item quantity="other">Jeste li sigurni da želite izbrisati %d stavki?</item>
+    </plurals>
+    <string name="delete_confirmation">Potvrda brisanja</string>
+    <string name="yes">Da</string>
+    <string name="no">Ne</string>
+    <string name="search">Traži</string>
+    <string name="selected">Odabrano</string>
+    <string name="select_all">Odaberi sve</string>
+    <string name="warehouse">Skladište</string>
+    <string name="cost_center">Mjesto troška</string>
 </resources>

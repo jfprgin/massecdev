@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
@@ -31,19 +32,21 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.loginhttp.InventoryViewModel
+import com.example.loginhttp.R
 import com.example.loginhttp.model.CardAction
+import com.example.loginhttp.model.InventoryItem
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFloatingActionButton
+import com.example.loginhttp.navigation.UnifiedTopAppBar
 import com.example.loginhttp.ui.components.BottomSheetWithModes
 import com.example.loginhttp.ui.components.FieldType
 import com.example.loginhttp.ui.components.FormField
 import com.example.loginhttp.ui.components.FormMode
-import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
@@ -55,6 +58,7 @@ import com.example.loginhttp.ui.components.UnifiedItemCard
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun InventoryScreen(viewModel: InventoryViewModel) {
 
@@ -72,9 +76,6 @@ fun InventoryScreen(viewModel: InventoryViewModel) {
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
     val scope = rememberCoroutineScope()
 
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-
     // Clear selection when switching tabs
     val previousPage = remember { mutableIntStateOf(pagerState.currentPage) }
 
@@ -91,31 +92,17 @@ fun InventoryScreen(viewModel: InventoryViewModel) {
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold { innerPadding ->
+    Scaffold {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-
                 .background(LightGray)
         ) {
             Column {
-                MenuHeader(screenWidth = screenWidth, title = "Inventura")
+//                MenuHeader(screenWidth = screenWidth, title = "Inventura")
 
                 if (isInSelectionMode) {
-                    SelectionToolbar(
-                        selectedCount = selectedItems.size,
-                        onSelectAll = {
-                            val relevantItems = if (pagerState.currentPage == 0) unsyncedItems else syncedItems
-                            viewModel.selectAll(relevantItems.map { it.id })
-                        },
-                        actions = buildList {
-                            if (pagerState.currentPage == 0) {
-                                add(Icons.Default.Sync to { viewModel.syncSelectedItems() })
-                            }
-                            add(Icons.Default.Delete to { viewModel.confirmDelete(selectedItems.toList()) })
-                        }
-                    )
+                    InventorySelectionToolbar(selectedItems, pagerState, unsyncedItems, syncedItems, viewModel)
                 }
 
                 // Tab selection
@@ -137,7 +124,7 @@ fun InventoryScreen(viewModel: InventoryViewModel) {
                                 pagerState.scrollToPage(0)
                             }
                         },
-                        text = { Text("Nesinkronizirano (${unsyncedItems.size})") }
+                        text = { Text("${stringResource(R.string.item_unsynchronized)} (${unsyncedItems.size})") }
                     )
 
                     Tab(
@@ -147,60 +134,19 @@ fun InventoryScreen(viewModel: InventoryViewModel) {
                                 pagerState.scrollToPage(1)
                             }
                         },
-                        text = { Text("Sinkronizirano (${syncedItems.size})") }
+                        text = { Text("${stringResource(R.string.item_synchronized)} (${syncedItems.size})") }
                     )
                 }
 
                 // Paged content
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize()
-                ) { page ->
-                    val list = if (page == 0) unsyncedItems else syncedItems
-                    LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(list) { item ->
-                            UnifiedItemCard(
-                                id = item.id.toString(),
-                                icon = if (item.synced) Icons.Filled.Lock else Icons.Filled.LockOpen,
-                                iconTint = if (item.synced) DeepNavy else MassecRed,
-                                isSynced = item.synced,
-                                isSelected = selectedItems.contains(item.id),
-                                selectionMode = isInSelectionMode,
-                                onClick = {
-                                    if (isInSelectionMode) viewModel.toggleSelection(item.id)
-                                },
-                                onLongPress = {
-                                    viewModel.toggleSelection(item.id)
-                                },
-                                infoRows = buildList {
-                                    add("Naziv" to item.name)
-                                    add("Vrijeme" to item.timestamp)
-                                },
-                                actions = buildList {
-                                    if (!item.synced) {
-                                        add(
-                                            CardAction("Sinkroniziraj", Icons.Default.Sync) {
-                                            viewModel.syncItem(item.id)
-                                            }
-                                        )
-                                    }
-                                    add(CardAction("Izbriši", Icons.Default.Delete) {
-                                        viewModel.confirmDelete(listOf(item.id))
-                                        }
-                                    )
-                                    add(
-                                        CardAction("Prikaži tablicu", Icons.Default.TableRows) {
-                                         // TODO: Implement show table action
-                                        }
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
+                InventoryHorizontalPager(
+                    pagerState,
+                    unsyncedItems,
+                    syncedItems,
+                    selectedItems,
+                    isInSelectionMode,
+                    viewModel
+                )
             }
 
             if(pendingDeleteIds.isNotEmpty()) {
@@ -216,41 +162,151 @@ fun InventoryScreen(viewModel: InventoryViewModel) {
             }
 
             if (isSheetVisible) {
-                val formModes = listOf(
-                    FormMode(
-                        name = "Po grupi",
-                        fields = listOf(
-                            FormField(
-                                "Grupa",
-                                type = FieldType.DROPDOWN,
-                                listOf("Grupa A", "Grupa B", "Grupa C")
-                            ),
-                        )
-                    ),
-                    FormMode(
-                        name = "Po nazivu",
-                        fields = listOf(
-                            FormField(
-                                "Naziv",
-                                type = FieldType.TEXT
-                            ),
-                        )
-                    )
-                )
-
-                BottomSheetWithModes(
-                    title = "Inventura",
-                    modeSelectorLabel = "Način unosa",
-                    modes = formModes,
-                    onDismiss = { viewModel.toggleSheet(false) },
-                    onSubmit = { _, values ->
-                        val name = values[0]
-                        viewModel.addItem(name)
-                    }
-                )
+                InventoryBottomSheet(viewModel)
             }
         }
     }
+}
+
+@Composable
+private fun InventorySelectionToolbar(
+    selectedItems: Set<Int>,
+    pagerState: PagerState,
+    unsyncedItems: List<InventoryItem>,
+    syncedItems: List<InventoryItem>,
+    viewModel: InventoryViewModel
+) {
+    SelectionToolbar(
+        selectedCount = selectedItems.size,
+        onSelectAll = {
+            val relevantItems = if (pagerState.currentPage == 0) unsyncedItems else syncedItems
+            viewModel.selectAll(relevantItems.map { it.id })
+        },
+        actions = buildList {
+            if (pagerState.currentPage == 0) {
+                add(Icons.Default.Sync to { viewModel.syncSelectedItems() })
+            }
+            add(Icons.Default.Delete to { viewModel.confirmDelete(selectedItems.toList()) })
+        }
+    )
+}
+
+@Composable
+private fun InventoryHorizontalPager(
+    pagerState: PagerState,
+    unsyncedItems: List<InventoryItem>,
+    syncedItems: List<InventoryItem>,
+    selectedItems: Set<Int>,
+    isInSelectionMode: Boolean,
+    viewModel: InventoryViewModel
+) {
+    HorizontalPager(
+        state = pagerState,
+        modifier = Modifier.fillMaxSize()
+    ) { page ->
+        val list = if (page == 0) unsyncedItems else syncedItems
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(list) { item ->
+                InventoryItemCard(item, selectedItems, isInSelectionMode, viewModel)
+            }
+        }
+    }
+}
+
+@Composable
+private fun InventoryItemCard(
+    item: InventoryItem,
+    selectedItems: Set<Int>,
+    isInSelectionMode: Boolean,
+    viewModel: InventoryViewModel
+) {
+    val id = item.id.toString()
+    val icon = if (item.synced) Icons.Filled.Lock else Icons.Filled.LockOpen
+    val iconTint = if (item.synced) DeepNavy else MassecRed
+
+    val onClick = {
+        if (isInSelectionMode) viewModel.toggleSelection(item.id)
+    }
+    val onLongPress = {
+        viewModel.toggleSelection(item.id)
+    }
+
+    val infoRows = listOf(
+        stringResource(R.string.name) to item.name,
+        stringResource(R.string.time) to item.timestamp
+    )
+
+    val actions = buildList {
+        if (!item.synced) {
+            add(
+                CardAction(
+                    stringResource(R.string.synchronize), Icons.Default.Sync
+                ) { viewModel.syncItem(item.id) }
+            )
+        }
+        add(
+            CardAction(
+                stringResource(R.string.delete), Icons.Default.Delete
+            ) { viewModel.confirmDelete(listOf(item.id)) }
+        )
+        add(
+            CardAction(
+                stringResource(R.string.show_table), Icons.Default.TableRows
+            ) { /*TODO*/ }
+        )
+    }
+
+    UnifiedItemCard(
+        id = id,
+        icon = icon,
+        iconTint = iconTint,
+        isSynced = item.synced,
+        isSelected = selectedItems.contains(item.id),
+        selectionMode = isInSelectionMode,
+        onClick = onClick,
+        onLongPress = onLongPress,
+        infoRows = infoRows,
+        actions = actions
+    )
+}
+
+@Composable
+private fun InventoryBottomSheet(viewModel: InventoryViewModel) {
+    val formModes = listOf(
+        FormMode(
+            name = stringResource(R.string.by_group),
+            fields = listOf(
+                FormField(
+                    stringResource(R.string.group),
+                    type = FieldType.DROPDOWN,
+                    listOf("Grupa A", "Grupa B", "Grupa C")
+                ),
+            )
+        ),
+        FormMode(
+            name = stringResource(R.string.by_name),
+            fields = listOf(
+                FormField(
+                    stringResource(R.string.name),
+                    type = FieldType.TEXT
+                ),
+            )
+        )
+    )
+
+    BottomSheetWithModes(
+        title = stringResource(R.string.inventory),
+        modeSelectorLabel = stringResource(R.string.input_method),
+        modes = formModes,
+        onDismiss = { viewModel.toggleSheet(false) },
+        onSubmit = { _, values ->
+            val name = values[0]
+            viewModel.addItem(name)
+        }
+    )
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -268,6 +324,10 @@ fun InventoryScreenPreview() {
     }
 
     Scaffold(
+        topBar = {
+            UnifiedTopAppBar(title = "Inventura")
+        },
+
         bottomBar = {
             BottomNavBar(
                 selectedTab = AppRoutes.INVENTORY,
@@ -275,10 +335,16 @@ fun InventoryScreenPreview() {
             )
         },
         floatingActionButton = mockFAB
-    ) {
-        InventoryScreen(
-            viewModel = mockViewModel
-        )
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            InventoryScreen(
+                viewModel = mockViewModel
+            )
+        }
     }
 
 }

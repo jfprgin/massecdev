@@ -12,18 +12,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.loginhttp.InventoryViewModel
+import com.example.loginhttp.R
 import com.example.loginhttp.features.settings.navigation.SettingsViewModels
 import com.example.loginhttp.features.settings.navigation.settingsNavGraph
 import com.example.loginhttp.features.warehouse.navigation.WarehouseViewModels
 import com.example.loginhttp.features.warehouse.navigation.warehouseNavGraph
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainAppHost() {
 //        val topAppbarTitle = remember { mutableStateOf("") }
@@ -66,7 +67,12 @@ fun MainAppHost() {
     )
 
     val currentRoute = navControllers[selectedTab.value]
-        ?.currentBackStackEntryAsState()?.value?.destination?.route
+        ?.currentBackStackEntryAsState()
+        ?.value
+        ?.destination
+        ?.route
+
+    val title = stringResource(routeTitleMap[currentRoute] ?: R.string.app_name)
 
     val showBars = shouldShowBars(currentRoute)
 
@@ -74,23 +80,22 @@ fun MainAppHost() {
         // TODO: topbar
         topBar = {
             if (showBars) {
-
+                UnifiedTopAppBar(
+                    title = title,
+                )
             }
         },
         bottomBar = {
             if (showBars) {
-                    BottomNavBar(
-                        selectedTab = selectedTab.value,
-                        onTabSelected = { selectedTab.value = it },
-                    )
+                BottomNavBar(
+                    selectedTab = selectedTab.value,
+                    onTabSelected = { selectedTab.value = it },
+                )
             }
         },
         floatingActionButton = fabContent.value ?: {},
-    ) {
-        Box(
-            // Padding should be equal to the bottom bar height
-            modifier = Modifier.padding(bottom = 56.dp)
-        ) {
+    ) { innerPadding ->
+        Box(modifier = Modifier.padding(innerPadding)) {
             Crossfade(targetState = selectedTab.value) { tab ->
                 NavHost(
                     navController = navControllers[tab]!!,

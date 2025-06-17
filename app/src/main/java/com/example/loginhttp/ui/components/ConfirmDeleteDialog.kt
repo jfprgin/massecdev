@@ -4,21 +4,20 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.loginhttp.R
 import com.example.loginhttp.ui.theme.MassecRed
 
 @Composable
 fun ConfirmDeleteDialog(
     itemCount: Int,
-    title: String = "Potvrda brisanja",
+    title: String = stringResource(R.string.delete_confirmation),
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val message = if (itemCount == 1) {
-        "Jeste li sigurni da želite obrisati stavku?"
-    } else {
-        "Jeste li sigurni da želite obrisati $itemCount stavke?"
-    }
+    val message = pluralStringResource(R.plurals.confirm_delete_items, itemCount, itemCount)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -28,14 +27,14 @@ fun ConfirmDeleteDialog(
             TextButton(
                 onClick = onConfirm
             ) {
-                Text("Da", color = MassecRed)
+                Text(stringResource(R.string.yes), color = MassecRed)
             }
         },
         dismissButton = {
             TextButton(
                 onClick = onDismiss
             ) {
-                Text("Ne", color = MassecRed)
+                Text(stringResource(R.string.no), color = MassecRed)
             }
         }
     )

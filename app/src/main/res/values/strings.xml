@@ -8,7 +8,7 @@
     <string name="issuing_goods_title">Issuing goods</string>
     <string name="transfer_of_goods_title">Transfer of goods</string>
     <string name="return_of_goods_title">Return of goods</string>
-    <string name="write_off_goods_title">Write off goods</string>
+    <string name="write_off_of_goods_title">Write off goods</string>
     <string name="ordering_goods_title">Ordering goods</string>
     <string name="virtual_warehouse_title">Virtual warehouse</string>
     <string name="products_title">Products</string>
@@ -18,4 +18,30 @@
     <string name="locations_title">Locations</string>
     <string name="inventory_lists_title">Inventory lists</string>
     <string name="inventory_groups_title">Inventory groups</string>
+    <string name="templates_title">Templates</string>
+    <string name="item_synchronized">Synchronized</string>
+    <string name="item_unsynchronized">Unsynchronized</string>
+    <string name="synchronize">Synchronize</string>
+    <string name="delete">Delete</string>
+    <string name="show_table">Show table</string>
+    <string name="name">Name</string>
+    <string name="time">Time</string>
+    <string name="by_group">By group</string>
+    <string name="by_name">By name</string>
+    <string name="group">Group</string>
+    <string name="inventory">Inventory</string>
+    <string name="input_method">Input method</string>
+    <string name="add">Add</string>
+    <plurals name="confirm_delete_items">
+        <item quantity="one">Are you sure you want to delete this item?</item>
+        <item quantity="other">Are you sure you want to delete these %d items?</item>
+    </plurals>
+    <string name="delete_confirmation">Delete Confirmation</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="search">Search</string>
+    <string name="selected">Selected</string>
+    <string name="select_all">Select all</string>
+    <string name="warehouse">Warehouse</string>
+    <string name="cost_center">Cost center</string>
 </resources>

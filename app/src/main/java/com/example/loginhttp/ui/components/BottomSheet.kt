@@ -33,7 +33,8 @@ import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.White
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
+import com.example.loginhttp.R
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.LightGray
 import com.example.loginhttp.ui.theme.MassecRed
@@ -61,7 +62,7 @@ fun BottomSheet(
     fields: List<FormField>,
     onDismiss: () -> Unit,
     onSubmit: (inputs: List<String>) -> Unit,
-    submitText: String = "Dodaj"
+    submitText: String = stringResource(R.string.add)
 ) {
     val inputValues = remember { mutableStateListOf(*Array(fields.size) { "" }) }
 
@@ -138,7 +139,7 @@ fun BottomSheetWithModes(
     modes: List<FormMode>,
     onDismiss: () -> Unit,
     onSubmit: (mode: FormMode, inputs: List<String>) -> Unit,
-    submitText: String = "Dodaj",
+    submitText: String = stringResource(R.string.add),
 ) {
 
     var selectedIndex by remember { mutableStateOf(0) }

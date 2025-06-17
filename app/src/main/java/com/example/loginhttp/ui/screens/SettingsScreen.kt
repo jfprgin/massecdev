@@ -19,13 +19,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Assignment
-import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Domain
-import androidx.compose.material.icons.filled.LocalShipping
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Warehouse
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -39,17 +33,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.loginhttp.SettingsViewModel
-import com.example.loginhttp.model.SettingsItem
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
-import com.example.loginhttp.navigation.SettingsRoutes
 import com.example.loginhttp.navigation.UnifiedFloatingActionButton
-import com.example.loginhttp.ui.components.MenuHeader
+import com.example.loginhttp.navigation.UnifiedTopAppBar
+import com.example.loginhttp.ui.menu.settingsItems
 import com.example.loginhttp.ui.theme.DarkText
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
@@ -57,15 +51,13 @@ import com.example.loginhttp.ui.theme.MassecRed
 import com.example.loginhttp.ui.theme.White
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     onItemClick: (String) -> Unit,
 ) {
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-
     val isRefreshing = viewModel.isRefreshing.collectAsState().value
     val lastSync = viewModel.getLastSyncedText()
 
@@ -76,47 +68,42 @@ fun SettingsScreen(
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold { innerPadding ->
-        Column(
+    Scaffold {
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-//                .statusBarsPadding()
+//                .padding(innerPadding)
                 .background(LightGray)
-                .pullRefresh(pullRefreshState)
         ) {
             // HEADER
-            MenuHeader(screenWidth = screenWidth, title = "Postavke")
-
-            // Last sync info
-            Text(
-                text = lastSync,
-                color = DarkText,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 8.dp, bottom = 8.dp)
-            )
+//            MenuHeader(screenWidth = screenWidth, title = "Postavke")
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .pullRefresh(pullRefreshState)
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                // Last sync info
+                Text(
+                    text = lastSync,
+                    color = DarkText,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 8.dp)
+                )
+
                 settingsItems.forEach { item ->
                     SettingsItemCard(
-                        title = item.title,
+                        title = stringResource(item.titleRes),
                         icon = item.icon,
                         onClick = { onItemClick(item.route) }
                     )
                 }
             }
-        }
 
-        Box(
-            modifier = Modifier.fillMaxWidth()
-        ) {
             // Pull-to-refresh indicator
             PullRefreshIndicator(
                 refreshing = isRefreshing,
@@ -165,17 +152,6 @@ fun SettingsItemCard(
     }
 }
 
-val settingsItems = listOf(
-    SettingsItem("Artikli", Icons.Default.ShoppingCart, SettingsRoutes.PRODUCTS),
-    SettingsItem("Dobavljači", Icons.Default.LocalShipping, SettingsRoutes.SUPPLIERS),
-    SettingsItem("Skladišta", Icons.Default.Warehouse, SettingsRoutes.WAREHOUSES),
-    SettingsItem("Mjesta troškova", Icons.Default.Domain, SettingsRoutes.COST_CENTERS),
-    SettingsItem("Lokacije", Icons.Default.LocationOn, SettingsRoutes.LOCATIONS),
-    SettingsItem("Inventurne liste", Icons.Default.Assignment, SettingsRoutes.INVENTORY_LISTS),
-    SettingsItem("Inventurne grupe", Icons.Default.Category, SettingsRoutes.INVENTORY_GROUPS)
-)
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewSettingsScreen() {
@@ -183,12 +159,18 @@ fun PreviewSettingsScreen() {
 
     val mockFAB = @Composable {
         UnifiedFloatingActionButton(
-            icon = Icons.Default.Add,
-            contentDescription = "Add",
+            icon = Icons.Default.Refresh,
+            contentDescription = "Refresh",
             onClick = { mockViewModel.refreshDatabase() }
         )
     }
     Scaffold(
+        topBar = {
+            UnifiedTopAppBar(
+                title = "Settings",
+            )
+        },
+
         bottomBar = {
             BottomNavBar(
                 selectedTab = AppRoutes.SETTINGS,
@@ -196,10 +178,16 @@ fun PreviewSettingsScreen() {
             )
         },
         floatingActionButton = mockFAB
-    ) {
-        SettingsScreen(
-            viewModel = mockViewModel,
-            onItemClick = {},
-        )
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            SettingsScreen(
+                viewModel = mockViewModel,
+                onItemClick = {},
+            )
+        }
     }
 }

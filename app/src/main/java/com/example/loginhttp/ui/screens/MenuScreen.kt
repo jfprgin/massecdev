@@ -1,5 +1,6 @@
 package com.example.loginhttp.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,9 +20,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.loginhttp.ui.theme.*
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
-import com.example.loginhttp.ui.components.MenuHeader
+import com.example.loginhttp.navigation.AppRoutes
+import com.example.loginhttp.navigation.BottomNavBar
+import com.example.loginhttp.navigation.UnifiedTopAppBar
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MenuScreen(onMenuClick: (String) -> Unit) {
 
@@ -30,15 +34,14 @@ fun MenuScreen(onMenuClick: (String) -> Unit) {
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold { innerPadding ->
+    Scaffold {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(LightGray)
         ) {
-            // HEADER
-            MenuHeader(screenWidth = screenWidth, title = "Izbornik")
+//            // HEADER
+//            MenuHeader(screenWidth = screenWidth, title = "Izbornik")
 
             // MENU ITEMS
             Column(
@@ -120,7 +123,27 @@ fun MenuItemCard(
 @Preview
 @Composable
 fun MenuScreenPreview() {
-    LoginHTTPTheme {
-        MenuScreen(onMenuClick = {})
+    Scaffold(
+        topBar = {
+            UnifiedTopAppBar(
+                title = "Home",
+            )
+        },
+        bottomBar = {
+            BottomNavBar(
+                selectedTab = AppRoutes.HOME,
+                onTabSelected = {}
+            )
+        },
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            LoginHTTPTheme {
+                MenuScreen(onMenuClick = {})
+            }
+        }
     }
 }

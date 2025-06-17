@@ -14,10 +14,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.loginhttp.R
 import com.example.loginhttp.ui.theme.DarkGray
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
@@ -28,7 +30,7 @@ import com.example.loginhttp.ui.theme.White
 fun SearchBar(
     value: String,
     onValueChange: (String) -> Unit,
-    placeholderText: String = "Search",
+    placeholderText: String = stringResource(R.string.search),
     backgroundColor: Color = White,
     searchBarColor: Color = LightGray,
 ) {
