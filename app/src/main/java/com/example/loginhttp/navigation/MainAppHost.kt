@@ -1,6 +1,5 @@
 package com.example.loginhttp.navigation
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -13,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -27,15 +25,8 @@ import com.example.loginhttp.features.warehouse.navigation.warehouseNavGraph
 
 @Composable
 fun MainAppHost() {
-//        val topAppbarTitle = remember { mutableStateOf("") }
-//        val topAppBarState = rememberTopAppBarState()
-//        val barScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(state = topAppBarState)
 
     val fabContent = remember { mutableStateOf<@Composable (() -> Unit)?>(null) }
-
-//        val coroutineScope = rememberCoroutineScope()
-//        val rootNavHostController = rememberNavController()
-//        val rootNavBackStackEntry by rootNavHostController.currentBackStackEntryAsState()
 
     val selectedTab = rememberSaveable { mutableStateOf(AppRoutes.HOME) }
 
@@ -77,7 +68,6 @@ fun MainAppHost() {
     val showBars = shouldShowBars(currentRoute)
 
     Scaffold(
-        // TODO: topbar
         topBar = {
             if (showBars) {
                 UnifiedTopAppBar(
@@ -139,5 +129,7 @@ fun MainAppHost() {
 
 // Reusable UI control logic for TopBar/BottomBar
 private fun shouldShowBars(route: String?): Boolean {
-    return route in AppRoutes.mainTabs || route in WarehouseRoutes.all || route in SettingsRoutes.all
+    return route in AppRoutes.mainTabs
+            || route in WarehouseRoutes.all
+            || route in SettingsRoutes.all
 }

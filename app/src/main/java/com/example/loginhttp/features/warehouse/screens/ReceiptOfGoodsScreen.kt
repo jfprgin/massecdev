@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -32,20 +33,22 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.loginhttp.R
+import com.example.loginhttp.features.warehouse.model.ReceiptOfGoodsItem
 import com.example.loginhttp.features.warehouse.viewmodel.ReceiptOfGoodsViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFloatingActionButton
+import com.example.loginhttp.navigation.UnifiedTopAppBar
 import com.example.loginhttp.ui.components.BottomSheet
 import com.example.loginhttp.ui.components.FieldType
 import com.example.loginhttp.ui.components.FormField
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
-import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SelectionToolbar
 import com.example.loginhttp.ui.components.UnifiedItemCard
 import com.example.loginhttp.ui.theme.DarkText
@@ -56,6 +59,7 @@ import com.example.loginhttp.ui.theme.White
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ReceiptOfGoodsScreen(viewModel: ReceiptOfGoodsViewModel) {
 
@@ -73,9 +77,6 @@ fun ReceiptOfGoodsScreen(viewModel: ReceiptOfGoodsViewModel) {
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
     val scope = rememberCoroutineScope()
 
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-
     // Clear selection when switching tabs
     val previousPage = remember { mutableIntStateOf(pagerState.currentPage) }
 
@@ -92,29 +93,22 @@ fun ReceiptOfGoodsScreen(viewModel: ReceiptOfGoodsViewModel) {
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold { innerPadding ->
+    Scaffold {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(LightGray)
         ) {
             Column {
-                MenuHeader(screenWidth = screenWidth, title = "Prijem robe")
+//                MenuHeader(screenWidth = screenWidth, title = "Prijem robe")
 
                 if (isInSelectionMode) {
-                    SelectionToolbar(
-                        selectedCount =  selectedItems.size,
-                        onSelectAll = {
-                            val relevantItems = if (pagerState.currentPage == 0) unsyncedItems else syncedItems
-                            viewModel.selectAll(relevantItems.map { it.id })
-                        },
-                        actions = buildList {
-                            if (pagerState.currentPage == 0) {
-                                add(Icons.Default.Sync to { viewModel.syncSelectedItems()})
-                            }
-                            add(Icons.Default.Delete to { viewModel.confirmDelete(selectedItems.toList()) })
-                        }
+                    ReceiptOfGoodsSelectionToolbar(
+                        selectedItems,
+                        pagerState,
+                        unsyncedItems,
+                        syncedItems,
+                        viewModel
                     )
                 }
 
@@ -125,7 +119,8 @@ fun ReceiptOfGoodsScreen(viewModel: ReceiptOfGoodsViewModel) {
                     contentColor = DarkText,
                     indicator = { tabPositions ->
                         SecondaryIndicator(
-                            modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                            modifier = Modifier
+                                .tabIndicatorOffset(tabPositions[pagerState.currentPage]),
                             color = MassecRed
                         )
                     },
@@ -137,7 +132,7 @@ fun ReceiptOfGoodsScreen(viewModel: ReceiptOfGoodsViewModel) {
                                 pagerState.scrollToPage(0)
                             }
                         },
-                        text = { Text("Nesinkronizirano (${unsyncedItems.size})") }
+                        text = { Text("${stringResource(R.string.item_unsynchronized)} (${unsyncedItems.size})") }
                     )
 
                     Tab(
@@ -147,54 +142,19 @@ fun ReceiptOfGoodsScreen(viewModel: ReceiptOfGoodsViewModel) {
                                 pagerState.scrollToPage(1)
                             }
                         },
-                        text = { Text("Sinkronizirano (${syncedItems.size})") }
+                        text = { Text("${stringResource(R.string.item_synchronized)} (${syncedItems.size})") }
                     )
                 }
 
                 // Paged content
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize()
-                ) { page ->
-                    val list = if (page == 0) unsyncedItems else syncedItems
-                    LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(list) { item ->
-                            UnifiedItemCard(
-                                id = item.id.toString(),
-                                icon = if (item.synced) Icons.Filled.Lock else Icons.Filled.LockOpen,
-                                iconTint = if (item.synced) DeepNavy else MassecRed,
-                                isSynced = item.synced,
-                                isSelected = selectedItems.contains(item.id),
-                                selectionMode = isInSelectionMode,
-                                onClick = {
-                                    if (isInSelectionMode) viewModel.toggleSelection(item.id)
-                                },
-                                onLongPress = {
-                                    viewModel.toggleSelection(item.id)
-                                },
-                                infoRows = buildList {
-                                    add("Vrijeme" to item.timestamp)
-                                },
-                                actions = buildList {
-                                    if (!item.synced) {
-                                        add(
-                                            CardAction("Sinkroniziraj", Icons.Default.Sync) {
-                                                viewModel.syncItem(item.id)
-                                            }
-                                        )
-                                    }
-                                    add(CardAction("Izbriši", Icons.Default.Delete) {
-                                        viewModel.confirmDelete(listOf(item.id))
-                                    }
-                                    )
-                                },
-                            )
-                        }
-                    }
-                }
+                ReceiptOfGoodsHorizontalPager(
+                    pagerState,
+                    unsyncedItems,
+                    syncedItems,
+                    selectedItems,
+                    isInSelectionMode,
+                    viewModel
+                )
             }
 
             if (pendingDeletedIds.isNotEmpty()) {
@@ -206,32 +166,133 @@ fun ReceiptOfGoodsScreen(viewModel: ReceiptOfGoodsViewModel) {
             }
 
             if (isSheetVisible) {
-                val fields = listOf(
-                    FormField(
-                        "Dobavljač",
-                        FieldType.DROPDOWN,
-                        listOf("Dobavljač X", "Dobavljač Y", "Dobavljač Z")
-                    ),
-                    FormField(
-                        "Skladiste",
-                        FieldType.DROPDOWN,
-                        listOf("Skladište A", "Skladište B", "Skladište C")
-                    ),
-                )
-
-                BottomSheet(
-                    title = "Dodaj prijem robe",
-                    fields = fields,
-                    onDismiss = { viewModel.toggleSheet(false) },
-                    onSubmit = { values ->
-                        val (supplier, warehouse) = values
-                        viewModel.addItem(supplier, warehouse)
-                        viewModel.toggleSheet(false)
-                    }
-                )
+                ReceiptOfGoodsBottomSheet(viewModel)
             }
         }
     }
+}
+
+@Composable
+private fun ReceiptOfGoodsSelectionToolbar(
+    selectedItems: Set<Int>,
+    pagerState: PagerState,
+    unsyncedItems: List<ReceiptOfGoodsItem>,
+    syncedItems: List<ReceiptOfGoodsItem>,
+    viewModel: ReceiptOfGoodsViewModel
+) {
+    SelectionToolbar(
+        selectedCount = selectedItems.size,
+        onSelectAll = {
+            val relevantItems = if (pagerState.currentPage == 0) unsyncedItems else syncedItems
+            viewModel.selectAll(relevantItems.map { it.id })
+        },
+        actions = buildList {
+            if (pagerState.currentPage == 0) {
+                add(Icons.Default.Sync to { viewModel.syncSelectedItems() })
+            }
+            add(Icons.Default.Delete to { viewModel.confirmDelete(selectedItems.toList()) })
+        }
+    )
+}
+
+@Composable
+private fun ReceiptOfGoodsHorizontalPager(
+    pagerState: PagerState,
+    unsyncedItems: List<ReceiptOfGoodsItem>,
+    syncedItems: List<ReceiptOfGoodsItem>,
+    selectedItems: Set<Int>,
+    isInSelectionMode: Boolean,
+    viewModel: ReceiptOfGoodsViewModel
+) {
+    HorizontalPager(
+        state = pagerState,
+        modifier = Modifier.fillMaxSize()
+    ) { page ->
+        val list = if (page == 0) unsyncedItems else syncedItems
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(list) { item ->
+                ReceiptOfGoodsItemCard(item, selectedItems, isInSelectionMode, viewModel)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReceiptOfGoodsItemCard(
+    item: ReceiptOfGoodsItem,
+    selectedItems: Set<Int>,
+    isInSelectionMode: Boolean,
+    viewModel: ReceiptOfGoodsViewModel
+) {
+    val id = item.id.toString()
+    val icon = if (item.synced) Icons.Filled.Lock else Icons.Filled.LockOpen
+    val iconTint = if (item.synced) DeepNavy else MassecRed
+
+    val onClick = {
+        if (isInSelectionMode) viewModel.toggleSelection(item.id)
+    }
+    val onLongPress = {
+        viewModel.toggleSelection(item.id)
+    }
+
+    val infoRows = listOf(stringResource(R.string.time) to item.timestamp)
+    val actions = buildList {
+        if (!item.synced) {
+            add(
+                CardAction(stringResource(R.string.synchronize), Icons.Default.Sync) {
+                    viewModel.syncItem(item.id)
+                }
+            )
+        }
+        add(
+            CardAction(stringResource(R.string.delete), Icons.Default.Delete) {
+                viewModel.confirmDelete(listOf(item.id))
+            }
+        )
+    }
+
+    UnifiedItemCard(
+        id = id,
+        icon = icon,
+        iconTint = iconTint,
+        isSynced = item.synced,
+        isSelected = selectedItems.contains(item.id),
+        selectionMode = isInSelectionMode,
+        onClick = onClick,
+        onLongPress = onLongPress,
+        infoRows = infoRows,
+        actions = actions
+    )
+}
+
+@Composable
+private fun ReceiptOfGoodsBottomSheet(viewModel: ReceiptOfGoodsViewModel) {
+    val fields = listOf(
+        FormField(
+            stringResource(R.string.supplier),
+            FieldType.DROPDOWN,
+            listOf("Dobavljač X", "Dobavljač Y", "Dobavljač Z")
+        ),
+        FormField(
+            stringResource(R.string.warehouse),
+            FieldType.DROPDOWN,
+            listOf("Skladište A", "Skladište B", "Skladište C")
+        ),
+    )
+
+    BottomSheet(
+        title = stringResource(R.string.receipt_of_goods_title),
+        fields = fields,
+        onDismiss = { viewModel.toggleSheet(false) },
+        onSubmit = { values ->
+            val (supplier, warehouse) = values
+            viewModel.addItem(supplier, warehouse)
+            viewModel.toggleSheet(false)
+        }
+    )
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -249,6 +310,9 @@ fun ReceiptOfGoodsScreenPreview() {
     }
 
     Scaffold(
+        topBar = {
+            UnifiedTopAppBar(title = "Prijem robe")
+        },
         bottomBar = {
             BottomNavBar(
                 selectedTab = AppRoutes.WAREHOUSE,
@@ -256,9 +320,15 @@ fun ReceiptOfGoodsScreenPreview() {
             )
         },
         floatingActionButton = mockFAB,
-    ) {
-        ReceiptOfGoodsScreen(
-            viewModel = mockViewModel
-        )
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            ReceiptOfGoodsScreen(
+                viewModel = mockViewModel
+            )
+        }
     }
 }

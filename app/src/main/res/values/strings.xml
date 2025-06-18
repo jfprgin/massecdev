@@ -44,4 +44,20 @@
     <string name="select_all">Select all</string>
     <string name="warehouse">Warehouse</string>
     <string name="cost_center">Cost center</string>
+    <string name="added">Added</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="supplier">Supplier</string>
+    <string name="status">Status</string>
+    <string name="processing">Processing</string>
+    <string name="closed">Closed</string>
+    <string name="transfer_to_warehouse">Transfer to warehouse</string>
+    <string name="internal_order">Internal order</string>
+    <string name="from_location">From location</string>
+    <string name="to_location">To location</string>
+    <string name="external_order">External order</string>
+    <string name="add_order">Add order</string>
+    <string name="order_type">Order type</string>
+    <string name="template_name">Template name</string>
+    <string name="new_template">New template</string>
 </resources>

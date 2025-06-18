@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Button
 import androidx.compose.material.icons.Icons
@@ -37,10 +39,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.loginhttp.R
 import com.example.loginhttp.features.warehouse.viewmodel.OrderingGoodsViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.ui.components.BottomSheetWithModes
@@ -53,8 +56,8 @@ import com.example.loginhttp.features.warehouse.model.OrderType
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFloatingActionButton
+import com.example.loginhttp.navigation.UnifiedTopAppBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
-import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SelectionToolbar
 import com.example.loginhttp.ui.components.UnifiedItemCard
 import com.example.loginhttp.ui.theme.DarkText
@@ -65,6 +68,7 @@ import com.example.loginhttp.ui.theme.White
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun OrderingGoodsScreen(viewModel: OrderingGoodsViewModel) {
 
@@ -75,9 +79,6 @@ fun OrderingGoodsScreen(viewModel: OrderingGoodsViewModel) {
     val isInSelectionMode = selectedItems.isNotEmpty()
 
     val pendingDeleteIds by viewModel.pendingDeleteIds.collectAsState()
-
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
     val selectedTypeTab by viewModel.selectedTypeTab.collectAsState()
     val selectedSyncTab by viewModel.selectedSyncTab.collectAsState()
@@ -126,29 +127,16 @@ fun OrderingGoodsScreen(viewModel: OrderingGoodsViewModel) {
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold { innerPadding  ->
+    Scaffold {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(LightGray)
         ) {
-            MenuHeader(screenWidth = screenWidth, title = "Naručivanje robe")
+//            MenuHeader(screenWidth = screenWidth, title = "Naručivanje robe")
 
             if (isInSelectionMode) {
-                SelectionToolbar(
-                    selectedCount = selectedItems.size,
-                    onSelectAll = {
-                        viewModel.selectAll(filteredOrders.map { it.id })
-                    },
-                    actions = buildList {
-                        if (selectedSyncTab == OrderStatus.U_PROCESU) {
-                            add(Icons.Default.Sync to { viewModel.syncSelectedOrders() })
-                            add(Icons.Default.Delete to { viewModel.confirmDelete(selectedItems.toList()) })
-                            add(Icons.Default.Warehouse to { /* Prebaci na skladište action */ })
-                        }
-                    }
-                )
+                OrderingGoodsSelectionToolbar(selectedItems, viewModel, filteredOrders, selectedSyncTab)
             }
 
             // Type selector
@@ -226,74 +214,7 @@ fun OrderingGoodsScreen(viewModel: OrderingGoodsViewModel) {
                     )
             }
 
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize()
-            ) {page ->
-                val visibleOrders = filteredOrders.filter {
-                    if (page == 0) {
-                        it.status == OrderStatus.U_PROCESU
-                    } else {
-                        it.status == OrderStatus.ZATVORENO
-                    }
-                }
-
-                LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(visibleOrders, key = { it.id }) { order ->
-                        UnifiedItemCard(
-                            id = order.id.toString(),
-                            icon = when (order) {
-                                is OrderItem.InternalOrder -> Icons.Default.Home
-                                is OrderItem.ExternalOrder -> Icons.Default.LocalShipping
-                            },
-                            iconTint = if (order.status == OrderStatus.U_PROCESU) MassecRed else DeepNavy,
-                            isSynced = OrderStatus.ZATVORENO == order.status,
-                            isSelected = selectedItems.contains(order.id),
-                            selectionMode = isInSelectionMode,
-                            onClick = {
-                                if (isInSelectionMode) viewModel.toggleSelection(order.id)
-                            },
-                            onLongPress = {
-                                viewModel.toggleSelection(order.id)
-                            },
-                            infoRows = buildList {
-                                add("Dodano" to order.timestamp)
-                                when (order) {
-                                    is OrderItem.InternalOrder -> {
-                                        add("Sa" to order.fromLocation)
-                                        add("Na" to order.toLocation)
-                                    }
-
-                                    is OrderItem.ExternalOrder -> {
-                                        add("Dobavljač" to order.supplier)
-                                        add("Skladište" to order.warehouse)
-                                    }
-                                }
-                                add("Status" to if (order.status == OrderStatus.U_PROCESU) "U procesu" else "Zatvoreno")
-                            },
-                            actions = buildList {
-                                if (order.status == OrderStatus.U_PROCESU) {
-                                    add(CardAction("Sinkroniziraj", Icons.Default.Sync) {
-                                        viewModel.syncOrder(order.id)
-                                        }
-                                    )
-                                    add(CardAction("Izbriši", Icons.Default.Delete) {
-                                        viewModel.confirmDelete(listOf(order.id))
-                                        }
-                                    )
-                                    add(CardAction("Prebaci na skladište", Icons.Default.Warehouse) {
-                                        // Transfer action
-                                        }
-                                    )
-                                }
-                            }
-                        )
-                    }
-                }
-            }
+            OrderingGoodsHorizontalPager(pagerState, filteredOrders, selectedItems, isInSelectionMode, viewModel)
 
             if (pendingDeleteIds.isNotEmpty()) {
                 ConfirmDeleteDialog(
@@ -308,59 +229,183 @@ fun OrderingGoodsScreen(viewModel: OrderingGoodsViewModel) {
             }
 
             if (isSheetVisible) {
-                val formModes = listOf(
-                    FormMode(
-                        name = "Interna narudžba",
-                        fields = listOf(
-                            FormField(
-                                "Sa lokacije",
-                                FieldType.DROPDOWN,
-                                listOf("Skladište A", "Skladište B", "Skladište C")
-                            ),
-                            FormField(
-                                "Na lokaciju",
-                                FieldType.DROPDOWN,
-                                listOf("Lokacija 1", "Lokacija 2", "Lokacija 3")
-                            )
-                        )
-                    ),
-                    FormMode(
-                        name = "Vanjska narudžba",
-                        fields = listOf(
-                            FormField(
-                                "Dobavljač",
-                                FieldType.DROPDOWN,
-                                listOf("Dobavljač A", "Dobavljač B", "Dobavljač C")
-                            ),
-                            FormField(
-                                "Skladište",
-                                FieldType.DROPDOWN,
-                                listOf("Skladište X", "Skladište Y", "Skladište Z")
-                            )
-                        )
-                    )
-                )
-
-                BottomSheetWithModes(
-                    title = "Dodaj narudžbu",
-                    modeSelectorLabel = "Tip narudžbe",
-                    modes = formModes,
-                    onDismiss = { viewModel.toggleSheet(false) },
-                    onSubmit = { mode, values ->
-                        if (mode.name == "Interna narudžba") {
-                            val fromLocation = values[0]
-                            val toLocation = values[1]
-                            viewModel.addInternalOrder(fromLocation, toLocation)
-                        } else {
-                            val supplier = values[0]
-                            val warehouse = values[1]
-                            viewModel.addExternalOrder(supplier, warehouse)
-                        }
-                    },
-                )
+                OrderingGoodsBottomSheet(viewModel)
             }
         }
     }
+}
+
+@Composable
+private fun OrderingGoodsSelectionToolbar(
+    selectedItems: Set<Int>,
+    viewModel: OrderingGoodsViewModel,
+    filteredOrders: List<OrderItem>,
+    selectedSyncTab: OrderStatus
+) {
+    SelectionToolbar(
+        selectedCount = selectedItems.size,
+        onSelectAll = {
+            viewModel.selectAll(filteredOrders.map { it.id })
+        },
+        actions = buildList {
+            if (selectedSyncTab == OrderStatus.U_PROCESU) {
+                add(Icons.Default.Sync to { viewModel.syncSelectedOrders() })
+                add(Icons.Default.Delete to { viewModel.confirmDelete(selectedItems.toList()) })
+                add(Icons.Default.Warehouse to { /* Prebaci na skladište action */ })
+            }
+        }
+    )
+}
+
+@Composable
+private fun OrderingGoodsHorizontalPager(
+    pagerState: PagerState,
+    filteredOrders: List<OrderItem>,
+    selectedItems: Set<Int>,
+    isInSelectionMode: Boolean,
+    viewModel: OrderingGoodsViewModel
+) {
+    HorizontalPager(
+        state = pagerState,
+        modifier = Modifier.fillMaxSize()
+    ) { page ->
+        val visibleOrders = filteredOrders.filter {
+            if (page == 0) {
+                it.status == OrderStatus.U_PROCESU
+            } else {
+                it.status == OrderStatus.ZATVORENO
+            }
+        }
+
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(visibleOrders, key = { it.id }) { order ->
+                OrderingGoodsItemCard(order, selectedItems, isInSelectionMode, viewModel)
+            }
+        }
+    }
+}
+
+@Composable
+private fun OrderingGoodsItemCard(
+    order: OrderItem,
+    selectedItems: Set<Int>,
+    isInSelectionMode: Boolean,
+    viewModel: OrderingGoodsViewModel
+) {
+    val id = order.id.toString()
+    val icon = when (order) {
+        is OrderItem.InternalOrder -> Icons.Default.Home
+        is OrderItem.ExternalOrder -> Icons.Default.LocalShipping
+    }
+    val iconTint = if (order.status == OrderStatus.U_PROCESU) MassecRed else DeepNavy
+    val isSynced = order.status == OrderStatus.ZATVORENO
+
+    val onClick = {
+        if (isInSelectionMode) viewModel.toggleSelection(order.id)
+    }
+    val onLongPress = {
+        viewModel.toggleSelection(order.id)
+    }
+
+    val infoRows = buildList {
+        add(stringResource(R.string.added) to order.timestamp)
+        when (order) {
+            is OrderItem.InternalOrder -> {
+                add(stringResource(R.string.from) to order.fromLocation)
+                add(stringResource(R.string.to) to order.toLocation)
+            }
+            is OrderItem.ExternalOrder -> {
+                add(stringResource(R.string.supplier) to order.supplier)
+                add(stringResource(R.string.warehouse) to order.warehouse)
+            }
+        }
+        add(stringResource(R.string.status) to if (order.status == OrderStatus.U_PROCESU) stringResource(R.string.processing) else stringResource(R.string.closed))
+    }
+
+    val actions = buildList {
+        if (order.status == OrderStatus.U_PROCESU) {
+            add(CardAction(stringResource(R.string.synchronize), Icons.Default.Sync) {
+                viewModel.syncOrder(order.id)
+            })
+            add(CardAction(stringResource(R.string.delete), Icons.Default.Delete) {
+                viewModel.confirmDelete(listOf(order.id))
+            })
+            add(CardAction(stringResource(R.string.transfer_to_warehouse), Icons.Default.Warehouse) {
+                // Transfer action
+            })
+        }
+    }
+
+    UnifiedItemCard(
+        id = id,
+        icon = icon,
+        iconTint = iconTint,
+        isSynced = isSynced,
+        isSelected = selectedItems.contains(order.id),
+        selectionMode = isInSelectionMode,
+        onClick = onClick,
+        onLongPress = onLongPress,
+        infoRows = infoRows,
+        actions = actions,
+    )
+}
+
+@Composable
+private fun OrderingGoodsBottomSheet(viewModel: OrderingGoodsViewModel) {
+    val formModes = listOf(
+        FormMode(
+            name = stringResource(R.string.internal_order),
+            fields = listOf(
+                FormField(
+                    stringResource(R.string.from_location),
+                    FieldType.DROPDOWN,
+                    listOf("Skladište A", "Skladište B", "Skladište C")
+                ),
+                FormField(
+                    stringResource(R.string.to_location),
+                    FieldType.DROPDOWN,
+                    listOf("Lokacija 1", "Lokacija 2", "Lokacija 3")
+                )
+            )
+        ),
+        FormMode(
+            name = stringResource(R.string.external_order),
+            fields = listOf(
+                FormField(
+                    stringResource(R.string.supplier),
+                    FieldType.DROPDOWN,
+                    listOf("Dobavljač A", "Dobavljač B", "Dobavljač C")
+                ),
+                FormField(
+                    stringResource(R.string.warehouse),
+                    FieldType.DROPDOWN,
+                    listOf("Skladište X", "Skladište Y", "Skladište Z")
+                )
+            )
+        )
+    )
+
+    val internalOrder = stringResource(R.string.internal_order)
+    BottomSheetWithModes(
+        title = stringResource(R.string.add_order),
+        modeSelectorLabel = stringResource(R.string.order_type),
+        modes = formModes,
+        onDismiss = { viewModel.toggleSheet(false) },
+        onSubmit = { mode, values ->
+            if (mode.name == internalOrder) {
+                val fromLocation = values[0]
+                val toLocation = values[1]
+                viewModel.addInternalOrder(fromLocation, toLocation)
+            } else {
+                val supplier = values[0]
+                val warehouse = values[1]
+                viewModel.addExternalOrder(supplier, warehouse)
+            }
+        },
+    )
 }
 
 fun OrderStatus.toTabIndex() = when (this) {
@@ -393,6 +438,10 @@ fun OrderingGoodsScreenPreview() {
     }
 
     Scaffold(
+        topBar = {
+            UnifiedTopAppBar(title = "Naručivanje robe")
+        },
+
         bottomBar = {
             BottomNavBar(
                 selectedTab = AppRoutes.WAREHOUSE,
@@ -400,9 +449,15 @@ fun OrderingGoodsScreenPreview() {
             )
         },
         floatingActionButton = mockFAB,
-    ) {
-        OrderingGoodsScreen(
-            viewModel = mockViewModel
-        )
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            OrderingGoodsScreen(
+                viewModel = mockViewModel
+            )
+        }
     }
 }

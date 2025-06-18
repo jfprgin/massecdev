@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -32,20 +33,22 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.loginhttp.R
+import com.example.loginhttp.features.warehouse.model.TransferOfGoodsItem
 import com.example.loginhttp.features.warehouse.viewmodel.TransferOfGoodsViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFloatingActionButton
+import com.example.loginhttp.navigation.UnifiedTopAppBar
 import com.example.loginhttp.ui.components.BottomSheet
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.FieldType
 import com.example.loginhttp.ui.components.FormField
-import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SelectionToolbar
 import com.example.loginhttp.ui.components.UnifiedItemCard
 import com.example.loginhttp.ui.theme.DarkText
@@ -56,6 +59,7 @@ import com.example.loginhttp.ui.theme.White
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TransferOfGoodsScreen(viewModel: TransferOfGoodsViewModel) {
 
@@ -73,9 +77,6 @@ fun TransferOfGoodsScreen(viewModel: TransferOfGoodsViewModel) {
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
     val scope = rememberCoroutineScope()
 
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-
     val previousPage = remember { mutableIntStateOf(pagerState.currentPage) }
 
     LaunchedEffect(pagerState.currentPage) {
@@ -91,33 +92,22 @@ fun TransferOfGoodsScreen(viewModel: TransferOfGoodsViewModel) {
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold { innerPadding ->
+    Scaffold {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(LightGray)
         ) {
             Column {
-                MenuHeader(screenWidth = screenWidth, title = "Prijenos robe")
+//                MenuHeader(screenWidth = screenWidth, title = "Prijenos robe")
 
                 if (isInSelectionMode) {
-                    SelectionToolbar(
-                        selectedCount = selectedItems.size,
-                        onSelectAll = {
-                            val relevantItems = if (pagerState.currentPage == 0) {
-                                unsyncedItems
-                            } else {
-                                syncedItems
-                            }
-                            viewModel.selectAll(relevantItems.map { it.id })
-                        },
-                        actions = buildList {
-                            if (pagerState.currentPage == 0) {
-                                add(Icons.Default.Sync to { viewModel.syncSelectedItems() })
-                            }
-                            add(Icons.Default.Delete to { viewModel.confirmDelete(selectedItems.toList()) })
-                        }
+                    TransferOfGoodsSelectionToolbar(
+                        selectedItems,
+                        pagerState,
+                        unsyncedItems,
+                        syncedItems,
+                        viewModel
                     )
                 }
 
@@ -139,7 +129,7 @@ fun TransferOfGoodsScreen(viewModel: TransferOfGoodsViewModel) {
                                 pagerState.scrollToPage(0)
                             }
                         },
-                        text = { Text("Nesinkronizirano (${unsyncedItems.size})") }
+                        text = { Text("${stringResource(R.string.item_unsynchronized)} (${unsyncedItems.size})") }
                     )
 
                     Tab(
@@ -149,54 +139,18 @@ fun TransferOfGoodsScreen(viewModel: TransferOfGoodsViewModel) {
                                 pagerState.scrollToPage(1)
                             }
                         },
-                        text = { Text("Sinkronizirano (${syncedItems.size})") }
+                        text = { Text("${stringResource(R.string.item_synchronized)} (${syncedItems.size})") }
                     )
                 }
 
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize()
-                ) { page ->
-                    val list = if (page == 0) unsyncedItems else syncedItems
-                    LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(list) { item ->
-                            UnifiedItemCard(
-                                id = item.id.toString(),
-                                icon = if (item.synced) Icons.Filled.Lock else Icons.Filled.LockOpen,
-                                iconTint = if (item.synced) DeepNavy else MassecRed,
-                                isSynced = item.synced,
-                                isSelected = selectedItems.contains(item.id),
-                                selectionMode = isInSelectionMode,
-                                onClick = {
-                                    if (isInSelectionMode) viewModel.toggleSelection(item.id)
-                                },
-                                onLongPress = {
-                                    viewModel.toggleSelection(item.id)
-                                },
-                                infoRows = buildList {
-                                    add("Vrijeme" to item.timestamp)
-                                },
-                                actions = buildList {
-                                    if (!item.synced) {
-                                        add(
-                                            CardAction("Sinkroniziraj", Icons.Default.Sync) {
-                                                viewModel.syncItem(item.id)
-                                            }
-                                        )
-                                    }
-                                    add(
-                                        CardAction("Izbriši", Icons.Default.Delete) {
-                                            viewModel.confirmDelete(listOf(item.id))
-                                        }
-                                    )
-                                },
-                            )
-                        }
-                    }
-                }
+                TransferOfGoodsHorizontalPager(
+                    pagerState,
+                    unsyncedItems,
+                    syncedItems,
+                    selectedItems,
+                    isInSelectionMode,
+                    viewModel
+                )
             }
 
             if (pendingDeletedIds.isNotEmpty()) {
@@ -208,32 +162,137 @@ fun TransferOfGoodsScreen(viewModel: TransferOfGoodsViewModel) {
             }
 
             if (isSheetVisible) {
-                val fields = listOf(
-                    FormField(
-                        "Skladište",
-                        FieldType.DROPDOWN,
-                        listOf("Skladište 1", "Skladište 2", "Skladište 3"),
-                    ),
-                    FormField(
-                        "Mjesto troška",
-                        FieldType.DROPDOWN,
-                        listOf("Mjesto troška 1", "Mjesto troška 2", "Mjesto troška 3"),
-                    )
-                )
-
-                BottomSheet(
-                    title = "Prijenos robe",
-                    fields = fields,
-                    onDismiss = { viewModel.toggleSheet(false) },
-                    onSubmit = { values ->
-                        val (warehouse, costCenter) = values
-                        viewModel.addItem(warehouse, costCenter)
-                        viewModel.toggleSheet(false)
-                    },
-                )
+                TransferOfGoodsBottomSheet(viewModel)
             }
         }
     }
+}
+
+@Composable
+private fun TransferOfGoodsSelectionToolbar(
+    selectedItems: Set<Int>,
+    pagerState: PagerState,
+    unsyncedItems: List<TransferOfGoodsItem>,
+    syncedItems: List<TransferOfGoodsItem>,
+    viewModel: TransferOfGoodsViewModel
+) {
+    SelectionToolbar(
+        selectedCount = selectedItems.size,
+        onSelectAll = {
+            val relevantItems = if (pagerState.currentPage == 0) {
+                unsyncedItems
+            } else {
+                syncedItems
+            }
+            viewModel.selectAll(relevantItems.map { it.id })
+        },
+        actions = buildList {
+            if (pagerState.currentPage == 0) {
+                add(Icons.Default.Sync to { viewModel.syncSelectedItems() })
+            }
+            add(Icons.Default.Delete to { viewModel.confirmDelete(selectedItems.toList()) })
+        }
+    )
+}
+
+@Composable
+private fun TransferOfGoodsHorizontalPager(
+    pagerState: PagerState,
+    unsyncedItems: List<TransferOfGoodsItem>,
+    syncedItems: List<TransferOfGoodsItem>,
+    selectedItems: Set<Int>,
+    isInSelectionMode: Boolean,
+    viewModel: TransferOfGoodsViewModel
+) {
+    HorizontalPager(
+        state = pagerState,
+        modifier = Modifier.fillMaxSize()
+    ) { page ->
+        val list = if (page == 0) unsyncedItems else syncedItems
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(list) { item ->
+                TransferOfGoodsItemCard(item, selectedItems, isInSelectionMode, viewModel)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TransferOfGoodsItemCard(
+    item: TransferOfGoodsItem,
+    selectedItems: Set<Int>,
+    isInSelectionMode: Boolean,
+    viewModel: TransferOfGoodsViewModel
+) {
+    val id = item.id.toString()
+    val icon = if (item.synced) Icons.Filled.Lock else Icons.Filled.LockOpen
+    val iconTint = if (item.synced) DeepNavy else MassecRed
+
+    val onClick = {
+        if (isInSelectionMode) viewModel.toggleSelection(item.id)
+    }
+    val onLongPress = {
+        viewModel.toggleSelection(item.id)
+    }
+
+    val infoRows = listOf(stringResource(R.string.time) to item.timestamp)
+    val actions = buildList {
+        if (!item.synced) {
+            add(
+                CardAction(stringResource(R.string.synchronize), Icons.Default.Sync) {
+                    viewModel.syncItem(item.id)
+                }
+            )
+        }
+        add(
+            CardAction(stringResource(R.string.delete), Icons.Default.Delete) {
+                viewModel.confirmDelete(listOf(item.id))
+            }
+        )
+    }
+
+    UnifiedItemCard(
+        id = id,
+        icon = icon,
+        iconTint = iconTint,
+        isSynced = item.synced,
+        isSelected = selectedItems.contains(item.id),
+        selectionMode = isInSelectionMode,
+        onClick = onClick,
+        onLongPress = onLongPress,
+        infoRows = infoRows,
+        actions = actions
+    )
+}
+
+@Composable
+private fun TransferOfGoodsBottomSheet(viewModel: TransferOfGoodsViewModel) {
+    val fields = listOf(
+        FormField(
+            stringResource(R.string.supplier),
+            FieldType.DROPDOWN,
+            listOf("Skladište 1", "Skladište 2", "Skladište 3"),
+        ),
+        FormField(
+            stringResource(R.string.cost_center),
+            FieldType.DROPDOWN,
+            listOf("Mjesto troška 1", "Mjesto troška 2", "Mjesto troška 3"),
+        )
+    )
+
+    BottomSheet(
+        title = stringResource(R.string.transfer_of_goods_title),
+        fields = fields,
+        onDismiss = { viewModel.toggleSheet(false) },
+        onSubmit = { values ->
+            val (warehouse, costCenter) = values
+            viewModel.addItem(warehouse, costCenter)
+            viewModel.toggleSheet(false)
+        },
+    )
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -252,6 +311,9 @@ fun TransferOfGoodsScreenPreview() {
     }
 
     Scaffold(
+        topBar = {
+            UnifiedTopAppBar(title = "Prijenos robe")
+        },
         bottomBar = {
             BottomNavBar(
                 selectedTab = AppRoutes.WAREHOUSE,
@@ -259,10 +321,15 @@ fun TransferOfGoodsScreenPreview() {
             )
         },
         floatingActionButton = mockFAB,
-    )
-        {
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             TransferOfGoodsScreen(
                 viewModel = mockViewModel
             )
         }
+    }
 }

@@ -46,4 +46,20 @@
     <string name="select_all">Odaberi sve</string>
     <string name="warehouse">Skladište</string>
     <string name="cost_center">Mjesto troška</string>
+    <string name="added">Dodano</string>
+    <string name="from">Sa</string>
+    <string name="to">Na</string>
+    <string name="supplier">Dobavljač</string>
+    <string name="status">Status</string>
+    <string name="processing">U procesu</string>
+    <string name="closed">Zatvoreno</string>
+    <string name="transfer_to_warehouse">Prebaci na skladište</string>
+    <string name="internal_order">Interna narudžba</string>
+    <string name="from_location">Sa lokacije</string>
+    <string name="to_location">Na lokaciju</string>
+    <string name="external_order">Vanjska narudžba</string>
+    <string name="add_order">Dodaj narudžbu</string>
+    <string name="order_type">Tip narudžbe</string>
+    <string name="template_name">Naziv predloška</string>
+    <string name="new_template">Novi predložak</string>
 </resources>

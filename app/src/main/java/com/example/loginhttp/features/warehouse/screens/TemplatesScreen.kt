@@ -2,6 +2,7 @@ package com.example.loginhttp.features.warehouse.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,43 +17,41 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.loginhttp.R
 import com.example.loginhttp.features.warehouse.viewmodel.TemplatesViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFloatingActionButton
+import com.example.loginhttp.navigation.UnifiedTopAppBar
 import com.example.loginhttp.ui.components.BottomSheet
 import com.example.loginhttp.ui.components.FieldType
 import com.example.loginhttp.ui.components.FormField
-import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.UnifiedItemCard
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun TemplatesScreen(viewModel: TemplatesViewModel) {
 
     val templates by viewModel.items.collectAsState()
     val isSheetVisible by viewModel.isSheetVisible.collectAsState()
 
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold { innerPadding ->
+    Scaffold {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(LightGray)
         ) {
-            MenuHeader(screenWidth = screenWidth, title = "Predlošci")
+//            MenuHeader(screenWidth = screenWidth, title = "Predlošci")
 
             LazyColumn(
                 contentPadding = PaddingValues(
@@ -72,7 +71,7 @@ fun TemplatesScreen(viewModel: TemplatesViewModel) {
                         ),
                         onClick = { },
                         actions = listOf(
-                            CardAction("Izbriši", Icons.Default.Delete) {
+                            CardAction(stringResource(R.string.delete), Icons.Default.Delete) {
                                 viewModel.confirmDelete(listOf(template.id))
                             }
                         ),
@@ -84,13 +83,13 @@ fun TemplatesScreen(viewModel: TemplatesViewModel) {
         if (isSheetVisible) {
             val fields = listOf(
                 FormField(
-                    label = "Naziv predloška",
+                    label = stringResource(R.string.template_name),
                     FieldType.TEXT,
                 )
             )
 
             BottomSheet(
-                title = "Novi predložak",
+                title = stringResource(R.string.new_template),
                 fields = fields,
                 onDismiss = { viewModel.toggleSheet(false) },
                 onSubmit = { values ->
@@ -119,6 +118,9 @@ fun TemplatesScreenPreview() {
     }
 
     Scaffold(
+        topBar = {
+            UnifiedTopAppBar(title = "Pedlošci")
+        },
         bottomBar = {
             BottomNavBar(
                 selectedTab = AppRoutes.WAREHOUSE,
@@ -126,7 +128,13 @@ fun TemplatesScreenPreview() {
             )
         },
         floatingActionButton = mockFAB,
-    ) {
-        TemplatesScreen(viewModel = mockViewModel)
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            TemplatesScreen(viewModel = mockViewModel)
+        }
     }
 }

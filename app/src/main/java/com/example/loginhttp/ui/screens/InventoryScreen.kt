@@ -238,7 +238,6 @@ private fun InventoryItemCard(
         stringResource(R.string.name) to item.name,
         stringResource(R.string.time) to item.timestamp
     )
-
     val actions = buildList {
         if (!item.synced) {
             add(
