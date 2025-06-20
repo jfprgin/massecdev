@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -33,19 +34,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.loginhttp.R
+import com.example.loginhttp.features.warehouse.model.VirtualWarehouseItem
 import com.example.loginhttp.features.warehouse.viewmodel.VirtualWarehouseViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFloatingActionButton
+import com.example.loginhttp.navigation.UnifiedTopAppBar
 import com.example.loginhttp.ui.components.BottomSheet
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.FieldType
 import com.example.loginhttp.ui.components.FormField
-import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SelectionToolbar
 import com.example.loginhttp.ui.components.UnifiedItemCard
 import com.example.loginhttp.ui.theme.DarkText
@@ -56,6 +60,7 @@ import com.example.loginhttp.ui.theme.White
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun VirtualWarehouseScreen(viewModel: VirtualWarehouseViewModel) {
 
@@ -91,15 +96,14 @@ fun VirtualWarehouseScreen(viewModel: VirtualWarehouseViewModel) {
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold { innerPadding ->
+    Scaffold {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(LightGray)
         ) {
             Column {
-                MenuHeader(screenWidth = screenWith, title = "Virtualno skladište")
+//                MenuHeader(screenWidth = screenWith, title = "Virtualno skladište")
 
                 if (isInSelectionMode) {
                     SelectionToolbar(
@@ -153,54 +157,14 @@ fun VirtualWarehouseScreen(viewModel: VirtualWarehouseViewModel) {
                     )
                 }
 
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize()
-                ) { page->
-                    val list = if (page == 0) unsyncedItems else syncedItems
-                    LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(list) { item ->
-                            UnifiedItemCard(
-                                id = item.id.toString(),
-                                icon = if (item.synced) Icons.Filled.Lock else Icons.Filled.LockOpen,
-                                iconTint = if (item.synced) DeepNavy else MassecRed,
-                                isSynced = item.synced,
-                                isSelected = selectedItems.contains(item.id),
-                                selectionMode = isInSelectionMode,
-                                onClick = {
-                                    if (isInSelectionMode) viewModel.toggleSelection(item.id)
-                                },
-                                onLongPress = {
-                                    if (pagerState.currentPage == 0) {
-                                        viewModel.toggleSelection(item.id)
-                                    }
-                                },
-                                infoRows = buildList {
-                                    add("Vrijeme" to item.timestamp)
-                                    add("Skladište" to item.warehouse)
-                                    add("Dodao" to item.addedBy)
-                                },
-                                actions = buildList {
-                                    if (!item.synced) {
-                                        add(
-                                            CardAction("Sinkroniziraj", Icons.Default.Sync) {
-                                                viewModel.syncItem(item.id)
-                                            }
-                                        )
-                                        add(
-                                            CardAction("Izbriši", Icons.Default.Delete) {
-                                                viewModel.confirmDelete(listOf(item.id))
-                                            }
-                                        )
-                                    }
-                                },
-                            )
-                        }
-                    }
-                }
+                VirtualWarehouseHorizontalPager(
+                    pagerState,
+                    unsyncedItems,
+                    syncedItems,
+                    selectedItems,
+                    isInSelectionMode,
+                    viewModel
+                )
             }
 
             if (pendingDeletedIds.isNotEmpty()) {
@@ -212,33 +176,118 @@ fun VirtualWarehouseScreen(viewModel: VirtualWarehouseViewModel) {
             }
 
             if (isSheetVisible) {
-                val fields = listOf(
-                    FormField(
-                        "Skladište",
-                        FieldType.DROPDOWN,
-                        listOf("Skladište 1", "Skladište 2", "Skladište 3"),
-                    ),
-                    // TODO: Korisnik se ne odabire, već se automatski dodaje
-                    FormField(
-                        "Dodao",
-                        FieldType.DROPDOWN,
-                        listOf("Korisnik 1", "Korisnik 2", "Korisnik 3"),
-                    )
-                )
-
-                BottomSheet(
-                    title = "Virtualno skladište",
-                    fields = fields,
-                    onDismiss = { viewModel.toggleSheet(false) },
-                    onSubmit = { values ->
-                        val (warehouse, addedBy) = values
-                        viewModel.addItem(warehouse, addedBy)
-                        viewModel.toggleSheet(false)
-                    },
-                )
+                VirtualWarehouseBottomSheet(viewModel)
             }
         }
     }
+}
+
+@Composable
+private fun VirtualWarehouseHorizontalPager(
+    pagerState: PagerState,
+    unsyncedItems: List<VirtualWarehouseItem>,
+    syncedItems: List<VirtualWarehouseItem>,
+    selectedItems: Set<Int>,
+    isInSelectionMode: Boolean,
+    viewModel: VirtualWarehouseViewModel
+) {
+    HorizontalPager(
+        state = pagerState,
+        modifier = Modifier.fillMaxSize()
+    ) { page ->
+        val list = if (page == 0) unsyncedItems else syncedItems
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(list) { item ->
+                VirtualWarehouseItemCard(item, selectedItems, isInSelectionMode, viewModel, pagerState)
+            }
+        }
+    }
+}
+
+@Composable
+private fun VirtualWarehouseItemCard(
+    item: VirtualWarehouseItem,
+    selectedItems: Set<Int>,
+    isInSelectionMode: Boolean,
+    viewModel: VirtualWarehouseViewModel,
+    pagerState: PagerState
+) {
+    val id = item.id.toString()
+    val icon = if (item.synced) Icons.Filled.Lock else Icons.Filled.LockOpen
+    val iconTint = if (item.synced) DeepNavy else MassecRed
+
+    val onClick = {
+        if (isInSelectionMode) viewModel.toggleSelection(item.id)
+    }
+    val onLongPress = {
+        if (pagerState.currentPage == 0) {
+            viewModel.toggleSelection(item.id)
+        }
+    }
+
+    val infoRows = listOf(
+        stringResource(R.string.time) to item.timestamp,
+        stringResource(R.string.warehouse) to item.warehouse,
+        stringResource(R.string.added) to item.addedBy
+    )
+    val actions = buildList {
+        if (!item.synced) {
+            add(
+                CardAction(stringResource(R.string.synchronize), Icons.Default.Sync) {
+                    viewModel.syncItem(item.id)
+                }
+            )
+            add(
+                CardAction(stringResource(R.string.delete), Icons.Default.Delete) {
+                    viewModel.confirmDelete(listOf(item.id))
+                }
+            )
+        }
+    }
+
+    UnifiedItemCard(
+        id = id,
+        icon = icon,
+        iconTint = iconTint,
+        isSynced = item.synced,
+        isSelected = selectedItems.contains(item.id),
+        selectionMode = isInSelectionMode,
+        onClick = onClick,
+        onLongPress = onLongPress,
+        infoRows = infoRows,
+        actions = actions,
+    )
+}
+
+@Composable
+private fun VirtualWarehouseBottomSheet(viewModel: VirtualWarehouseViewModel) {
+    val fields = listOf(
+        FormField(
+            stringResource(R.string.warehouse),
+            FieldType.DROPDOWN,
+            listOf("Skladište 1", "Skladište 2", "Skladište 3"),
+        ),
+        // TODO: Korisnik se ne odabire, već se automatski dodaje
+        FormField(
+            stringResource(R.string.added),
+            FieldType.DROPDOWN,
+            listOf("Korisnik 1", "Korisnik 2", "Korisnik 3"),
+        )
+    )
+
+    BottomSheet(
+        title = stringResource(R.string.virtual_warehouse_title),
+        fields = fields,
+        onDismiss = { viewModel.toggleSheet(false) },
+        onSubmit = { values ->
+            val (warehouse, addedBy) = values
+            viewModel.addItem(warehouse, addedBy)
+            viewModel.toggleSheet(false)
+        },
+    )
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -256,6 +305,9 @@ fun PreviewVirtualWarehouseScreen() {
     }
 
     Scaffold(
+        topBar = {
+            UnifiedTopAppBar(title = "Virtualno skladište")
+        },
         bottomBar = {
             BottomNavBar(
                 selectedTab = AppRoutes.WAREHOUSE,
@@ -263,9 +315,15 @@ fun PreviewVirtualWarehouseScreen() {
             )
         },
         floatingActionButton = mockFAB,
-    ) {
-        VirtualWarehouseScreen(
-            viewModel = mockViewModel
-        )
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            VirtualWarehouseScreen(
+                viewModel = mockViewModel
+            )
+        }
     }
 }

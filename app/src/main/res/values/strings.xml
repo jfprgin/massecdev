@@ -60,4 +60,14 @@
     <string name="order_type">Order type</string>
     <string name="template_name">Template name</string>
     <string name="new_template">New template</string>
+    <string name="search_cost_centers">Search cost centers</string>
+    <string name="search_inventory_groups">Search inventory groups</string>
+    <string name="search_inventory_lists">Seach inventory lists</string>
+    <string name="show_hide">Show/Hide</string>
+    <string name="search_locations">Seach location</string>
+    <string name="search_products">Seach products</string>
+    <string name="barcode">Barcode</string>
+    <string name="unit_of_measurement">Unit of measurement</string>
+    <string name="search_suppliers">Seach suppliers</string>
+    <string name="search_warehouses">Search warehouses</string>
 </resources>

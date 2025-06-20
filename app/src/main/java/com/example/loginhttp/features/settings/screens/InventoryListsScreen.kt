@@ -3,6 +3,7 @@ package com.example.loginhttp.features.settings.screens
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,17 +20,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.loginhttp.R
 import com.example.loginhttp.features.settings.viewmodel.InventoryListsViewModel
 import com.example.loginhttp.model.CardAction
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFloatingActionButton
+import com.example.loginhttp.navigation.UnifiedTopAppBar
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
-import com.example.loginhttp.ui.components.MenuHeader
 import com.example.loginhttp.ui.components.SearchBar
 import com.example.loginhttp.ui.components.SelectionToolbar
 import com.example.loginhttp.ui.components.UnifiedItemCard
@@ -37,6 +39,7 @@ import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
 import com.example.loginhttp.ui.utils.SetStatusBarColor
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun InventoryListsScreen(viewModel: InventoryListsViewModel) {
 
@@ -47,23 +50,19 @@ fun InventoryListsScreen(viewModel: InventoryListsViewModel) {
 
     val pendingDeleteIds by viewModel.pendingDeleteIds.collectAsState()
 
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-
     BackHandler(enabled = isInSelectionMode) {
         viewModel.clearSelection()
     }
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
-    Scaffold { innerPadding ->
+    Scaffold {
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(LightGray)
         ) {
-            MenuHeader(screenWidth = screenWidth, title = "Inventurne liste")
+//            MenuHeader(screenWidth = screenWidth, title = "Inventurne liste")
 
             if (isInSelectionMode) {
                 SelectionToolbar(
@@ -79,7 +78,7 @@ fun InventoryListsScreen(viewModel: InventoryListsViewModel) {
             SearchBar(
                 value = viewModel.searchQuery,
                 onValueChange = viewModel::onSearchChange,
-                placeholderText = "Pretraži inventurne liste (${inventoryLists.size})"
+                placeholderText = "${stringResource(R.string.search_inventory_lists)} (${inventoryLists.size})"
             )
 
             LazyColumn(
@@ -104,12 +103,12 @@ fun InventoryListsScreen(viewModel: InventoryListsViewModel) {
                         ),
                         actions = buildList {
                             add(
-                                CardAction("Izbriši", Icons.Default.Delete) {
+                                CardAction(stringResource(R.string.delete), Icons.Default.Delete) {
                                     viewModel.confirmDelete(listOf(inventoryList.id))
                                 }
                             )
                             add(
-                                CardAction("Prikaži / Sakrij", if (inventoryList.isVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility) {
+                                CardAction(stringResource(R.string.show_hide), if (inventoryList.isVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility) {
                                     viewModel.changeItemVisibility(inventoryList)
                                 }
                             )
@@ -148,6 +147,9 @@ fun PreviewInventoryListsScreen() {
     }
 
     Scaffold(
+        topBar = {
+            UnifiedTopAppBar(title = "Inventurne liste")
+        },
         bottomBar = {
             BottomNavBar(
                 selectedTab = AppRoutes.SETTINGS,
@@ -155,7 +157,13 @@ fun PreviewInventoryListsScreen() {
             )
         },
         floatingActionButton = mockFAB,
-    ) {
-        InventoryListsScreen(viewModel = mockViewModel)
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            InventoryListsScreen(viewModel = mockViewModel)
+        }
     }
 }

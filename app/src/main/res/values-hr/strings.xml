@@ -62,4 +62,14 @@
     <string name="order_type">Tip narudžbe</string>
     <string name="template_name">Naziv predloška</string>
     <string name="new_template">Novi predložak</string>
+    <string name="search_cost_centers">Pretraži mjesta troškova</string>
+    <string name="search_inventory_groups">Pretraži inventurne grupe</string>
+    <string name="search_inventory_lists">Pretraži inventurne liste</string>
+    <string name="show_hide">Prikaži / Sakrij</string>
+    <string name="search_locations">Pretraži lokacije</string>
+    <string name="search_products">Pretraži artikle</string>
+    <string name="barcode">Barkod</string>
+    <string name="unit_of_measurement">Mjerna jedinica</string>
+    <string name="search_suppliers">Pretraži dobavljače</string>
+    <string name="search_warehouses">Pretraži skladišta</string>
 </resources>
