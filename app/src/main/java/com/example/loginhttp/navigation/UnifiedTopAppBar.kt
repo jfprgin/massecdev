@@ -21,6 +21,7 @@ import com.example.loginhttp.ui.theme.White
 fun UnifiedTopAppBar(
     title: String,
     modifier: Modifier = Modifier,
+    onMenuClick: () -> Unit = {}
 //    navigationIcon: @Composable (() -> Unit),
 //    actions: @Composable (RowScope.() -> Unit) = {  }
 ) {
@@ -29,7 +30,7 @@ fun UnifiedTopAppBar(
         modifier = modifier,
         navigationIcon = {
             IconButton(
-                onClick = {},
+                onClick = onMenuClick,
                 colors = IconButtonDefaults.iconButtonColors(
                     contentColor = White,
                     disabledContentColor = White.copy(alpha = 0.38f)

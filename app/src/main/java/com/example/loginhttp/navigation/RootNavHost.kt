@@ -20,7 +20,7 @@ fun RootNavHost(isAuthenticated: Boolean) {
 
         // Main navigation graph
         composable(AppRoutes.MAIN) {
-            MainAppHost()
+            MainAppHost(navHostController = rootNavController)
         }
     }
 }

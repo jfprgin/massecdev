@@ -11,4 +11,8 @@ class MainViewModel(application: Application): AndroidViewModel(application) {
     fun isAuthenticated(): Boolean {
         return preferenceHelper.isLoggedIn()
     }
+
+    fun logout() {
+        preferenceHelper.setLoggedInStatus(false)
+    }
 }
