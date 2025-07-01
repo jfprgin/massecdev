@@ -65,7 +65,6 @@ import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
 import com.example.loginhttp.ui.theme.MassecRed
 import com.example.loginhttp.ui.theme.White
-import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -125,16 +124,12 @@ fun OrderingGoodsScreen(viewModel: OrderingGoodsViewModel) {
         viewModel.clearSelection()
     }
 
-    SetStatusBarColor(color = DeepNavy, darkIcons = false)
-
     Scaffold {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(LightGray)
         ) {
-//            MenuHeader(screenWidth = screenWidth, title = "Naručivanje robe")
-
             if (isInSelectionMode) {
                 OrderingGoodsSelectionToolbar(selectedItems, viewModel, filteredOrders, selectedSyncTab)
             }

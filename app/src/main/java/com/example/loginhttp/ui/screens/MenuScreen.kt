@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.Dp
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedTopAppBar
-import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -32,17 +31,12 @@ fun MenuScreen(onMenuClick: (String) -> Unit) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
-    SetStatusBarColor(color = DeepNavy, darkIcons = false)
-
     Scaffold {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(LightGray)
         ) {
-//            // HEADER
-//            MenuHeader(screenWidth = screenWidth, title = "Izbornik")
-
             // MENU ITEMS
             Column(
                 modifier = Modifier

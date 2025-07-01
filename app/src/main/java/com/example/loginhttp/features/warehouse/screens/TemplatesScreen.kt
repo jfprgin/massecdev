@@ -32,9 +32,7 @@ import com.example.loginhttp.ui.components.BottomSheet
 import com.example.loginhttp.ui.components.FieldType
 import com.example.loginhttp.ui.components.FormField
 import com.example.loginhttp.ui.components.UnifiedItemCard
-import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
-import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -43,16 +41,12 @@ fun TemplatesScreen(viewModel: TemplatesViewModel) {
     val templates by viewModel.items.collectAsState()
     val isSheetVisible by viewModel.isSheetVisible.collectAsState()
 
-    SetStatusBarColor(color = DeepNavy, darkIcons = false)
-
     Scaffold {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(LightGray)
         ) {
-//            MenuHeader(screenWidth = screenWidth, title = "Predlošci")
-
             LazyColumn(
                 contentPadding = PaddingValues(
                     top = 8.dp,

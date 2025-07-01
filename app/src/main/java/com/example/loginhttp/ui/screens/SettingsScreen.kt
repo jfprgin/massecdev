@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Scaffold
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -32,7 +31,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,11 +43,9 @@ import com.example.loginhttp.navigation.UnifiedFloatingActionButton
 import com.example.loginhttp.navigation.UnifiedTopAppBar
 import com.example.loginhttp.ui.menu.settingsItems
 import com.example.loginhttp.ui.theme.DarkText
-import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
 import com.example.loginhttp.ui.theme.MassecRed
 import com.example.loginhttp.ui.theme.White
-import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterialApi::class)
@@ -66,8 +62,6 @@ fun SettingsScreen(
         onRefresh = { viewModel.refreshDatabase() }
     )
 
-    SetStatusBarColor(color = DeepNavy, darkIcons = false)
-
     Scaffold {
         Box(
             modifier = Modifier
@@ -75,9 +69,6 @@ fun SettingsScreen(
 //                .padding(innerPadding)
                 .background(LightGray)
         ) {
-            // HEADER
-//            MenuHeader(screenWidth = screenWidth, title = "Postavke")
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()

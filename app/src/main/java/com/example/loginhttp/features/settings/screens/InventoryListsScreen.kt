@@ -37,7 +37,6 @@ import com.example.loginhttp.ui.components.SelectionToolbar
 import com.example.loginhttp.ui.components.UnifiedItemCard
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
-import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -54,16 +53,12 @@ fun InventoryListsScreen(viewModel: InventoryListsViewModel) {
         viewModel.clearSelection()
     }
 
-    SetStatusBarColor(color = DeepNavy, darkIcons = false)
-
     Scaffold {
         Column(
             Modifier
                 .fillMaxSize()
                 .background(LightGray)
         ) {
-//            MenuHeader(screenWidth = screenWidth, title = "Inventurne liste")
-
             if (isInSelectionMode) {
                 SelectionToolbar(
                     selectedCount = selectedItems.size,

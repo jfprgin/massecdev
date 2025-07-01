@@ -33,28 +33,21 @@ import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedTopAppBar
 import com.example.loginhttp.ui.menu.warehouseItems
 import com.example.loginhttp.ui.theme.DarkText
-import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
 import com.example.loginhttp.ui.theme.MassecRed
 import com.example.loginhttp.ui.theme.White
-import com.example.loginhttp.ui.utils.SetStatusBarColor
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun WarehouseScreen(
     onItemClick: (String) -> Unit
 ) {
-    SetStatusBarColor(color = DeepNavy, darkIcons = false)
-
     Scaffold {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(LightGray)
         ) {
-//            // HEADER
-//            MenuHeader(screenWidth = screenWidth, title = "Skladište")
-
             Spacer(modifier = Modifier.height(12.dp))
 
             // ITEM LIST

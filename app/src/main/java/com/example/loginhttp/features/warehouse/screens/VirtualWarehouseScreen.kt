@@ -57,7 +57,6 @@ import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
 import com.example.loginhttp.ui.theme.MassecRed
 import com.example.loginhttp.ui.theme.White
-import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -78,9 +77,6 @@ fun VirtualWarehouseScreen(viewModel: VirtualWarehouseViewModel) {
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
     val scope = rememberCoroutineScope()
 
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val screenWith = LocalConfiguration.current.screenWidthDp.dp
-
     val previousPage = remember { mutableIntStateOf(pagerState.currentPage) }
 
     LaunchedEffect(pagerState.currentPage) {
@@ -94,8 +90,6 @@ fun VirtualWarehouseScreen(viewModel: VirtualWarehouseViewModel) {
         viewModel.clearSelection()
     }
 
-    SetStatusBarColor(color = DeepNavy, darkIcons = false)
-
     Scaffold {
         Box(
             modifier = Modifier
@@ -103,8 +97,6 @@ fun VirtualWarehouseScreen(viewModel: VirtualWarehouseViewModel) {
                 .background(LightGray)
         ) {
             Column {
-//                MenuHeader(screenWidth = screenWith, title = "Virtualno skladište")
-
                 if (isInSelectionMode) {
                     SelectionToolbar(
                         selectedCount = selectedItems.size,

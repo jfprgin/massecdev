@@ -27,6 +27,8 @@ import com.example.loginhttp.features.settings.navigation.SettingsViewModels
 import com.example.loginhttp.features.settings.navigation.settingsNavGraph
 import com.example.loginhttp.features.warehouse.navigation.WarehouseViewModels
 import com.example.loginhttp.features.warehouse.navigation.warehouseNavGraph
+import com.example.loginhttp.ui.theme.DeepNavy
+import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
 @Composable
@@ -75,6 +77,8 @@ fun MainAppHost(
         inventoryListsViewModel = viewModel(),
         inventoryGroupsViewModel = viewModel()
     )
+
+    SetStatusBarColor(color = DeepNavy, darkIcons = false)
 
     NavigationDrawer(
         scope = scope,

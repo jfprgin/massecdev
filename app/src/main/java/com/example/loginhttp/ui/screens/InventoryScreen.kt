@@ -55,7 +55,6 @@ import com.example.loginhttp.ui.theme.White
 import com.example.loginhttp.ui.components.ConfirmDeleteDialog
 import com.example.loginhttp.ui.components.SelectionToolbar
 import com.example.loginhttp.ui.components.UnifiedItemCard
-import com.example.loginhttp.ui.utils.SetStatusBarColor
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -90,8 +89,6 @@ fun InventoryScreen(viewModel: InventoryViewModel) {
         viewModel.clearSelection()
     }
 
-    SetStatusBarColor(color = DeepNavy, darkIcons = false)
-
     Scaffold {
         Box(
             modifier = Modifier
@@ -99,8 +96,6 @@ fun InventoryScreen(viewModel: InventoryViewModel) {
                 .background(LightGray)
         ) {
             Column {
-//                MenuHeader(screenWidth = screenWidth, title = "Inventura")
-
                 if (isInSelectionMode) {
                     InventorySelectionToolbar(selectedItems, pagerState, unsyncedItems, syncedItems, viewModel)
                 }
