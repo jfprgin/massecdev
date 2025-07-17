@@ -20,7 +20,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.loginhttp.InventoryViewModel
+import com.example.loginhttp.features.inventory.InventoryViewModel
 import com.example.loginhttp.MainViewModel
 import com.example.loginhttp.R
 import com.example.loginhttp.features.settings.navigation.SettingsViewModels

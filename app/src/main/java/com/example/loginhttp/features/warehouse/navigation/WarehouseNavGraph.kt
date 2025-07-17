@@ -27,7 +27,7 @@ import com.example.loginhttp.features.warehouse.viewmodel.WriteOffOfGoodsViewMod
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.UnifiedFloatingActionButton
 import com.example.loginhttp.navigation.WarehouseRoutes
-import com.example.loginhttp.ui.screens.WarehouseScreen
+import com.example.loginhttp.features.warehouse.screens.WarehouseScreen
 
 fun NavGraphBuilder.warehouseNavGraph(
     navHostController: NavHostController,

@@ -11,7 +11,7 @@ import androidx.compose.runtime.MutableState
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import com.example.loginhttp.SettingsViewModel
+import com.example.loginhttp.features.settings.viewmodel.SettingsViewModel
 import com.example.loginhttp.features.settings.screens.CostCentersScreen
 import com.example.loginhttp.features.settings.screens.InventoryGroupsScreen
 import com.example.loginhttp.features.settings.screens.InventoryListsScreen
@@ -30,7 +30,7 @@ import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.FabAction
 import com.example.loginhttp.navigation.SettingsRoutes
 import com.example.loginhttp.navigation.UnifiedFloatingActionButton
-import com.example.loginhttp.ui.screens.SettingsScreen
+import com.example.loginhttp.features.settings.screens.SettingsScreen
 
 fun NavGraphBuilder.settingsNavGraph(
     navHostController: NavHostController,

@@ -1,4 +1,4 @@
-package com.example.loginhttp.ui.screens
+package com.example.loginhttp.features.warehouse.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background

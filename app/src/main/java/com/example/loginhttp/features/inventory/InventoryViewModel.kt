@@ -1,6 +1,6 @@
-package com.example.loginhttp
+package com.example.loginhttp.features.inventory
 
-import com.example.loginhttp.model.InventoryItem
+import com.example.loginhttp.BaseListViewModel
 
 class InventoryViewModel: BaseListViewModel<InventoryItem>() {
 

@@ -1,4 +1,4 @@
-package com.example.loginhttp.ui.screens
+package com.example.loginhttp.features.inventory
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -35,10 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.loginhttp.InventoryViewModel
 import com.example.loginhttp.R
 import com.example.loginhttp.model.CardAction
-import com.example.loginhttp.model.InventoryItem
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFloatingActionButton

@@ -14,10 +14,16 @@ import androidx.compose.material.icons.filled.Outbox
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Warehouse
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.loginhttp.R
-import com.example.loginhttp.model.MenuItem
 import com.example.loginhttp.navigation.SettingsRoutes
 import com.example.loginhttp.navigation.WarehouseRoutes
+
+data class MenuItem(
+    val route: String,
+    val titleRes: Int,
+    val icon: ImageVector,
+)
 
 val settingsItems = listOf(
     MenuItem(SettingsRoutes.PRODUCTS, R.string.products_title, Icons.Default.ShoppingCart),

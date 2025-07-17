@@ -6,8 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.example.loginhttp.InventoryViewModel
-import com.example.loginhttp.ui.screens.InventoryScreen
+import com.example.loginhttp.features.inventory.InventoryViewModel
+import com.example.loginhttp.features.inventory.InventoryScreen
 import com.example.loginhttp.ui.screens.MenuScreen
 
 fun NavGraphBuilder.mainNavGraph(

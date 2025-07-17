@@ -1,4 +1,4 @@
-package com.example.loginhttp.ui.screens
+package com.example.loginhttp.features.settings.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -36,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.loginhttp.SettingsViewModel
+import com.example.loginhttp.features.settings.viewmodel.SettingsViewModel
 import com.example.loginhttp.navigation.AppRoutes
 import com.example.loginhttp.navigation.BottomNavBar
 import com.example.loginhttp.navigation.UnifiedFloatingActionButton

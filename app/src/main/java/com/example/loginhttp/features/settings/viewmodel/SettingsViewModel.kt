@@ -1,4 +1,4 @@
-package com.example.loginhttp
+package com.example.loginhttp.features.settings.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

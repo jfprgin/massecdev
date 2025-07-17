@@ -1,4 +1,6 @@
-package com.example.loginhttp.model
+package com.example.loginhttp.features.inventory
+
+import com.example.loginhttp.model.Syncable
 
 data class InventoryItem(
     val id: Int,
