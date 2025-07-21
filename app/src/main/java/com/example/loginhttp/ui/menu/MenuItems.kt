@@ -5,6 +5,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Domain
 import androidx.compose.material.icons.filled.LocalShipping
@@ -32,7 +33,8 @@ val settingsItems = listOf(
     MenuItem(SettingsRoutes.COST_CENTERS, R.string.cost_centers_title, Icons.Default.Domain),
     MenuItem(SettingsRoutes.LOCATIONS, R.string.locations_title, Icons.Default.LocationOn),
     MenuItem(SettingsRoutes.INVENTORY_LISTS, R.string.inventory_lists_title, Icons.Default.Assignment),
-    MenuItem(SettingsRoutes.INVENTORY_GROUPS, R.string.inventory_groups_title, Icons.Default.Category)
+    MenuItem(SettingsRoutes.INVENTORY_GROUPS, R.string.inventory_groups_title, Icons.Default.Category),
+    MenuItem(SettingsRoutes.DIAGNOSTICS, R.string.diagnostics_title, Icons.Default.Code),
 )
 
 val warehouseItems = listOf(

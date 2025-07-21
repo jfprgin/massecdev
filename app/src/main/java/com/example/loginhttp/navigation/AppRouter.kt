@@ -52,6 +52,7 @@ object SettingsRoutes {
     const val LOCATIONS = "locations"
     const val INVENTORY_LISTS = "inventory_lists"
     const val INVENTORY_GROUPS = "inventory_groups"
+    const val DIAGNOSTICS = "diagnostics"
 
     val all = listOf(
         PRODUCTS,
@@ -60,7 +61,8 @@ object SettingsRoutes {
         COST_CENTERS,
         LOCATIONS,
         INVENTORY_LISTS,
-        INVENTORY_GROUPS
+        INVENTORY_GROUPS,
+        DIAGNOSTICS
     )
 }
 

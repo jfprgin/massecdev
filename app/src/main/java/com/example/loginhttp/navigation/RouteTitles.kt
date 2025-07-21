@@ -26,5 +26,6 @@ val routeTitleMap = mapOf(
     SettingsRoutes.COST_CENTERS to R.string.cost_centers_title,
     SettingsRoutes.LOCATIONS to R.string.locations_title,
     SettingsRoutes.INVENTORY_LISTS to R.string.inventory_lists_title,
-    SettingsRoutes.INVENTORY_GROUPS to R.string.inventory_groups_title
+    SettingsRoutes.INVENTORY_GROUPS to R.string.inventory_groups_title,
+    SettingsRoutes.DIAGNOSTICS to R.string.diagnostics_title
 )

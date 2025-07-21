@@ -70,4 +70,5 @@
     <string name="unit_of_measurement">Unit of measurement</string>
     <string name="search_suppliers">Seach suppliers</string>
     <string name="search_warehouses">Search warehouses</string>
+    <string name="diagnostics_title">Diagnostics</string>
 </resources>

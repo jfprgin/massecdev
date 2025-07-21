@@ -11,6 +11,8 @@ import androidx.compose.runtime.MutableState
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.example.loginhttp.features.diagnostics.DiagnosticsScreen
+import com.example.loginhttp.features.diagnostics.DiagnosticsViewModel
 import com.example.loginhttp.features.settings.viewmodel.SettingsViewModel
 import com.example.loginhttp.features.settings.screens.CostCentersScreen
 import com.example.loginhttp.features.settings.screens.InventoryGroupsScreen
@@ -141,6 +143,11 @@ fun NavGraphBuilder.settingsNavGraph(
         }
         InventoryGroupsScreen(viewModel = viewModels.inventoryGroupsViewModel)
     }
+
+    composable(SettingsRoutes.DIAGNOSTICS) {
+        fabContent.value = null
+        DiagnosticsScreen(viewModel = viewModels.diagnosticsViewModel)
+    }
 }
 
 data class SettingsViewModels(
@@ -151,5 +158,6 @@ data class SettingsViewModels(
     val costCentersViewModel: CostCentersViewModel,
     val locationsViewModel: LocationsViewModel,
     val inventoryListsViewModel: InventoryListsViewModel,
-    val inventoryGroupsViewModel: InventoryGroupsViewModel
+    val inventoryGroupsViewModel: InventoryGroupsViewModel,
+    val diagnosticsViewModel: DiagnosticsViewModel
 )

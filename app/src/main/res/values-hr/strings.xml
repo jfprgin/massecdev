@@ -72,4 +72,5 @@
     <string name="unit_of_measurement">Mjerna jedinica</string>
     <string name="search_suppliers">Pretraži dobavljače</string>
     <string name="search_warehouses">Pretraži skladišta</string>
+    <string name="diagnostics_title">Dijagnostika</string>
 </resources>

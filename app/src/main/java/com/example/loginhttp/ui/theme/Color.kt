@@ -9,3 +9,5 @@ val LightGray = Color(0xFFF5F5F5)
 val White = Color(0xFFFFFFFF)
 val DarkText = Color(0xFF212121)
 val Green = Color(0xFF4CAF50)
+
+val NewBlue = Color(0xff0078d4)

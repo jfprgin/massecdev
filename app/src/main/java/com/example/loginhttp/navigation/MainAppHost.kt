@@ -52,7 +52,8 @@ fun MainAppHost(
 
     val title = stringResource(routeTitleMap[currentRoute] ?: R.string.app_name)
 
-    val showBars = shouldShowBars(currentRoute)
+    val showTopBar = shouldShowTopBar(currentRoute)
+    val showBottomBar = shouldShowBottomBar(currentRoute)
 
     val inventoryViewModel: InventoryViewModel = viewModel()
 
@@ -75,7 +76,8 @@ fun MainAppHost(
         costCentersViewModel = viewModel(),
         locationsViewModel = viewModel(),
         inventoryListsViewModel = viewModel(),
-        inventoryGroupsViewModel = viewModel()
+        inventoryGroupsViewModel = viewModel(),
+        diagnosticsViewModel = viewModel(),
     )
 
     SetStatusBarColor(color = DeepNavy, darkIcons = false)
@@ -92,7 +94,7 @@ fun MainAppHost(
     ) {
         Scaffold(
             topBar = {
-                if (showBars) {
+                if (showTopBar) {
                     UnifiedTopAppBar(
                         title = title,
                         onMenuClick = {
@@ -102,7 +104,7 @@ fun MainAppHost(
                 }
             },
             bottomBar = {
-                if (showBars) {
+                if (showBottomBar) {
                     BottomNavBar(
                         selectedTab = selectedTab.value,
                         onTabSelected = { selectedTab.value = it },
@@ -154,9 +156,17 @@ fun MainAppHost(
     }
 }
 
-// Reusable UI control logic for TopBar/BottomBar
-private fun shouldShowBars(route: String?): Boolean {
+// UI control logic for TopBar/BottomBar
+private fun shouldShowTopBar(route: String?): Boolean {
     return route in AppRoutes.mainTabs
             || route in WarehouseRoutes.all
             || route in SettingsRoutes.all
+}
+
+private fun shouldShowBottomBar(route: String?): Boolean {
+    return route != SettingsRoutes.DIAGNOSTICS && (
+            route in AppRoutes.mainTabs
+            || route in WarehouseRoutes.all
+            || route in SettingsRoutes.all
+    )
 }
