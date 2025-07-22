@@ -32,6 +32,7 @@ import com.example.loginhttp.ui.theme.White
 fun DiagnosticsScreen(viewModel: DiagnosticsViewModel) {
     val messages by viewModel.messages.collectAsState()
     val input by viewModel.input.collectAsState()
+    val commands by viewModel.commands.collectAsState()
     val listState = rememberLazyListState()
 
     LaunchedEffect(messages.size) {
@@ -103,75 +104,119 @@ fun DiagnosticsScreen(viewModel: DiagnosticsViewModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        val commands = listOf("zero", "calibration", "name", "password", "reset", "get configuration", "get logs")
-        TwoLineCommandRowWithScrollbar(commands, viewModel::sendPredefinedCommand)
+        CommandSection(
+            commands = commands,
+            onCommandSend = { cmd, input ->
+                viewModel.sendCommandFromItem(cmd, input)
+            },
+            onAddCustom = { commandItem ->
+                viewModel.addCustomCommand(commandItem)
+            }
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun TwoLineCommandRowWithScrollbar(
-    commands: List<String>,
-    onCommandClick: (String) -> Unit
+fun CommandSection(
+    commands: List<CommandItem>,
+    onCommandSend: (CommandItem, String?) -> Unit,
+    onAddCustom: (CommandItem) -> Unit
+) {
+    var inputDialogCommand by remember { mutableStateOf<CommandItem?>(null) }
+    var showAddDialog by remember { mutableStateOf(false) }
+
+    CommandButtonRow(
+        commands = commands,
+        onButtonClick = { cmd ->
+            if (cmd.requiresInput) {
+                inputDialogCommand = cmd
+            } else {
+                onCommandSend(cmd, null)
+            }
+        },
+        onAddClick = { showAddDialog = true }
+    )
+
+    inputDialogCommand?.let { cmd ->
+        InputDialog(
+            command = cmd,
+            onDismiss = { inputDialogCommand = null },
+            onConfirm = { inputValue ->
+                onCommandSend(cmd, inputValue)
+                inputDialogCommand = null
+            }
+        )
+    }
+
+    if (showAddDialog) {
+        AddCommandDialog(
+            onDismiss = { showAddDialog = false },
+            onConfirm = { item: CommandItem ->
+                onAddCustom(item)
+                showAddDialog = false
+            }
+        )
+    }
+}
+
+@Composable
+fun CommandButtonRow(
+    commands: List<CommandItem>,
+    onButtonClick: (CommandItem) -> Unit,
+    onAddClick: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
-    var viewportWidthPx by remember { mutableStateOf(1) }
+    var viewportWidthPx by remember { mutableIntStateOf(1) }
 
-    Column {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         Box(
             modifier = Modifier
-                .onGloballyPositioned {
-                    viewportWidthPx = it.size.width
-                }
+                .onGloballyPositioned { viewportWidthPx = it.size.width }
                 .horizontalScroll(scrollState)
                 .fillMaxWidth()
         ) {
-            // Wrap commands into two horizontal lines
             Column(modifier = Modifier.padding(bottom = 4.dp)) {
                 val splitIndex = (commands.size + 1) / 2
-                val firstRow = commands.subList(0, splitIndex)
-                val secondRow = commands.subList(splitIndex, commands.size)
+                val (firstRow, secondRow) = commands.chunked(splitIndex)
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    firstRow.forEach { cmd ->
-                        OutlinedButton(
-                            onClick = { onCommandClick(cmd) },
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = White,
-                                contentColor = DeepNavy
-                            ),
-                            border = BorderStroke(1.dp, DeepNavy)
-                        ) {
-                            Text(cmd)
+                listOf(firstRow, secondRow).forEach { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        row.forEach { cmd ->
+                            OutlinedButton(
+                                onClick = { onButtonClick(cmd) },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = White,
+                                    contentColor = DeepNavy
+                                ),
+                                border = BorderStroke(1.dp, DeepNavy)
+                            ) {
+                                Text(cmd.label)
+                            }
                         }
                     }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    secondRow.forEach { cmd ->
-                        OutlinedButton(
-                            onClick = { onCommandClick(cmd) },
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = White,
-                                contentColor = DeepNavy
-                            ),
-                            border = BorderStroke(1.dp, DeepNavy)
-                        ) {
-                            Text(cmd)
-                        }
-                    }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
+        ScrollbarKnob(scrollState = scrollState, viewportWidth = viewportWidthPx)
 
-        ScrollbarKnob(
-            scrollState = scrollState,
-            viewportWidth = viewportWidthPx
-        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedButton(
+            onClick = onAddClick,
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = White,
+                contentColor = MassecRed
+            ),
+            border = BorderStroke(1.dp, MassecRed),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("+ Add Command")
+        }
     }
 }
 
@@ -204,6 +249,92 @@ fun ScrollbarKnob(
                 .background(DeepNavy, shape = MaterialTheme.shapes.small)
         )
     }
+}
+
+@Composable
+fun InputDialog(
+    command: CommandItem,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var inputValue by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Enter ${command.label}") },
+        text = {
+            TextField(
+                value = inputValue,
+                onValueChange = { inputValue = it },
+                placeholder = { Text("Value...") }
+            )
+        },
+        confirmButton = {
+            Button(onClick = { onConfirm(inputValue) }) {
+                Text("Send")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun AddCommandDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (CommandItem) -> Unit
+) {
+    var label by remember { mutableStateOf("") }
+    var commandPrefix by remember { mutableStateOf("") }
+    var requiresInput by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("New Custom Command") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextField(
+                    value = label,
+                    onValueChange = { label = it },
+                    label = { Text("Button Label") }
+                )
+                TextField(
+                    value = commandPrefix,
+                    onValueChange = { commandPrefix = it },
+                    label = { Text("Command Value") }
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = requiresInput,
+                        onCheckedChange = { requiresInput = it }
+                    )
+                    Text("Requires input")
+                    }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                if (label.isNotBlank() && commandPrefix.isNotBlank()) {
+                    val item = CommandItem(
+                        label = label,
+                        requiresInput = requiresInput,
+                        commandPrefix = commandPrefix
+                    )
+                    onConfirm(item)
+                }
+            }) {
+                Text("Add")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @SuppressLint("ViewModelConstructorInComposable")

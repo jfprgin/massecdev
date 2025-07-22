@@ -7,8 +7,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 class DiagnosticsViewModel : ViewModel() {
     private val _messages = MutableStateFlow<List<TerminalMessageItem>>(emptyList())
@@ -16,6 +14,19 @@ class DiagnosticsViewModel : ViewModel() {
 
     private val _input = MutableStateFlow("")
     val input = _input.asStateFlow()
+
+    private val _commands = MutableStateFlow(
+        listOf(
+            CommandItem(label = "Zero", requiresInput = false, commandPrefix = "CMD-zero"),
+            CommandItem(label = "Reset", requiresInput = false, commandPrefix = "CMD-reset"),
+            CommandItem(label = "Get Configuration", requiresInput = false, commandPrefix = "CMD-getConfig"),
+            CommandItem(label = "Get Logs", requiresInput = false, commandPrefix = "CMD-getLogs"),
+            CommandItem(label = "Name", requiresInput = true, commandPrefix = "CMD-name"),
+            CommandItem(label = "Password", requiresInput = true, commandPrefix = "CMD-password"),
+            CommandItem(label = "Calibration", requiresInput = true, commandPrefix = "CMD-calib")
+        )
+    )
+    val commands = _commands.asStateFlow()
 
     init {
         // Simulate a scale stream for demonstration purposes
@@ -41,10 +52,23 @@ class DiagnosticsViewModel : ViewModel() {
         _input.value = "" // Clear input after sending
     }
 
-    fun sendPredefinedCommand(cmd: String) = sendCommand(cmd)
+    fun sendCommandFromItem(cmd: CommandItem, userInput: String? = null) {
+        val fullCommand = if (cmd.requiresInput && userInput != null) {
+            "${cmd.commandPrefix}${userInput}"
+        } else {
+            cmd.commandPrefix
+        }
+
+        sendCommand(fullCommand)
+    }
+
+    fun addCustomCommand(item: CommandItem) {
+        _commands.update { it + item }
+    }
 
     private fun addMessage(text: String) {
-        val time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+        val time = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+            .format(java.util.Date())
         val message = TerminalMessageItem(time, text)
         _messages.update { it + message }
     }
