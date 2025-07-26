@@ -107,4 +107,7 @@ dependencies {
 
     // Navigation with Jetpack Compose
     implementation(libs.androidx.navigation.compose)
+
+    // Preferences DataStore (SharedPreferences like APIs)
+    implementation(libs.androidx.datastore.preferences)
 }

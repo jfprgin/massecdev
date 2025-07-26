@@ -1,26 +1,35 @@
 package com.example.loginhttp.features.diagnostics
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntOffset
 import com.example.loginhttp.ui.theme.DarkGray
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
@@ -30,11 +39,19 @@ import com.example.loginhttp.ui.theme.White
 
 @Composable
 fun DiagnosticsScreen(viewModel: DiagnosticsViewModel) {
+    val context = LocalContext.current
     val messages by viewModel.messages.collectAsState()
     val input by viewModel.input.collectAsState()
-    val commands by viewModel.commands.collectAsState()
+    val commands by viewModel.allCommands.collectAsState()
+
     val listState = rememberLazyListState()
 
+    // Load custom commands from DataStore when the screen is launched
+    LaunchedEffect(Unit) {
+        viewModel.loadCustomCommands(context)
+    }
+
+    // Scroll to the bottom when new messages are added
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(messages.lastIndex)
@@ -89,7 +106,7 @@ fun DiagnosticsScreen(viewModel: DiagnosticsViewModel) {
                 // Rounded corners
                 shape = MaterialTheme.shapes.small,
 
-            )
+                )
             Spacer(modifier = Modifier.width(8.dp))
             Button(
                 onClick = { viewModel.sendCommand(input) },
@@ -105,12 +122,23 @@ fun DiagnosticsScreen(viewModel: DiagnosticsViewModel) {
         Spacer(modifier = Modifier.height(8.dp))
 
         CommandSection(
+            viewModel = viewModel,
+            context = context,
             commands = commands,
             onCommandSend = { cmd, input ->
                 viewModel.sendCommandFromItem(cmd, input)
             },
             onAddCustom = { commandItem ->
                 viewModel.addCustomCommand(commandItem)
+                viewModel.persistCustomCommands(context) // Save to DataStore
+            },
+            onEditCustom = { original, updated ->
+                viewModel.editCustomCommand(original, updated)
+                viewModel.persistCustomCommands(context)
+            },
+            onDeleteCustom = { commandItem ->
+                viewModel.deleteCustomCommand(commandItem)
+                viewModel.persistCustomCommands(context)
             }
         )
 
@@ -120,12 +148,17 @@ fun DiagnosticsScreen(viewModel: DiagnosticsViewModel) {
 
 @Composable
 fun CommandSection(
+    viewModel: DiagnosticsViewModel,
+    context: Context,
     commands: List<CommandItem>,
     onCommandSend: (CommandItem, String?) -> Unit,
-    onAddCustom: (CommandItem) -> Unit
+    onAddCustom: (CommandItem) -> Unit,
+    onEditCustom: (CommandItem, CommandItem) -> Unit,
+    onDeleteCustom: (CommandItem) -> Unit
 ) {
     var inputDialogCommand by remember { mutableStateOf<CommandItem?>(null) }
     var showAddDialog by remember { mutableStateOf(false) }
+    var editingCommand by remember { mutableStateOf<CommandItem?>(null) }
 
     CommandButtonRow(
         commands = commands,
@@ -136,7 +169,15 @@ fun CommandSection(
                 onCommandSend(cmd, null)
             }
         },
-        onAddClick = { showAddDialog = true }
+        onAddClick = { showAddDialog = true },
+        onEditCustom = { cmd ->
+            editingCommand = cmd
+            viewModel.persistCustomCommands(context)
+
+        },
+        onDeleteCustom = { cmd ->
+            onDeleteCustom(cmd)
+        }
     )
 
     inputDialogCommand?.let { cmd ->
@@ -151,24 +192,44 @@ fun CommandSection(
     }
 
     if (showAddDialog) {
-        AddCommandDialog(
+        AddOrEditCommandDialog(
             onDismiss = { showAddDialog = false },
             onConfirm = { item: CommandItem ->
                 onAddCustom(item)
+                viewModel.persistCustomCommands(context)
                 showAddDialog = false
-            }
+            },
+            initialValue = null // No initial value for new command
+        )
+    }
+    editingCommand?.let { original ->
+        AddOrEditCommandDialog(
+            onDismiss = { editingCommand = null },
+            onConfirm = { updated ->
+                onEditCustom(original, updated)
+                viewModel.persistCustomCommands(context)
+                editingCommand = null
+            },
+            initialValue = original
         )
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CommandButtonRow(
     commands: List<CommandItem>,
     onButtonClick: (CommandItem) -> Unit,
     onAddClick: () -> Unit,
+    onEditCustom: (CommandItem) -> Unit,
+    onDeleteCustom: (CommandItem) -> Unit
 ) {
     val scrollState = rememberScrollState()
     var viewportWidthPx by remember { mutableIntStateOf(1) }
+
+    var showCommandMenu by remember { mutableStateOf(false) }
+    var selectedCommand by remember { mutableStateOf<CommandItem?>(null) }
+    var anchorPosition by remember { mutableStateOf<Offset?>(null) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -186,15 +247,41 @@ fun CommandButtonRow(
                 listOf(firstRow, secondRow).forEach { row ->
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         row.forEach { cmd ->
-                            OutlinedButton(
-                                onClick = { onButtonClick(cmd) },
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = White,
-                                    contentColor = DeepNavy
-                                ),
-                                border = BorderStroke(1.dp, DeepNavy)
+                            var buttonCoordinates by remember { mutableStateOf(Offset.Zero) }
+
+                            Box(
+                                modifier = Modifier
+                                    .onGloballyPositioned { layoutCoordinates ->
+                                        val position = layoutCoordinates.localToWindow(Offset.Zero)
+                                        buttonCoordinates = position
+                                    }
                             ) {
-                                Text(cmd.label)
+                                Surface(
+                                    shape = RoundedCornerShape(24.dp),
+                                    border = BorderStroke(1.dp, DeepNavy),
+                                    color = White,
+                                    contentColor = if (cmd.type == CommandType.CUSTOM) MassecRed else Color.Black,
+                                    modifier = Modifier
+                                        .padding(2.dp)
+                                        .combinedClickable(
+                                            onClick = { onButtonClick(cmd) },
+                                            onLongClick = {
+                                                if (cmd.type == CommandType.CUSTOM) {
+                                                    selectedCommand = cmd
+                                                    anchorPosition = buttonCoordinates
+                                                    showCommandMenu = true
+                                                }
+                                            }
+                                        )
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(cmd.label)
+                                    }
+                                }
                             }
                         }
                     }
@@ -217,6 +304,33 @@ fun CommandButtonRow(
         ) {
             Text("+ Add Command")
         }
+    }
+
+    val density = LocalDensity.current
+
+    DropdownMenu(
+        expanded = showCommandMenu && selectedCommand != null && anchorPosition != null,
+        onDismissRequest = { showCommandMenu = false },
+        offset = anchorPosition?.let {
+            with(density) {
+                DpOffset(it.x.toDp(), it.y.toDp())
+            }
+        } ?: DpOffset.Zero
+    ) {
+        DropdownMenuItem(
+            text = { Text("Edit") },
+            onClick = {
+                selectedCommand?.let { onEditCustom(it) }
+                showCommandMenu = false
+            }
+        )
+        DropdownMenuItem(
+            text = { Text("Delete") },
+            onClick = {
+                selectedCommand?.let { onDeleteCustom(it) }
+                showCommandMenu = false
+            }
+        )
     }
 }
 
@@ -283,17 +397,20 @@ fun InputDialog(
 }
 
 @Composable
-fun AddCommandDialog(
+fun AddOrEditCommandDialog(
     onDismiss: () -> Unit,
-    onConfirm: (CommandItem) -> Unit
+    onConfirm: (CommandItem) -> Unit,
+    initialValue: CommandItem? = null
 ) {
-    var label by remember { mutableStateOf("") }
-    var commandPrefix by remember { mutableStateOf("") }
+    var label by remember { mutableStateOf(initialValue?.label ?: "") }
+    var commandPrefix by remember { mutableStateOf(initialValue?.commandPrefix ?: "") }
     var requiresInput by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("New Custom Command") },
+        title = {
+            Text(if (initialValue == null) "New Custom Command" else "Edit Command")
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextField(
@@ -312,7 +429,7 @@ fun AddCommandDialog(
                         onCheckedChange = { requiresInput = it }
                     )
                     Text("Requires input")
-                    }
+                }
             }
         },
         confirmButton = {
@@ -326,7 +443,7 @@ fun AddCommandDialog(
                     onConfirm(item)
                 }
             }) {
-                Text("Add")
+                Text(if (initialValue == null) "Add" else "Save")
             }
         },
         dismissButton = {
