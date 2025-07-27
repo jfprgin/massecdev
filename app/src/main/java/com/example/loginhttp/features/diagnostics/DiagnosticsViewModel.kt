@@ -26,9 +26,8 @@ class DiagnosticsViewModel : ViewModel() {
     val input = _input.asStateFlow()
 
     private val _customCommands = MutableStateFlow<List<CommandItem>>(emptyList())
-    val customCommands = _customCommands.asStateFlow()
 
-    val defaultCommands = DefaultCommands
+    private val defaultCommands = DefaultCommands
 
     // Combine default and custom commands into a single flow
     val allCommands: StateFlow<List<CommandItem>> = _customCommands
@@ -116,7 +115,7 @@ class DiagnosticsViewModel : ViewModel() {
     private fun simulateScaleStream() {
         CoroutineScope(Dispatchers.IO).launch {
             while (true) {
-                kotlinx.coroutines.delay(2000) // Simulate periodic updates
+                delay(2000) // Simulate periodic updates
                 addMessage("Simulated scale reading: ${Math.random() * 100}")
             }
         }

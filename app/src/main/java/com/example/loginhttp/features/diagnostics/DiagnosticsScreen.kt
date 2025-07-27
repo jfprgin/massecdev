@@ -2,7 +2,6 @@ package com.example.loginhttp.features.diagnostics
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
@@ -29,7 +28,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.IntOffset
 import com.example.loginhttp.ui.theme.DarkGray
 import com.example.loginhttp.ui.theme.DeepNavy
 import com.example.loginhttp.ui.theme.LightGray
@@ -215,7 +213,6 @@ fun CommandSection(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CommandButtonRow(
     commands: List<CommandItem>,
@@ -240,59 +237,36 @@ fun CommandButtonRow(
                 .horizontalScroll(scrollState)
                 .fillMaxWidth()
         ) {
+            // Command buttons layout
             Column(modifier = Modifier.padding(bottom = 4.dp)) {
                 val splitIndex = (commands.size + 1) / 2
                 val (firstRow, secondRow) = commands.chunked(splitIndex)
 
+                // Create two rows of buttons
                 listOf(firstRow, secondRow).forEach { row ->
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         row.forEach { cmd ->
-                            var buttonCoordinates by remember { mutableStateOf(Offset.Zero) }
-
-                            Box(
-                                modifier = Modifier
-                                    .onGloballyPositioned { layoutCoordinates ->
-                                        val position = layoutCoordinates.localToWindow(Offset.Zero)
-                                        buttonCoordinates = position
-                                    }
-                            ) {
-                                Surface(
-                                    shape = RoundedCornerShape(24.dp),
-                                    border = BorderStroke(1.dp, DeepNavy),
-                                    color = White,
-                                    contentColor = if (cmd.type == CommandType.CUSTOM) MassecRed else Color.Black,
-                                    modifier = Modifier
-                                        .padding(2.dp)
-                                        .combinedClickable(
-                                            onClick = { onButtonClick(cmd) },
-                                            onLongClick = {
-                                                if (cmd.type == CommandType.CUSTOM) {
-                                                    selectedCommand = cmd
-                                                    anchorPosition = buttonCoordinates
-                                                    showCommandMenu = true
-                                                }
-                                            }
-                                        )
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .padding(horizontal = 20.dp, vertical = 12.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(cmd.label)
-                                    }
+                            CommandButton(
+                                command = cmd,
+                                onClick = { onButtonClick(cmd) },
+                                onLongClick = { offset ->
+                                    selectedCommand = cmd
+                                    anchorPosition = offset
+                                    showCommandMenu = true
                                 }
-                            }
+                            )
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
+
         ScrollbarKnob(scrollState = scrollState, viewportWidth = viewportWidthPx)
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Add Command Button
         OutlinedButton(
             onClick = onAddClick,
             colors = ButtonDefaults.outlinedButtonColors(
@@ -331,6 +305,49 @@ fun CommandButtonRow(
                 showCommandMenu = false
             }
         )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun CommandButton(
+    command: CommandItem,
+    onClick: () -> Unit,
+    onLongClick: (Offset) -> Unit
+) {
+    var buttonCoordinates by remember { mutableStateOf(Offset.Zero) }
+
+    Box(
+        modifier = Modifier
+            .onGloballyPositioned { layoutCoordinates ->
+                val position = layoutCoordinates.localToWindow(Offset.Zero)
+                buttonCoordinates = position
+            }
+    ) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            border = BorderStroke(1.dp, DeepNavy),
+            color = White,
+            contentColor = if (command.type == CommandType.CUSTOM) MassecRed else Color.Black,
+            modifier = Modifier
+                .padding(2.dp)
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = {
+                        if (command.type == CommandType.CUSTOM) {
+                            onLongClick(buttonCoordinates)
+                        }
+                    }
+                )
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(command.label)
+            }
+        }
     }
 }
 
