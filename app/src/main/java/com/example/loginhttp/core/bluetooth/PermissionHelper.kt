@@ -112,7 +112,7 @@ private fun RationaleDialog(message: String, onConfirm: () -> Unit, onDismiss: (
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Quit")
+                Text("Cancel")
             }
         }
     )
