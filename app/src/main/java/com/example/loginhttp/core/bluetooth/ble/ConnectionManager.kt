@@ -19,10 +19,10 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
 // Maximum and minimum MTU sizes for GATT connections
-private const val GATT_MAX_MTU_SIZE = 517
-private const val GATT_MIN_MTU_SIZE = 23
+//private const val GATT_MAX_MTU_SIZE = 517
+//private const val GATT_MIN_MTU_SIZE = 23
 
-const val TAG = "ConnectionManager"
+private const val TAG = "ConnectionManager"
 
 @Suppress("MissingPermission")  // Assume permissions are handled by UI
 object ConnectionManager {
@@ -122,8 +122,8 @@ object ConnectionManager {
      */
 
     @Synchronized
-    private fun enqueueOperation(opreration: BleOperationType) {
-        operationQueue.add(opreration)
+    private fun enqueueOperation(operation: BleOperationType) {
+        operationQueue.add(operation)
         if (pendingOperation == null) {
             doNextOperation()
         }

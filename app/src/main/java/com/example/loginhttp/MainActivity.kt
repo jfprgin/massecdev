@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.loginhttp.core.bluetooth.BluetoothTestScreen
 import com.example.loginhttp.navigation.RootNavHost
 import com.example.loginhttp.ui.theme.LoginHTTPTheme
 
@@ -46,7 +47,8 @@ private fun MainScreenContent(
         CompositionLocalProvider(
             LocalSharedTransitionScope provides this
         ) {
-            RootNavHost(isAuthenticated)
+//            RootNavHost(isAuthenticated)
+                BluetoothTestScreen()
         }
     }
 }
