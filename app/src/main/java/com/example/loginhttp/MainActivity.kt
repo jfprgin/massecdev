@@ -47,8 +47,8 @@ private fun MainScreenContent(
         CompositionLocalProvider(
             LocalSharedTransitionScope provides this
         ) {
-//            RootNavHost(isAuthenticated)
-                BluetoothTestScreen()
+            RootNavHost(isAuthenticated)
+//                BluetoothTestScreen()
         }
     }
 }
